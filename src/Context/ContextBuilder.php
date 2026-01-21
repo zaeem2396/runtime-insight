@@ -15,15 +15,15 @@ use ClarityPHP\RuntimeInsight\DTO\StackFrame;
 use ClarityPHP\RuntimeInsight\DTO\StackTraceInfo;
 use Throwable;
 
-use function array_map;
-use function array_slice;
 use function count;
 use function file;
 use function file_exists;
 use function implode;
 use function is_readable;
+use function is_string;
 use function max;
 use function min;
+use function sprintf;
 use function str_contains;
 
 /**
@@ -64,7 +64,7 @@ final class ContextBuilder implements ContextBuilderInterface
 
         foreach ($trace as $frame) {
             /** @var array<string, mixed> $frame */
-            $file = isset($frame['file']) && \is_string($frame['file']) ? $frame['file'] : null;
+            $file = isset($frame['file']) && is_string($frame['file']) ? $frame['file'] : null;
             $isVendor = $file !== null && $this->isVendorPath($file);
 
             $frames[] = StackFrame::fromArray($frame, $isVendor);
@@ -103,7 +103,7 @@ final class ContextBuilder implements ContextBuilderInterface
         $snippetLines = [];
         foreach ($lines as $lineNum => $content) {
             $marker = $lineNum === $line ? ' → ' : '   ';
-            $snippetLines[] = \sprintf('%s%4d | %s', $marker, $lineNum, \rtrim($content));
+            $snippetLines[] = sprintf('%s%4d | %s', $marker, $lineNum, rtrim($content));
         }
 
         return new SourceContext(
@@ -158,8 +158,8 @@ final class ContextBuilder implements ContextBuilderInterface
         // Search backwards from error line to find function/method signature
         for ($i = $errorLine - 1; $i >= 0 && $i >= $errorLine - 50; $i--) {
             $line = $fileLines[$i] ?? '';
-            if (\preg_match('/^\s*(public|protected|private|static)?\s*(function)\s+(\w+)\s*\(/', $line, $matches)) {
-                return \trim($line);
+            if (preg_match('/^\s*(public|protected|private|static)?\s*(function)\s+(\w+)\s*\(/', $line, $matches)) {
+                return trim($line);
             }
         }
 
@@ -174,7 +174,7 @@ final class ContextBuilder implements ContextBuilderInterface
     private function extractClassName(array $fileLines): ?string
     {
         foreach ($fileLines as $line) {
-            if (\preg_match('/^\s*(class|interface|trait|enum)\s+(\w+)/', $line, $matches)) {
+            if (preg_match('/^\s*(class|interface|trait|enum)\s+(\w+)/', $line, $matches)) {
                 return $matches[2];
             }
         }
@@ -182,4 +182,3 @@ final class ContextBuilder implements ContextBuilderInterface
         return null;
     }
 }
-

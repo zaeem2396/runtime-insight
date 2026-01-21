@@ -143,4 +143,3 @@ final class UndefinedIndexStrategy implements ExplanationStrategyInterface
         return $suggestions;
     }
 }
-

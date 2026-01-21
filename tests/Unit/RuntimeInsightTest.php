@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace ClarityPHP\RuntimeInsight\Tests\Unit;
 
+use ArgumentCountError;
 use ClarityPHP\RuntimeInsight\DTO\Explanation;
 use ClarityPHP\RuntimeInsight\RuntimeInsight;
 use ClarityPHP\RuntimeInsight\RuntimeInsightFactory;
 use Error;
+use ErrorException;
 use Exception;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
@@ -78,11 +80,10 @@ final class RuntimeInsightTest extends TestCase
     public function it_explains_undefined_index_errors(): void
     {
         // Create a custom exception that mimics ErrorException for undefined index
-        $exception = new class ('Undefined array key "user_id"') extends Exception {
-        };
+        $exception = new class ('Undefined array key "user_id"') extends Exception {};
 
         // Use the actual ErrorException class name
-        $exception = new \ErrorException('Undefined array key "user_id"');
+        $exception = new ErrorException('Undefined array key "user_id"');
 
         $explanation = $this->insight->analyze($exception);
 
@@ -104,7 +105,7 @@ final class RuntimeInsightTest extends TestCase
     #[Test]
     public function it_explains_argument_count_errors(): void
     {
-        $exception = new \ArgumentCountError('Too few arguments to function test(), 0 passed and exactly 2 expected');
+        $exception = new ArgumentCountError('Too few arguments to function test(), 0 passed and exactly 2 expected');
 
         $explanation = $this->insight->analyze($exception);
 
@@ -118,7 +119,7 @@ final class RuntimeInsightTest extends TestCase
         $errors = [
             new TypeError('Call to a member function test() on null'),
             new TypeError('Argument #1 must be of type string, int given'),
-            new \ErrorException('Undefined array key "test"'),
+            new ErrorException('Undefined array key "test"'),
         ];
 
         foreach ($errors as $error) {
@@ -150,4 +151,3 @@ final class RuntimeInsightTest extends TestCase
         $this->assertSame(0.3, $explanation->getConfidence()); // Fallback confidence
     }
 }
-

@@ -181,4 +181,3 @@ final class TypeErrorStrategy implements ExplanationStrategyInterface
         return $suggestions;
     }
 }
-

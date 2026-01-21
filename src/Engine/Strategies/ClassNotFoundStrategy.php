@@ -136,4 +136,3 @@ final class ClassNotFoundStrategy implements ExplanationStrategyInterface
         return $suggestions;
     }
 }
-

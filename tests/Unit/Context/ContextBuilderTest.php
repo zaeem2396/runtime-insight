@@ -12,6 +12,8 @@ use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 
+use function count;
+
 final class ContextBuilderTest extends TestCase
 {
     private ContextBuilder $builder;
@@ -156,4 +158,3 @@ final class ContextBuilderTest extends TestCase
         $this->assertLessThanOrEqual(5, count($context->sourceContext->lines));
     }
 }
-

@@ -8,6 +8,8 @@ use ClarityPHP\RuntimeInsight\Contracts\ExplanationStrategyInterface;
 use ClarityPHP\RuntimeInsight\DTO\Explanation;
 use ClarityPHP\RuntimeInsight\DTO\RuntimeContext;
 
+use function is_int;
+use function is_string;
 use function preg_match;
 use function str_contains;
 
@@ -127,14 +129,14 @@ final class ArgumentCountStrategy implements ExplanationStrategyInterface
         $suggestions = [];
         $function = $details['function'] ?? '';
 
-        $passed = \is_int($details['passed']) ? $details['passed'] : 0;
-        $expected = \is_int($details['expected']) ? $details['expected'] : 0;
+        $passed = is_int($details['passed']) ? $details['passed'] : 0;
+        $expected = is_int($details['expected']) ? $details['expected'] : 0;
 
         if ($details['type'] === 'too_few' || ($details['type'] === 'expects' && $passed < $expected)) {
             $suggestions[] = 'Add the missing required arguments to the function call';
             $suggestions[] = 'Check the function signature to see which parameters are required';
 
-            if (\is_string($function) && str_contains($function, '::')) {
+            if (is_string($function) && str_contains($function, '::')) {
                 $suggestions[] = 'This might be a method call - verify you have the correct method signature';
             }
         } else {
@@ -148,4 +150,3 @@ final class ArgumentCountStrategy implements ExplanationStrategyInterface
         return $suggestions;
     }
 }
-

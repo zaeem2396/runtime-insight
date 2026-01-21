@@ -6,8 +6,8 @@ namespace ClarityPHP\RuntimeInsight\Tests\Unit\Engine;
 
 use ClarityPHP\RuntimeInsight\Config;
 use ClarityPHP\RuntimeInsight\Contracts\ExplanationStrategyInterface;
-use ClarityPHP\RuntimeInsight\DTO\Explanation;
 use ClarityPHP\RuntimeInsight\DTO\ExceptionInfo;
+use ClarityPHP\RuntimeInsight\DTO\Explanation;
 use ClarityPHP\RuntimeInsight\DTO\RuntimeContext;
 use ClarityPHP\RuntimeInsight\DTO\SourceContext;
 use ClarityPHP\RuntimeInsight\DTO\StackTraceInfo;
@@ -133,4 +133,3 @@ final class ExplanationEngineTest extends TestCase
         );
     }
 }
-

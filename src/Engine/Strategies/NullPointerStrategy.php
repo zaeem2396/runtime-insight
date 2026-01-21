@@ -148,4 +148,3 @@ final class NullPointerStrategy implements ExplanationStrategyInterface
         return $suggestions;
     }
 }
-

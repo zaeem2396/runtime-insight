@@ -69,4 +69,3 @@ final class RuntimeInsightFactory
         return $engine;
     }
 }
-

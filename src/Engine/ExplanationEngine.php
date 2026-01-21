@@ -40,7 +40,7 @@ final class ExplanationEngine implements ExplanationEngineInterface
         // Sort by priority (highest first)
         usort(
             $this->strategies,
-            static fn (ExplanationStrategyInterface $a, ExplanationStrategyInterface $b): int => $b->priority() <=> $a->priority(),
+            static fn(ExplanationStrategyInterface $a, ExplanationStrategyInterface $b): int => $b->priority() <=> $a->priority(),
         );
 
         return $this;
@@ -68,6 +68,16 @@ final class ExplanationEngine implements ExplanationEngineInterface
     }
 
     /**
+     * Get all registered strategies.
+     *
+     * @return array<ExplanationStrategyInterface>
+     */
+    public function getStrategies(): array
+    {
+        return $this->strategies;
+    }
+
+    /**
      * Build a basic fallback explanation when no strategy matches.
      */
     private function buildFallbackExplanation(RuntimeContext $context): Explanation
@@ -85,15 +95,4 @@ final class ExplanationEngine implements ExplanationEngineInterface
             location: "{$context->exception->file}:{$context->exception->line}",
         );
     }
-
-    /**
-     * Get all registered strategies.
-     *
-     * @return array<ExplanationStrategyInterface>
-     */
-    public function getStrategies(): array
-    {
-        return $this->strategies;
-    }
 }
-

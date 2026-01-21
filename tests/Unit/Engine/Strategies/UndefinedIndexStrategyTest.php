@@ -122,4 +122,3 @@ final class UndefinedIndexStrategyTest extends TestCase
         );
     }
 }
-

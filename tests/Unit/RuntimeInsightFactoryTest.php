@@ -57,4 +57,3 @@ final class RuntimeInsightFactoryTest extends TestCase
         $this->assertTrue($insight->isEnabled());
     }
 }
-

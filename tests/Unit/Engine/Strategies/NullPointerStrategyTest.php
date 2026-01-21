@@ -93,7 +93,7 @@ final class NullPointerStrategyTest extends TestCase
 
         $this->assertNotEmpty($suggestions);
         $this->assertTrue(
-            collect($suggestions)->contains(fn ($s) => str_contains($s, '?->')),
+            collect($suggestions)->contains(fn($s) => str_contains($s, '?->')),
             'Should suggest nullsafe operator',
         );
     }
@@ -149,4 +149,3 @@ function collect(array $items): object
         }
     };
 }
-

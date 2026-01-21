@@ -129,4 +129,3 @@ final class TypeErrorStrategyTest extends TestCase
         );
     }
 }
-
