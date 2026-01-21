@@ -263,15 +263,4 @@ composer cs-check
 
 Runtime Insight is open-sourced software licensed under the [MIT license](LICENSE).
 
----
-
-## 🙏 Credits
-
-Built with ❤️ by the ClarityPHP team.
-
----
-
-<p align="center">
-  <strong>Transform confusion into clarity.</strong>
-</p>
 
