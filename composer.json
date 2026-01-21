@@ -69,7 +69,7 @@
     "minimum-stability": "stable",
     "prefer-stable": true,
     "scripts": {
-        "test": "./vendor/bin/phpunit",
+        "test": "./vendor/bin/phpunit --no-coverage",
         "test:coverage": "./vendor/bin/phpunit --coverage-html coverage",
         "analyse": "./vendor/bin/phpstan analyse src --level=max",
         "cs-check": "./vendor/bin/php-cs-fixer fix --dry-run --diff",

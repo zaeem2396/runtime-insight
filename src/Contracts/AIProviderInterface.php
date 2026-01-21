@@ -27,4 +27,3 @@ interface AIProviderInterface
      */
     public function getName(): string;
 }
-

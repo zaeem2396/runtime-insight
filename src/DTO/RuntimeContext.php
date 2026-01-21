@@ -51,4 +51,3 @@ final readonly class RuntimeContext
         return $summary;
     }
 }
-

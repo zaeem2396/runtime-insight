@@ -17,4 +17,3 @@ interface ContextBuilderInterface
      */
     public function build(Throwable $throwable): RuntimeContext;
 }
-

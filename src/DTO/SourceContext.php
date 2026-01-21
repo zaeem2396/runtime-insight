@@ -51,4 +51,3 @@ final readonly class SourceContext
         return $this->file === '' || $this->lines === [];
     }
 }
-

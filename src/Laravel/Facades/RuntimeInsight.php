@@ -22,4 +22,3 @@ class RuntimeInsight extends Facade
         return 'runtime-insight';
     }
 }
-

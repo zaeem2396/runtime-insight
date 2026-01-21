@@ -16,4 +16,3 @@ interface RendererInterface
      */
     public function render(Explanation $explanation): string;
 }
-

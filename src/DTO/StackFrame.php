@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace ClarityPHP\RuntimeInsight\DTO;
 
+use function is_array;
+use function is_int;
+use function is_string;
+
 /**
  * Single frame in a stack trace.
  */
@@ -29,13 +33,20 @@ final readonly class StackFrame
      */
     public static function fromArray(array $frame, bool $isVendor = false): self
     {
+        $file = $frame['file'] ?? null;
+        $line = $frame['line'] ?? null;
+        $class = $frame['class'] ?? null;
+        $function = $frame['function'] ?? null;
+        $type = $frame['type'] ?? null;
+        $args = $frame['args'] ?? [];
+
         return new self(
-            file: $frame['file'] ?? null,
-            line: $frame['line'] ?? null,
-            class: $frame['class'] ?? null,
-            function: $frame['function'] ?? null,
-            type: $frame['type'] ?? null,
-            args: $frame['args'] ?? [],
+            file: is_string($file) ? $file : null,
+            line: is_int($line) ? $line : null,
+            class: is_string($class) ? $class : null,
+            function: is_string($function) ? $function : null,
+            type: is_string($type) ? $type : null,
+            args: is_array($args) ? $args : [],
             isVendor: $isVendor,
         );
     }
@@ -73,4 +84,3 @@ final readonly class StackFrame
         return $this->file . ':' . ($this->line ?? '?');
     }
 }
-

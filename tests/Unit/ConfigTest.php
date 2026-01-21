@@ -96,4 +96,3 @@ final class ConfigTest extends TestCase
         $this->assertTrue($configWithKey->isAIEnabled());
     }
 }
-

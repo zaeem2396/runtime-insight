@@ -17,4 +17,3 @@ interface AnalyzerInterface
      */
     public function analyze(Throwable $throwable): Explanation;
 }
-

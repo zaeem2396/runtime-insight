@@ -67,4 +67,3 @@ final class RuntimeInsight implements AnalyzerInterface
         return $this->config->isAIEnabled();
     }
 }
-

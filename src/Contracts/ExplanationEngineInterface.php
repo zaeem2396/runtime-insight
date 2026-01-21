@@ -17,4 +17,3 @@ interface ExplanationEngineInterface
      */
     public function explain(RuntimeContext $context): Explanation;
 }
-

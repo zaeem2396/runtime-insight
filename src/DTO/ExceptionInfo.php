@@ -52,4 +52,3 @@ final readonly class ExceptionInfo
         ];
     }
 }
-

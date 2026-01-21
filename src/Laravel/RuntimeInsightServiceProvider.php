@@ -7,7 +7,10 @@ namespace ClarityPHP\RuntimeInsight\Laravel;
 use ClarityPHP\RuntimeInsight\Config;
 use ClarityPHP\RuntimeInsight\Contracts\AnalyzerInterface;
 use ClarityPHP\RuntimeInsight\RuntimeInsight;
+use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\ServiceProvider;
+
+use function is_array;
 
 /**
  * Laravel Service Provider for Runtime Insight.
@@ -24,8 +27,14 @@ class RuntimeInsightServiceProvider extends ServiceProvider
             'runtime-insight',
         );
 
-        $this->app->singleton(Config::class, function ($app): Config {
-            $config = $app['config']->get('runtime-insight', []);
+        $this->app->singleton(Config::class, function (Application $app): Config {
+            /** @var \Illuminate\Contracts\Config\Repository $configRepository */
+            $configRepository = $app->make('config');
+
+            /** @var array<string, mixed>|null $config */
+            $config = $configRepository->get('runtime-insight');
+
+            $config = is_array($config) ? $config : [];
             $config['current_environment'] = $app->environment();
 
             return Config::fromArray($config);
@@ -51,4 +60,3 @@ class RuntimeInsightServiceProvider extends ServiceProvider
         }
     }
 }
-

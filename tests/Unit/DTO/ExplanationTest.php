@@ -65,4 +65,3 @@ final class ExplanationTest extends TestCase
         $this->assertSame('Error message', $array['message']);
     }
 }
-

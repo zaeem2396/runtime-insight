@@ -4,6 +4,12 @@ declare(strict_types=1);
 
 namespace ClarityPHP\RuntimeInsight;
 
+use function in_array;
+use function is_array;
+use function is_bool;
+use function is_int;
+use function is_string;
+
 /**
  * Configuration container for Runtime Insight.
  */
@@ -30,22 +36,42 @@ final readonly class Config
         private ?string $currentEnvironment = null,
     ) {}
 
+    /**
+     * @param array<string, mixed> $config
+     */
     public static function fromArray(array $config): self
     {
+        $ai = is_array($config['ai'] ?? null) ? $config['ai'] : [];
+        $context = is_array($config['context'] ?? null) ? $config['context'] : [];
+
+        $enabled = $config['enabled'] ?? true;
+        $aiEnabled = $ai['enabled'] ?? true;
+        $aiProvider = $ai['provider'] ?? 'openai';
+        $aiModel = $ai['model'] ?? 'gpt-4.1-mini';
+        $aiApiKey = $ai['api_key'] ?? null;
+        $aiTimeout = $ai['timeout'] ?? 5;
+        $sourceLines = $context['source_lines'] ?? 10;
+        $includeRequest = $context['include_request'] ?? true;
+        $sanitizeInputs = $context['sanitize_inputs'] ?? true;
+        $environments = $config['environments'] ?? ['local', 'staging'];
+        $disabledEnvironments = $config['disabled_environments'] ?? ['production'];
+        $redactFields = $context['redact_fields'] ?? ['password', 'token', 'secret', 'api_key'];
+        $currentEnvironment = $config['current_environment'] ?? null;
+
         return new self(
-            enabled: $config['enabled'] ?? true,
-            aiEnabled: $config['ai']['enabled'] ?? true,
-            aiProvider: $config['ai']['provider'] ?? 'openai',
-            aiModel: $config['ai']['model'] ?? 'gpt-4.1-mini',
-            aiApiKey: $config['ai']['api_key'] ?? null,
-            aiTimeout: $config['ai']['timeout'] ?? 5,
-            sourceLines: $config['context']['source_lines'] ?? 10,
-            includeRequest: $config['context']['include_request'] ?? true,
-            sanitizeInputs: $config['context']['sanitize_inputs'] ?? true,
-            environments: $config['environments'] ?? ['local', 'staging'],
-            disabledEnvironments: $config['disabled_environments'] ?? ['production'],
-            redactFields: $config['context']['redact_fields'] ?? ['password', 'token', 'secret', 'api_key'],
-            currentEnvironment: $config['current_environment'] ?? null,
+            enabled: is_bool($enabled) ? $enabled : true,
+            aiEnabled: is_bool($aiEnabled) ? $aiEnabled : true,
+            aiProvider: is_string($aiProvider) ? $aiProvider : 'openai',
+            aiModel: is_string($aiModel) ? $aiModel : 'gpt-4.1-mini',
+            aiApiKey: is_string($aiApiKey) ? $aiApiKey : null,
+            aiTimeout: is_int($aiTimeout) ? $aiTimeout : 5,
+            sourceLines: is_int($sourceLines) ? $sourceLines : 10,
+            includeRequest: is_bool($includeRequest) ? $includeRequest : true,
+            sanitizeInputs: is_bool($sanitizeInputs) ? $sanitizeInputs : true,
+            environments: self::filterStringArray($environments),
+            disabledEnvironments: self::filterStringArray($disabledEnvironments),
+            redactFields: self::filterStringArray($redactFields),
+            currentEnvironment: is_string($currentEnvironment) ? $currentEnvironment : null,
         );
     }
 
@@ -59,11 +85,11 @@ final readonly class Config
             return true;
         }
 
-        if (\in_array($this->currentEnvironment, $this->disabledEnvironments, true)) {
+        if (in_array($this->currentEnvironment, $this->disabledEnvironments, true)) {
             return false;
         }
 
-        return \in_array($this->currentEnvironment, $this->environments, true);
+        return in_array($this->currentEnvironment, $this->environments, true);
     }
 
     public function isAIEnabled(): bool
@@ -113,5 +139,27 @@ final readonly class Config
     {
         return $this->redactFields;
     }
-}
 
+    /**
+     * Filter and ensure array contains only strings.
+     *
+     * @param mixed $value
+     *
+     * @return array<string>
+     */
+    private static function filterStringArray(mixed $value): array
+    {
+        if (! is_array($value)) {
+            return [];
+        }
+
+        $result = [];
+        foreach ($value as $item) {
+            if (is_string($item)) {
+                $result[] = $item;
+            }
+        }
+
+        return $result;
+    }
+}

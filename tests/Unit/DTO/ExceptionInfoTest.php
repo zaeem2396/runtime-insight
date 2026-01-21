@@ -60,4 +60,3 @@ final class ExceptionInfoTest extends TestCase
         $this->assertSame(42, $array['line']);
     }
 }
-

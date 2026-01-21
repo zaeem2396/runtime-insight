@@ -28,4 +28,3 @@ interface ExplanationStrategyInterface
      */
     public function priority(): int;
 }
-

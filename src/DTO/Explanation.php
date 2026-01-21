@@ -98,4 +98,3 @@ final readonly class Explanation
         ];
     }
 }
-

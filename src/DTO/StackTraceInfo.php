@@ -23,8 +23,8 @@ final readonly class StackTraceInfo
     public function toArray(): array
     {
         return [
-            'frames' => \array_map(
-                static fn (StackFrame $frame): array => $frame->toArray(),
+            'frames' => array_map(
+                static fn(StackFrame $frame): array => $frame->toArray(),
                 $this->frames,
             ),
             'raw_trace' => $this->rawTrace,
@@ -43,10 +43,9 @@ final readonly class StackTraceInfo
      */
     public function getApplicationFrames(): array
     {
-        return \array_filter(
+        return array_filter(
             $this->frames,
-            static fn (StackFrame $frame): bool => ! $frame->isVendor,
+            static fn(StackFrame $frame): bool => ! $frame->isVendor,
         );
     }
 }
-
