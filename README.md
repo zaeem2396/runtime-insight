@@ -70,6 +70,25 @@ Confidence: 0.92
 
 ---
 
+## 🎯 Supported Error Types
+
+Runtime Insight includes built-in strategies for common PHP errors:
+
+| Error Type | Example | Confidence |
+|------------|---------|------------|
+| **Null Pointer** | `Call to member function on null` | 0.85 |
+| **Undefined Index** | `Undefined array key "user_id"` | 0.88 |
+| **Type Error** | `Argument #1 must be of type string, int given` | 0.90 |
+| **Argument Count** | `Too few arguments to function` | 0.92 |
+| **Class Not Found** | `Class 'App\Models\User' not found` | 0.88 |
+
+Each strategy provides:
+- **Cause explanation** - Why the error occurred
+- **Suggestions** - Actionable fixes
+- **Context-aware hints** - Based on your source code
+
+---
+
 ## 📋 Requirements
 
 - **PHP 8.2+**
@@ -81,6 +100,30 @@ Confidence: 0.92
 
 ```bash
 composer require clarityphp/runtime-insight
+```
+
+## 🚀 Quick Start (Standalone)
+
+```php
+use ClarityPHP\RuntimeInsight\RuntimeInsightFactory;
+
+// Create an instance with default configuration
+$insight = RuntimeInsightFactory::create();
+
+try {
+    // Your code that might throw an exception
+    $user->getName(); // Throws: Call to member function on null
+} catch (Throwable $e) {
+    $explanation = $insight->analyze($e);
+    
+    echo $explanation->getMessage();     // The error message
+    echo $explanation->getCause();       // Why it happened
+    echo $explanation->getConfidence();  // 0.85
+    
+    foreach ($explanation->getSuggestions() as $suggestion) {
+        echo "- $suggestion\n";
+    }
+}
 ```
 
 ### Laravel
