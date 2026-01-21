@@ -1,0 +1,45 @@
+# Dependencies
+/vendor/
+composer.lock
+
+# IDE & Editors
+/.idea/
+/.vscode/
+*.sublime-project
+*.sublime-workspace
+.project
+.settings/
+*.swp
+*.swo
+*~
+
+# OS Files
+.DS_Store
+Thumbs.db
+*.orig
+
+# Testing
+/coverage/
+/.phpunit.cache/
+.phpunit.result.cache
+phpunit.xml
+
+# Static Analysis
+/phpstan.neon
+/.php-cs-fixer.cache
+
+# Build artifacts
+/build/
+/dist/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+
+# Roadmap (internal planning document)
+roadmap.md
+

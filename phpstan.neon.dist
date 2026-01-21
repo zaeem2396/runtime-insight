@@ -1,0 +1,12 @@
+parameters:
+    level: max
+    paths:
+        - src
+    excludePaths:
+        - vendor
+    checkGenericClassInNonGenericObjectType: false
+    reportUnmatchedIgnoredErrors: false
+    ignoreErrors:
+        # Ignore Laravel facade static calls
+        - '#Call to static method .+ on a class-string#'
+
