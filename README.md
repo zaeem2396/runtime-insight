@@ -2,7 +2,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/packagist/php-v/clarityphp/runtime-insight" alt="PHP Version">
-  <img src="https://img.shields.io/github/actions/workflow/status/clarityphp/runtime-insight/ci.yml?branch=main" alt="Build Status">
+  <img src="https://img.shields.io/github/actions/workflow/status/clarityphp/runtime-insight/tests.yml?branch=main" alt="Build Status">
   <img src="https://img.shields.io/packagist/v/clarityphp/runtime-insight" alt="Latest Version">
   <img src="https://img.shields.io/packagist/l/clarityphp/runtime-insight" alt="License">
 </p>
@@ -72,7 +72,7 @@ Confidence: 0.92
 
 ## 📋 Requirements
 
-- **PHP 8.5+**
+- **PHP 8.2+**
 - **Laravel 10+** or **Symfony 6.4+** (7.x also supported)
 
 ---

@@ -18,7 +18,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.5'
+          php-version: '8.3'
           extensions: dom, curl, libxml, mbstring, zip
           tools: composer:v2
 
@@ -30,13 +30,12 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
-          key: ${{ runner.os }}-composer-8.5-${{ hashFiles('**/composer.json') }}
+          key: ${{ runner.os }}-composer-8.3-${{ hashFiles('**/composer.json') }}
           restore-keys: |
-            ${{ runner.os }}-composer-8.5-
+            ${{ runner.os }}-composer-8.3-
 
       - name: Install dependencies
         run: composer install --prefer-dist --no-interaction --no-progress
 
       - name: Run PHPStan
         run: ./vendor/bin/phpstan analyse src --level=max
-
