@@ -5,8 +5,12 @@ declare(strict_types=1);
 namespace ClarityPHP\RuntimeInsight\Laravel;
 
 use ClarityPHP\RuntimeInsight\Config;
+use ClarityPHP\RuntimeInsight\Context\ContextBuilder;
 use ClarityPHP\RuntimeInsight\Contracts\AnalyzerInterface;
+use ClarityPHP\RuntimeInsight\Contracts\ContextBuilderInterface;
+use ClarityPHP\RuntimeInsight\Contracts\ExplanationEngineInterface;
 use ClarityPHP\RuntimeInsight\RuntimeInsight;
+use ClarityPHP\RuntimeInsight\RuntimeInsightFactory;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\ServiceProvider;
 
@@ -27,6 +31,7 @@ class RuntimeInsightServiceProvider extends ServiceProvider
             'runtime-insight',
         );
 
+        // Register Config
         $this->app->singleton(Config::class, function (Application $app): Config {
             /** @var \Illuminate\Contracts\Config\Repository $configRepository */
             $configRepository = $app->make('config');
@@ -40,8 +45,29 @@ class RuntimeInsightServiceProvider extends ServiceProvider
             return Config::fromArray($config);
         });
 
+        // Register ContextBuilder
+        $this->app->singleton(ContextBuilderInterface::class, function (Application $app): ContextBuilderInterface {
+            return new ContextBuilder($app->make(Config::class));
+        });
+
+        // Register ExplanationEngine with all strategies
+        $this->app->singleton(ExplanationEngineInterface::class, function (Application $app): ExplanationEngineInterface {
+            return RuntimeInsightFactory::createExplanationEngine(
+                $app->make(Config::class),
+            );
+        });
+
+        // Register main RuntimeInsight
+        $this->app->singleton(RuntimeInsight::class, function (Application $app): RuntimeInsight {
+            return new RuntimeInsight(
+                $app->make(ContextBuilderInterface::class),
+                $app->make(ExplanationEngineInterface::class),
+                $app->make(Config::class),
+            );
+        });
+
         $this->app->singleton(AnalyzerInterface::class, RuntimeInsight::class);
-        $this->app->alias(AnalyzerInterface::class, 'runtime-insight');
+        $this->app->alias(RuntimeInsight::class, 'runtime-insight');
     }
 
     /**
