@@ -28,7 +28,7 @@
         "source": "https://github.com/clarityphp/runtime-insight"
     },
     "require": {
-        "php": "^8.5",
+        "php": "^8.3",
         "psr/log": "^3.0",
         "psr/http-message": "^2.0"
     },
@@ -69,11 +69,11 @@
     "minimum-stability": "stable",
     "prefer-stable": true,
     "scripts": {
-        "test": "phpunit",
-        "test:coverage": "phpunit --coverage-html coverage",
-        "analyse": "phpstan analyse src --level=max",
-        "cs-check": "php-cs-fixer fix --dry-run --diff",
-        "cs-fix": "php-cs-fixer fix"
+        "test": "./vendor/bin/phpunit",
+        "test:coverage": "./vendor/bin/phpunit --coverage-html coverage",
+        "analyse": "./vendor/bin/phpstan analyse src --level=max",
+        "cs-check": "./vendor/bin/php-cs-fixer fix --dry-run --diff",
+        "cs-fix": "./vendor/bin/php-cs-fixer fix"
     }
 }
 
