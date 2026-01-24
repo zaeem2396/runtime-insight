@@ -6,27 +6,11 @@ namespace ClarityPHP\RuntimeInsight\Tests\Feature\Laravel;
 
 use ClarityPHP\RuntimeInsight\DTO\Explanation;
 use ClarityPHP\RuntimeInsight\Laravel\Facades\RuntimeInsight;
-use Exception;
 use Orchestra\Testbench\TestCase;
 use TypeError;
 
 final class FacadeTest extends TestCase
 {
-    protected function getPackageProviders($app): array
-    {
-        return [
-            \ClarityPHP\RuntimeInsight\Laravel\RuntimeInsightServiceProvider::class,
-        ];
-    }
-
-    protected function getEnvironmentSetUp($app): void
-    {
-        // Ensure Runtime Insight is enabled in tests
-        $app['config']->set('runtime-insight.enabled', true);
-        $app['config']->set('runtime-insight.ai.enabled', false);
-        $app['config']->set('runtime-insight.environments', ['local', 'staging', 'testing']);
-    }
-
     public function test_facade_can_analyze_exceptions(): void
     {
         $exception = new TypeError('Call to a member function on null');
@@ -60,5 +44,19 @@ final class FacadeTest extends TestCase
         $this->assertSame(0.85, $explanation->getConfidence());
         $this->assertSame('NullPointerError', $explanation->getErrorType());
     }
-}
 
+    protected function getPackageProviders($app): array
+    {
+        return [
+            \ClarityPHP\RuntimeInsight\Laravel\RuntimeInsightServiceProvider::class,
+        ];
+    }
+
+    protected function getEnvironmentSetUp($app): void
+    {
+        // Ensure Runtime Insight is enabled in tests
+        $app['config']->set('runtime-insight.enabled', true);
+        $app['config']->set('runtime-insight.ai.enabled', false);
+        $app['config']->set('runtime-insight.environments', ['local', 'staging', 'testing']);
+    }
+}

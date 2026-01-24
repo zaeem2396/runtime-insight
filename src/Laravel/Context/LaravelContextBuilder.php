@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route as RouteFacade;
 use Throwable;
 
+use function in_array;
 use function is_array;
 use function is_string;
 
@@ -238,7 +239,7 @@ final class LaravelContextBuilder implements ContextBuilderInterface
         foreach ($headers as $key => $value) {
             $lowerKey = strtolower((string) $key);
 
-            if (\in_array($lowerKey, $sensitiveHeaders, true)) {
+            if (in_array($lowerKey, $sensitiveHeaders, true)) {
                 // Preserve array structure if it's an array
                 if (is_array($value)) {
                     $sanitized[$key] = ['[REDACTED]'];

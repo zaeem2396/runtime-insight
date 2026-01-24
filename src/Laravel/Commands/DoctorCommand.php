@@ -6,7 +6,9 @@ namespace ClarityPHP\RuntimeInsight\Laravel\Commands;
 
 use ClarityPHP\RuntimeInsight\Config;
 use ClarityPHP\RuntimeInsight\Contracts\AnalyzerInterface;
+use Exception;
 use Illuminate\Console\Command;
+use Throwable;
 
 /**
  * Artisan command to validate Runtime Insight setup.
@@ -124,8 +126,8 @@ final class DoctorCommand extends Command
 
         $this->info('  ✅ Configuration is valid');
         $this->line("     Source lines: {$this->config->getSourceLines()}");
-        $this->line("     Include request: " . ($this->config->shouldIncludeRequest() ? 'Yes' : 'No'));
-        $this->line("     Sanitize inputs: " . ($this->config->shouldSanitizeInputs() ? 'Yes' : 'No'));
+        $this->line('     Include request: ' . ($this->config->shouldIncludeRequest() ? 'Yes' : 'No'));
+        $this->line('     Sanitize inputs: ' . ($this->config->shouldSanitizeInputs() ? 'Yes' : 'No'));
 
         return true;
     }
@@ -138,7 +140,7 @@ final class DoctorCommand extends Command
         $this->line('Checking analyzer...');
 
         try {
-            $testException = new \Exception('Test exception for diagnostics');
+            $testException = new Exception('Test exception for diagnostics');
             $explanation = $this->analyzer->analyze($testException);
 
             if ($explanation->isEmpty()) {
@@ -151,7 +153,7 @@ final class DoctorCommand extends Command
             $this->line("     Test explanation confidence: {$explanation->getConfidence()}");
 
             return true;
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $this->error('  ❌ Analyzer error: ' . $e->getMessage());
 
             return false;
@@ -187,4 +189,3 @@ final class DoctorCommand extends Command
         return true;
     }
 }
-

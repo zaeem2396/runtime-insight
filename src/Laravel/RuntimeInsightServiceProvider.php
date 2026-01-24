@@ -12,7 +12,6 @@ use ClarityPHP\RuntimeInsight\Contracts\ExplanationEngineInterface;
 use ClarityPHP\RuntimeInsight\Laravel\Commands\DoctorCommand;
 use ClarityPHP\RuntimeInsight\Laravel\Commands\ExplainCommand;
 use ClarityPHP\RuntimeInsight\Laravel\Context\LaravelContextBuilder;
-use ClarityPHP\RuntimeInsight\Laravel\ExceptionHandler;
 use ClarityPHP\RuntimeInsight\RuntimeInsight;
 use ClarityPHP\RuntimeInsight\RuntimeInsightFactory;
 use Illuminate\Contracts\Foundation\Application;

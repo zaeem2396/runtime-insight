@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace ClarityPHP\RuntimeInsight\Laravel\Traits;
 
 use ClarityPHP\RuntimeInsight\Laravel\ExceptionHandler;
+use Throwable;
 
 /**
  * Trait to add Runtime Insight exception handling to Laravel's exception handler.
@@ -32,15 +33,14 @@ trait HandlesRuntimeInsight
      *
      * Call this method from your exception handler's report() method.
      */
-    protected function analyzeWithRuntimeInsight(\Throwable $exception): void
+    protected function analyzeWithRuntimeInsight(Throwable $exception): void
     {
         try {
             /** @var ExceptionHandler $handler */
             $handler = app(ExceptionHandler::class);
             $handler->handle($exception);
-        } catch (\Throwable) {
+        } catch (Throwable) {
             // Silently fail - don't let Runtime Insight break exception handling
         }
     }
 }
-

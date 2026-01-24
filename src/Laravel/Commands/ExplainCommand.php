@@ -6,12 +6,15 @@ namespace ClarityPHP\RuntimeInsight\Laravel\Commands;
 
 use ClarityPHP\RuntimeInsight\Contracts\AnalyzerInterface;
 use ClarityPHP\RuntimeInsight\Laravel\ExceptionHandler;
+use Exception;
 use Illuminate\Console\Command;
 use Throwable;
 
+use function count;
 use function file_exists;
 use function file_get_contents;
 use function is_readable;
+use function is_string;
 use function preg_match_all;
 
 /**
@@ -119,7 +122,7 @@ final class ExplainCommand extends Command
             $match = $matches[$lineNumber - 1];
         } else {
             // Get the last exception
-            $match = $matches[\count($matches) - 1] ?? null;
+            $match = $matches[count($matches) - 1] ?? null;
         }
 
         if ($match === null) {
@@ -132,7 +135,7 @@ final class ExplainCommand extends Command
         // In a real implementation, you'd parse the full exception details
         // preg_match guarantees index 2 exists when match succeeds
         /** @phpstan-ignore-next-line */
-        return new \Exception($match[2] ?? 'Exception from log');
+        return new Exception($match[2] ?? 'Exception from log');
     }
 
     /**
@@ -162,7 +165,7 @@ final class ExplainCommand extends Command
      */
     private function outputJson(\ClarityPHP\RuntimeInsight\DTO\Explanation $explanation): void
     {
-        $json = \json_encode($explanation->toArray(), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+        $json = json_encode($explanation->toArray(), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
         $this->line($json !== false ? $json : '{}');
     }
 
@@ -199,4 +202,3 @@ final class ExplainCommand extends Command
         $this->line($output);
     }
 }
-

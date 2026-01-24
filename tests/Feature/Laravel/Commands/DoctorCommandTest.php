@@ -4,28 +4,21 @@ declare(strict_types=1);
 
 namespace ClarityPHP\RuntimeInsight\Tests\Feature\Laravel\Commands;
 
-use ClarityPHP\RuntimeInsight\Config;
 use ClarityPHP\RuntimeInsight\Contracts\AnalyzerInterface;
 use ClarityPHP\RuntimeInsight\DTO\Explanation;
 use Orchestra\Testbench\TestCase;
+use Throwable;
 
 final class DoctorCommandTest extends TestCase
 {
     private AnalyzerInterface $analyzer;
-
-    protected function getPackageProviders($app): array
-    {
-        return [
-            \ClarityPHP\RuntimeInsight\Laravel\RuntimeInsightServiceProvider::class,
-        ];
-    }
 
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->analyzer = $this->createMock(AnalyzerInterface::class);
-        $this->app->singleton(AnalyzerInterface::class, fn () => $this->analyzer);
+        $this->app->singleton(AnalyzerInterface::class, fn() => $this->analyzer);
     }
 
     public function test_command_exists(): void
@@ -52,9 +45,15 @@ final class DoctorCommandTest extends TestCase
         try {
             $this->artisan('runtime:doctor');
             $this->assertTrue(true); // If we get here, command ran successfully
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $this->fail('Command threw exception: ' . $e->getMessage());
         }
     }
-}
 
+    protected function getPackageProviders($app): array
+    {
+        return [
+            \ClarityPHP\RuntimeInsight\Laravel\RuntimeInsightServiceProvider::class,
+        ];
+    }
+}

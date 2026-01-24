@@ -7,7 +7,6 @@ namespace ClarityPHP\RuntimeInsight\Laravel;
 use ClarityPHP\RuntimeInsight\Contracts\AnalyzerInterface;
 use ClarityPHP\RuntimeInsight\DTO\Explanation;
 use Illuminate\Contracts\Logging\Log;
-use Illuminate\Log\LogManager;
 use Psr\Log\LoggerInterface;
 use Throwable;
 
@@ -46,28 +45,6 @@ final class ExceptionHandler
     }
 
     /**
-     * Log the explanation to Laravel's log.
-     */
-    private function logExplanation(Explanation $explanation, Throwable $exception): void
-    {
-        $context = [
-            'exception' => $exception::class,
-            'file' => $exception->getFile(),
-            'line' => $exception->getLine(),
-            'explanation' => [
-                'message' => $explanation->getMessage(),
-                'cause' => $explanation->getCause(),
-                'suggestions' => $explanation->getSuggestions(),
-                'confidence' => $explanation->getConfidence(),
-                'error_type' => $explanation->getErrorType(),
-                'location' => $explanation->getLocation(),
-            ],
-        ];
-
-        $this->logger->debug('Runtime Insight Explanation', $context);
-    }
-
-    /**
      * Get a formatted explanation string for console output.
      */
     public function formatExplanation(Explanation $explanation): string
@@ -96,5 +73,26 @@ final class ExceptionHandler
 
         return $output;
     }
-}
 
+    /**
+     * Log the explanation to Laravel's log.
+     */
+    private function logExplanation(Explanation $explanation, Throwable $exception): void
+    {
+        $context = [
+            'exception' => $exception::class,
+            'file' => $exception->getFile(),
+            'line' => $exception->getLine(),
+            'explanation' => [
+                'message' => $explanation->getMessage(),
+                'cause' => $explanation->getCause(),
+                'suggestions' => $explanation->getSuggestions(),
+                'confidence' => $explanation->getConfidence(),
+                'error_type' => $explanation->getErrorType(),
+                'location' => $explanation->getLocation(),
+            ],
+        ];
+
+        $this->logger->debug('Runtime Insight Explanation', $context);
+    }
+}

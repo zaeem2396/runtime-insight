@@ -16,7 +16,9 @@ use TypeError;
 final class ExceptionHandlerTest extends TestCase
 {
     private ExceptionHandler $handler;
+
     private AnalyzerInterface&MockObject $analyzer;
+
     private LoggerInterface&MockObject $logger;
 
     protected function setUp(): void
@@ -133,4 +135,3 @@ final class ExceptionHandlerTest extends TestCase
         $this->assertStringNotContainsString('Suggested Fix:', $formatted);
     }
 }
-

@@ -6,17 +6,16 @@ namespace ClarityPHP\RuntimeInsight\Tests\Feature\Laravel;
 
 use ClarityPHP\RuntimeInsight\Config;
 use ClarityPHP\RuntimeInsight\Context\ContextBuilder;
-use ClarityPHP\RuntimeInsight\Laravel\Context\LaravelContextBuilder;
 use ClarityPHP\RuntimeInsight\DTO\ApplicationContext;
 use ClarityPHP\RuntimeInsight\DTO\RequestContext;
 use ClarityPHP\RuntimeInsight\DTO\RuntimeContext;
+use ClarityPHP\RuntimeInsight\Laravel\Context\LaravelContextBuilder;
 use Exception;
-use Illuminate\Foundation\Application as LaravelApplication;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Route;
 use Orchestra\Testbench\TestCase;
 
-use function is_string;
+use function is_array;
 
 final class LaravelContextBuilderTest extends TestCase
 {
@@ -165,7 +164,7 @@ final class LaravelContextBuilderTest extends TestCase
     public function test_it_captures_route_information(): void
     {
         // Set up a route
-        $this->app['router']->get('/users/{id}', function () {
+        $this->app['router']->get('/users/{id}', function (): void {
             throw new Exception('Test');
         })->name('users.show');
 
@@ -175,8 +174,8 @@ final class LaravelContextBuilderTest extends TestCase
         // Simulate route resolution by binding it to the request
         try {
             $route = $this->app['router']->getRoutes()->match($request);
-            $request->setRouteResolver(static fn () => $route);
-        } catch (\Exception) {
+            $request->setRouteResolver(static fn() => $route);
+        } catch (Exception) {
             // Route matching might fail in test environment, that's okay
         }
 
@@ -246,4 +245,3 @@ final class LaravelContextBuilderTest extends TestCase
         $this->assertSame('[REDACTED]', $body['user']['profile']['token']);
     }
 }
-
