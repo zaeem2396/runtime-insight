@@ -134,6 +134,36 @@ The package auto-registers via Laravel's package discovery. Publish the config:
 php artisan vendor:publish --tag=runtime-insight-config
 ```
 
+**Automatic Exception Analysis:**
+
+Add the trait to your exception handler:
+
+```php
+// app/Exceptions/Handler.php
+use ClarityPHP\RuntimeInsight\Laravel\Traits\HandlesRuntimeInsight;
+
+class Handler extends ExceptionHandler
+{
+    use HandlesRuntimeInsight;
+
+    public function report(Throwable $e): void
+    {
+        $this->analyzeWithRuntimeInsight($e);
+        parent::report($e);
+    }
+}
+```
+
+**Artisan Commands:**
+
+```bash
+# Explain the last error
+php artisan runtime:explain
+
+# Validate setup
+php artisan runtime:doctor
+```
+
 ### Symfony
 
 Register the bundle in `config/bundles.php`:
