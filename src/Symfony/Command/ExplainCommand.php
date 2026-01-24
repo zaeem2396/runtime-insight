@@ -18,6 +18,7 @@ use Throwable;
 use function count;
 use function file_exists;
 use function file_get_contents;
+use function is_int;
 use function is_readable;
 use function is_string;
 use function json_encode;
@@ -226,4 +227,3 @@ final class ExplainCommand extends Command
         $io->writeln($output);
     }
 }
-

@@ -23,10 +23,15 @@ use function is_array;
 final class SymfonyContextBuilderTest extends TestCase
 {
     private SymfonyContextBuilder $builder;
+
     private KernelInterface $kernel;
+
     private RequestStack $requestStack;
+
     private RouterInterface $router;
+
     private mixed $tokenStorage;
+
     private Config $config;
 
     protected function setUp(): void
@@ -274,4 +279,3 @@ final class SymfonyContextBuilderTest extends TestCase
         $this->assertNull($context->requestContext);
     }
 }
-

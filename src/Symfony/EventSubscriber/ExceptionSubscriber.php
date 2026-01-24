@@ -73,4 +73,3 @@ final class ExceptionSubscriber implements EventSubscriberInterface
         $this->logger->debug('Runtime Insight Explanation', $context);
     }
 }
-

@@ -83,4 +83,3 @@ final class RuntimeInsightExtension extends Extension
         return 'runtime_insight';
     }
 }
-

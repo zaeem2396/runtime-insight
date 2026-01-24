@@ -15,7 +15,9 @@ use Symfony\Component\Console\Tester\CommandTester;
 final class ExplainCommandTest extends TestCase
 {
     private AnalyzerInterface $analyzer;
+
     private ExplainCommand $command;
+
     private CommandTester $commandTester;
 
     protected function setUp(): void
@@ -79,4 +81,3 @@ final class ExplainCommandTest extends TestCase
         $this->assertInstanceOf(ExplainCommand::class, $this->command);
     }
 }
-

@@ -6,7 +6,6 @@ namespace ClarityPHP\RuntimeInsight\Symfony\Command;
 
 use ClarityPHP\RuntimeInsight\Config;
 use ClarityPHP\RuntimeInsight\Contracts\AnalyzerInterface;
-use ClarityPHP\RuntimeInsight\DTO\Explanation;
 use Exception;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -179,4 +178,3 @@ final class DoctorCommand extends Command
         return true;
     }
 }
-

@@ -10,14 +10,16 @@ use ClarityPHP\RuntimeInsight\Symfony\EventSubscriber\ExceptionSubscriber;
 use Exception;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
-use Symfony\Component\HttpFoundation\Request;
 
 final class ExceptionSubscriberTest extends TestCase
 {
     private AnalyzerInterface $analyzer;
+
     private LoggerInterface $logger;
+
     private ExceptionSubscriber $subscriber;
 
     protected function setUp(): void
@@ -134,4 +136,3 @@ final class ExceptionSubscriberTest extends TestCase
         $this->subscriber->onKernelException($event);
     }
 }
-

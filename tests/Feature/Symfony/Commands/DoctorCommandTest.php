@@ -16,8 +16,11 @@ use Symfony\Component\Console\Tester\CommandTester;
 final class DoctorCommandTest extends TestCase
 {
     private Config $config;
+
     private AnalyzerInterface $analyzer;
+
     private DoctorCommand $command;
+
     private CommandTester $commandTester;
 
     protected function setUp(): void
@@ -126,4 +129,3 @@ final class DoctorCommandTest extends TestCase
         $this->assertStringContainsString('Analyzer error', $output);
     }
 }
-

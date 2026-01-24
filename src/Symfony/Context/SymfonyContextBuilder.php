@@ -17,7 +17,11 @@ use Symfony\Component\Routing\RouterInterface;
 // Security component is optional
 use Throwable;
 
+use function in_array;
 use function is_array;
+use function is_float;
+use function is_int;
+use function is_object;
 use function is_string;
 
 /**
@@ -239,7 +243,7 @@ final class SymfonyContextBuilder implements ContextBuilderInterface
         foreach ($headers as $key => $value) {
             $lowerKey = strtolower((string) $key);
 
-            if (\in_array($lowerKey, $sensitiveHeaders, true)) {
+            if (in_array($lowerKey, $sensitiveHeaders, true)) {
                 // Preserve array structure if it's an array
                 if (is_array($value)) {
                     $sanitized[$key] = ['[REDACTED]'];
@@ -254,4 +258,3 @@ final class SymfonyContextBuilder implements ContextBuilderInterface
         return $sanitized;
     }
 }
-
