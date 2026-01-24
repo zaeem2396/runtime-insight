@@ -58,10 +58,29 @@ The package auto-registers via Laravel's package discovery. If you need manual r
 
 ### Exception Handler Integration
 
-Runtime Insight hooks into Laravel's exception handler automatically. For custom exception handlers:
+Runtime Insight can automatically analyze exceptions. Use the provided trait for easy integration:
 
 ```php
 // app/Exceptions/Handler.php
+use ClarityPHP\RuntimeInsight\Laravel\Traits\HandlesRuntimeInsight;
+use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+
+class Handler extends ExceptionHandler
+{
+    use HandlesRuntimeInsight;
+
+    public function report(Throwable $e): void
+    {
+        $this->analyzeWithRuntimeInsight($e);
+        
+        parent::report($e);
+    }
+}
+```
+
+**Or manually use the Facade:**
+
+```php
 use ClarityPHP\RuntimeInsight\Facades\RuntimeInsight;
 
 class Handler extends ExceptionHandler
@@ -73,6 +92,14 @@ class Handler extends ExceptionHandler
         parent::report($e);
     }
 }
+```
+
+**Automatic Logging:**
+
+When exceptions are analyzed, explanations are automatically logged to Laravel's log at the `debug` level. Check your logs for entries like:
+
+```
+[2026-01-21 10:00:00] local.DEBUG: Runtime Insight Explanation {"exception":"TypeError",...}
 ```
 
 ### Facade Usage
@@ -162,12 +189,12 @@ class CustomExceptionHandler
 
 ## Artisan Commands (Laravel)
 
-### `runtime:explain`
+#### `runtime:explain`
 
 Explains the most recent runtime error or a specific log entry.
 
 ```bash
-# Explain the last error
+# Explain the last error (when available)
 php artisan runtime:explain
 
 # Explain from a specific log file and line
@@ -176,22 +203,44 @@ php artisan runtime:explain --log=storage/logs/laravel.log --line=243
 # Output as JSON
 php artisan runtime:explain --format=json
 
-# Limit context lines
-php artisan runtime:explain --context=5
+# Output as Markdown
+php artisan runtime:explain --format=markdown
 ```
 
 **Options:**
 
 | Option | Description | Default |
 |--------|-------------|---------|
-| `--log` | Path to log file | Latest log |
+| `--log` | Path to log file | None (searches for last exception) |
 | `--line` | Line number in log file | Last exception |
 | `--format` | Output format (text, json, markdown) | text |
-| `--context` | Lines of source code to include | 10 |
 
-### `runtime:doctor`
+**Example Output:**
 
-Validates the package setup and connectivity.
+```
+❗ Runtime Error Explained
+
+Error:
+  Call to a member function getName() on null
+
+Why this happened:
+  You tried to call the method `getName()` on a variable that is null.
+  A variable that was expected to contain an object is actually null.
+
+Where:
+  app/Http/Controllers/UserController.php:42
+
+Suggested Fix:
+  - Check if the variable is null before accessing it using `if ($variable !== null)`
+  - Use the null coalescing operator `??` to provide a default value
+  - Use the nullsafe operator `?->` for optional chaining (PHP 8+)
+
+Confidence: 0.85
+```
+
+#### `runtime:doctor`
+
+Validates the package setup and configuration.
 
 ```bash
 php artisan runtime:doctor
@@ -199,11 +248,29 @@ php artisan runtime:doctor
 
 **Checks performed:**
 
-- ✅ Exception handler registration
+- ✅ Runtime Insight enabled status
 - ✅ Configuration validity
-- ✅ AI provider connectivity
-- ✅ Required permissions
-- ✅ Log file accessibility
+- ✅ Analyzer functionality
+- ✅ AI provider configuration (if enabled)
+
+**Example Output:**
+
+```
+🔍 Runtime Insight Diagnostics
+
+Checking if Runtime Insight is enabled...
+  ✅ Runtime Insight is enabled
+Checking configuration...
+  ✅ Configuration is valid
+     Source lines: 10
+     Include request: Yes
+     Sanitize inputs: Yes
+Checking analyzer...
+  ✅ Analyzer is working
+     Test explanation confidence: 0.85
+
+✅ All checks passed! Runtime Insight is properly configured.
+```
 
 ---
 

@@ -9,10 +9,14 @@ use ClarityPHP\RuntimeInsight\Context\ContextBuilder;
 use ClarityPHP\RuntimeInsight\Contracts\AnalyzerInterface;
 use ClarityPHP\RuntimeInsight\Contracts\ContextBuilderInterface;
 use ClarityPHP\RuntimeInsight\Contracts\ExplanationEngineInterface;
+use ClarityPHP\RuntimeInsight\Laravel\Commands\DoctorCommand;
+use ClarityPHP\RuntimeInsight\Laravel\Commands\ExplainCommand;
+use ClarityPHP\RuntimeInsight\Laravel\Context\LaravelContextBuilder;
 use ClarityPHP\RuntimeInsight\RuntimeInsight;
 use ClarityPHP\RuntimeInsight\RuntimeInsightFactory;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\ServiceProvider;
+use Psr\Log\LoggerInterface;
 
 use function is_array;
 
@@ -45,9 +49,18 @@ class RuntimeInsightServiceProvider extends ServiceProvider
             return Config::fromArray($config);
         });
 
-        // Register ContextBuilder
-        $this->app->singleton(ContextBuilderInterface::class, function (Application $app): ContextBuilderInterface {
+        // Register base ContextBuilder
+        $this->app->singleton(ContextBuilder::class, function (Application $app): ContextBuilder {
             return new ContextBuilder($app->make(Config::class));
+        });
+
+        // Register Laravel-specific ContextBuilder
+        $this->app->singleton(ContextBuilderInterface::class, function (Application $app): ContextBuilderInterface {
+            return new LaravelContextBuilder(
+                $app->make(ContextBuilder::class),
+                $app,
+                $app->make(Config::class),
+            );
         });
 
         // Register ExplanationEngine with all strategies
@@ -68,6 +81,14 @@ class RuntimeInsightServiceProvider extends ServiceProvider
 
         $this->app->singleton(AnalyzerInterface::class, RuntimeInsight::class);
         $this->app->alias(RuntimeInsight::class, 'runtime-insight');
+
+        // Register ExceptionHandler
+        $this->app->singleton(ExceptionHandler::class, function (Application $app): ExceptionHandler {
+            return new ExceptionHandler(
+                $app->make(AnalyzerInterface::class),
+                $app->make(LoggerInterface::class),
+            );
+        });
     }
 
     /**
@@ -81,7 +102,8 @@ class RuntimeInsightServiceProvider extends ServiceProvider
             ], 'runtime-insight-config');
 
             $this->commands([
-                // Commands will be added here
+                ExplainCommand::class,
+                DoctorCommand::class,
             ]);
         }
     }
