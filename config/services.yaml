@@ -1,0 +1,24 @@
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    ClarityPHP\RuntimeInsight\:
+        resource: '../src/*'
+        exclude:
+            - '../src/DTO'
+            - '../src/Contracts'
+            - '../src/Laravel'
+            - '../src/Symfony'
+
+    ClarityPHP\RuntimeInsight\Symfony\:
+        resource: '../src/Symfony/*'
+        exclude:
+            - '../src/Symfony/DependencyInjection'
+            - '../src/Symfony/RuntimeInsightBundle.php'
+
+    # Register event subscriber
+    ClarityPHP\RuntimeInsight\Symfony\EventSubscriber\ExceptionSubscriber:
+        tags:
+            - { name: kernel.event_subscriber }
+

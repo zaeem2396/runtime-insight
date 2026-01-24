@@ -162,25 +162,30 @@ runtime_insight:
 
 ### Event Subscriber
 
-Runtime Insight subscribes to `KernelEvents::EXCEPTION` automatically. For custom handling:
+Runtime Insight automatically subscribes to `KernelEvents::EXCEPTION` and analyzes exceptions. Explanations are logged to Symfony's logger at the `debug` level.
+
+For custom handling, you can inject the analyzer service:
 
 ```php
-use ClarityPHP\RuntimeInsight\RuntimeInsightService;
+use ClarityPHP\RuntimeInsight\Contracts\AnalyzerInterface;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 
 class CustomExceptionHandler
 {
     public function __construct(
-        private RuntimeInsightService $runtimeInsight,
+        private AnalyzerInterface $analyzer,
     ) {}
 
     public function onKernelException(ExceptionEvent $event): void
     {
-        $explanation = $this->runtimeInsight->analyze(
+        $explanation = $this->analyzer->analyze(
             $event->getThrowable()
         );
         
         // Log or display the explanation
+        if ($explanation->hasExplanation()) {
+            // Your custom handling
+        }
     }
 }
 ```
@@ -278,6 +283,8 @@ Checking analyzer...
 
 ### `runtime:explain`
 
+Explains the most recent runtime error or a specific log entry.
+
 ```bash
 # Explain the last exception
 php bin/console runtime:explain
@@ -285,14 +292,61 @@ php bin/console runtime:explain
 # With specific log file
 php bin/console runtime:explain --log=var/log/dev.log
 
+# With line number
+php bin/console runtime:explain --log=var/log/dev.log --line=243
+
 # JSON output
 php bin/console runtime:explain --format=json
+
+# Markdown output
+php bin/console runtime:explain --format=markdown
 ```
+
+**Options:**
+
+| Option | Description | Default |
+|--------|-------------|---------|
+| `--log` | Path to log file | None (searches for last exception) |
+| `--line` | Line number in log file | Last exception |
+| `--format` | Output format (text, json, markdown) | text |
 
 ### `runtime:doctor`
 
+Validates the package setup and configuration.
+
 ```bash
 php bin/console runtime:doctor
+```
+
+**Checks performed:**
+
+- ✅ Runtime Insight enabled status
+- ✅ Configuration validity
+- ✅ Analyzer functionality
+- ✅ AI provider configuration (if enabled)
+
+**Example Output:**
+
+```
+🔍 Runtime Insight Diagnostics
+
+Checking if Runtime Insight is enabled...
+  ✅ Runtime Insight is enabled
+Checking configuration...
+  ✅ Configuration is valid
+     Source lines: 10
+     Include request: Yes
+     Sanitize inputs: Yes
+Checking analyzer...
+  ✅ Analyzer is working
+     Test explanation confidence: 0.85
+Checking AI provider...
+  ✅ AI provider is configured
+     Provider: openai
+     Model: gpt-4.1-mini
+     Timeout: 5s
+
+✅ All checks passed! Runtime Insight is properly configured.
 ```
 
 ---
