@@ -62,7 +62,7 @@ final class DoctorCommand extends Command
         }
 
         // Check AI provider (if enabled)
-        if ($this->config->isAIEnabled() && ! $this->checkAIProvider()) {
+        if ($this->config->isAIConfigured() && ! $this->checkAIProvider()) {
             $allPassed = false;
         }
 

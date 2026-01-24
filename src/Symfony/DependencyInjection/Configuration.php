@@ -1,0 +1,118 @@
+<?php
+
+declare(strict_types=1);
+
+namespace ClarityPHP\RuntimeInsight\Symfony\DependencyInjection;
+
+use Symfony\Component\Config\Definition\Builder\TreeBuilder;
+use Symfony\Component\Config\Definition\ConfigurationInterface;
+
+/**
+ * Configuration definition for Runtime Insight Bundle.
+ */
+final class Configuration implements ConfigurationInterface
+{
+    public function getConfigTreeBuilder(): TreeBuilder
+    {
+        $treeBuilder = new TreeBuilder('runtime_insight');
+
+        $rootNode = $treeBuilder->getRootNode();
+
+        $rootNode
+            ->children()
+                ->booleanNode('enabled')
+                    ->defaultTrue()
+                    ->info('Enable Runtime Insight')
+                ->end()
+                ->arrayNode('ai')
+                    ->addDefaultsIfNotSet()
+                    ->children()
+                        ->booleanNode('enabled')
+                            ->defaultTrue()
+                        ->end()
+                        ->scalarNode('provider')
+                            ->defaultValue('openai')
+                            ->info('AI provider: openai, anthropic, ollama')
+                        ->end()
+                        ->scalarNode('model')
+                            ->defaultValue('gpt-4.1-mini')
+                        ->end()
+                        ->scalarNode('api_key')
+                            ->defaultNull()
+                        ->end()
+                        ->integerNode('timeout')
+                            ->defaultValue(5)
+                        ->end()
+                        ->integerNode('max_tokens')
+                            ->defaultValue(1000)
+                        ->end()
+                        ->scalarNode('base_url')
+                            ->defaultNull()
+                        ->end()
+                    ->end()
+                ->end()
+                ->arrayNode('context')
+                    ->addDefaultsIfNotSet()
+                    ->children()
+                        ->integerNode('source_lines')
+                            ->defaultValue(10)
+                        ->end()
+                        ->booleanNode('include_request')
+                            ->defaultTrue()
+                        ->end()
+                        ->booleanNode('include_route')
+                            ->defaultTrue()
+                        ->end()
+                        ->booleanNode('include_user')
+                            ->defaultTrue()
+                        ->end()
+                        ->booleanNode('sanitize_inputs')
+                            ->defaultTrue()
+                        ->end()
+                        ->arrayNode('redact_fields')
+                            ->defaultValue(['password', 'token', 'secret', 'api_key'])
+                            ->scalarPrototype()->end()
+                        ->end()
+                    ->end()
+                ->end()
+                ->arrayNode('environments')
+                    ->defaultValue(['dev', 'test'])
+                    ->scalarPrototype()->end()
+                ->end()
+                ->arrayNode('disabled_environments')
+                    ->defaultValue(['prod'])
+                    ->scalarPrototype()->end()
+                ->end()
+                ->arrayNode('output')
+                    ->addDefaultsIfNotSet()
+                    ->children()
+                        ->scalarNode('channel')
+                            ->defaultValue('log')
+                        ->end()
+                        ->scalarNode('log_channel')
+                            ->defaultValue('app')
+                        ->end()
+                        ->scalarNode('log_level')
+                            ->defaultValue('debug')
+                        ->end()
+                    ->end()
+                ->end()
+                ->arrayNode('cache')
+                    ->addDefaultsIfNotSet()
+                    ->children()
+                        ->booleanNode('enabled')
+                            ->defaultTrue()
+                        ->end()
+                        ->integerNode('ttl')
+                            ->defaultValue(3600)
+                        ->end()
+                        ->scalarNode('store')
+                            ->defaultValue('cache.app')
+                        ->end()
+                    ->end()
+                ->end()
+            ->end();
+
+        return $treeBuilder;
+    }
+}

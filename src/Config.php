@@ -97,6 +97,14 @@ final readonly class Config
         return $this->aiEnabled && $this->aiApiKey !== null;
     }
 
+    /**
+     * Check if AI is configured to be enabled (regardless of API key).
+     */
+    public function isAIConfigured(): bool
+    {
+        return $this->aiEnabled;
+    }
+
     public function getAIProvider(): string
     {
         return $this->aiProvider;
