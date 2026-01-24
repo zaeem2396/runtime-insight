@@ -10,10 +10,12 @@ use ClarityPHP\RuntimeInsight\Contracts\AnalyzerInterface;
 use ClarityPHP\RuntimeInsight\Contracts\ContextBuilderInterface;
 use ClarityPHP\RuntimeInsight\Contracts\ExplanationEngineInterface;
 use ClarityPHP\RuntimeInsight\Laravel\Context\LaravelContextBuilder;
+use ClarityPHP\RuntimeInsight\Laravel\ExceptionHandler;
 use ClarityPHP\RuntimeInsight\RuntimeInsight;
 use ClarityPHP\RuntimeInsight\RuntimeInsightFactory;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\ServiceProvider;
+use Psr\Log\LoggerInterface;
 
 use function is_array;
 
@@ -78,6 +80,14 @@ class RuntimeInsightServiceProvider extends ServiceProvider
 
         $this->app->singleton(AnalyzerInterface::class, RuntimeInsight::class);
         $this->app->alias(RuntimeInsight::class, 'runtime-insight');
+
+        // Register ExceptionHandler
+        $this->app->singleton(ExceptionHandler::class, function (Application $app): ExceptionHandler {
+            return new ExceptionHandler(
+                $app->make(AnalyzerInterface::class),
+                $app->make(LoggerInterface::class),
+            );
+        });
     }
 
     /**
