@@ -6,6 +6,7 @@ namespace ClarityPHP\RuntimeInsight\Laravel;
 
 use ClarityPHP\RuntimeInsight\Config;
 use ClarityPHP\RuntimeInsight\Context\ContextBuilder;
+use ClarityPHP\RuntimeInsight\Contracts\AIProviderInterface;
 use ClarityPHP\RuntimeInsight\Contracts\AnalyzerInterface;
 use ClarityPHP\RuntimeInsight\Contracts\ContextBuilderInterface;
 use ClarityPHP\RuntimeInsight\Contracts\ExplanationEngineInterface;
@@ -63,11 +64,19 @@ class RuntimeInsightServiceProvider extends ServiceProvider
             );
         });
 
+        // Register AI Provider (if configured)
+        $this->app->singleton(AIProviderInterface::class, function (Application $app): ?AIProviderInterface {
+            $config = $app->make(Config::class);
+
+            return RuntimeInsightFactory::createAIProvider($config);
+        });
+
         // Register ExplanationEngine with all strategies
         $this->app->singleton(ExplanationEngineInterface::class, function (Application $app): ExplanationEngineInterface {
-            return RuntimeInsightFactory::createExplanationEngine(
-                $app->make(Config::class),
-            );
+            $config = $app->make(Config::class);
+            $aiProvider = $app->bound(AIProviderInterface::class) ? $app->make(AIProviderInterface::class) : null;
+
+            return RuntimeInsightFactory::createExplanationEngine($config, $aiProvider);
         });
 
         // Register main RuntimeInsight

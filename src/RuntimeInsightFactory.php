@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace ClarityPHP\RuntimeInsight;
 
+use ClarityPHP\RuntimeInsight\AI\OpenAIProvider;
 use ClarityPHP\RuntimeInsight\Context\ContextBuilder;
 use ClarityPHP\RuntimeInsight\Contracts\AIProviderInterface;
 use ClarityPHP\RuntimeInsight\Contracts\ContextBuilderInterface;
@@ -57,6 +58,11 @@ final class RuntimeInsightFactory
         Config $config,
         ?AIProviderInterface $aiProvider = null,
     ): ExplanationEngine {
+        // Create AI provider if not provided and AI is enabled
+        if ($aiProvider === null && $config->isAIConfigured()) {
+            $aiProvider = self::createAIProvider($config);
+        }
+
         $engine = new ExplanationEngine($config, $aiProvider);
 
         // Register all default strategies (highest priority first)
@@ -67,5 +73,18 @@ final class RuntimeInsightFactory
         $engine->addStrategy(new ClassNotFoundStrategy());
 
         return $engine;
+    }
+
+    /**
+     * Create an AI provider based on configuration.
+     */
+    public static function createAIProvider(Config $config): ?AIProviderInterface
+    {
+        $provider = $config->getAIProvider();
+
+        return match ($provider) {
+            'openai' => new OpenAIProvider($config),
+            default => null,
+        };
     }
 }

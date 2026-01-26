@@ -478,13 +478,44 @@ return [
 
 ### OpenAI
 
+The OpenAI provider is now fully integrated and automatically used when configured.
+
+**Configuration:**
+
 ```php
+// config/runtime-insight.php (Laravel)
 'ai' => [
+    'enabled' => true,
     'provider' => 'openai',
-    'model' => 'gpt-4.1-mini',  // or gpt-4.1, gpt-4o
-    'api_key' => env('OPENAI_API_KEY'),
+    'model' => 'gpt-4.1-mini',  // or gpt-4.1, gpt-4o, gpt-4-turbo
+    'api_key' => env('RUNTIME_INSIGHT_AI_KEY'),
+    'timeout' => 5,  // seconds
 ],
 ```
+
+```yaml
+# config/packages/runtime_insight.yaml (Symfony)
+runtime_insight:
+    ai:
+        enabled: true
+        provider: openai
+        model: gpt-4.1-mini
+        api_key: '%env(RUNTIME_INSIGHT_AI_KEY)%'
+        timeout: 5
+```
+
+**Features:**
+- Automatic retry with exponential backoff for rate limits (429 errors)
+- Token usage tracking in explanation metadata
+- JSON and text response parsing
+- Configurable timeout
+- Error handling and logging
+
+**How it works:**
+1. Rule-based strategies are tried first (fast, free)
+2. If no strategy matches and AI is enabled, OpenAI is called
+3. The AI analyzes the error context and returns an explanation
+4. Token usage is tracked for monitoring
 
 ### Anthropic (Claude)
 
