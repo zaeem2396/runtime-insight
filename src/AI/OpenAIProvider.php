@@ -14,10 +14,13 @@ use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\RequestOptions;
 use Psr\Log\LoggerInterface;
+use RuntimeException;
 use Throwable;
 
+use function is_array;
+use function is_int;
+use function is_string;
 use function json_decode;
-use function json_encode;
 use function sleep;
 use function str_contains;
 
@@ -27,7 +30,9 @@ use function str_contains;
 final class OpenAIProvider implements AIProviderInterface
 {
     private const API_BASE_URL = 'https://api.openai.com/v1';
+
     private const MAX_RETRIES = 3;
+
     private const RETRY_DELAY = 1; // seconds
 
     public function __construct(
@@ -44,6 +49,7 @@ final class OpenAIProvider implements AIProviderInterface
 
         try {
             $response = $this->makeRequest($context);
+
             return $this->parseResponse($response, $context);
         } catch (Throwable $e) {
             $this->logError('OpenAI API error', $e);
@@ -111,7 +117,7 @@ final class OpenAIProvider implements AIProviderInterface
                 $data = json_decode($body, true);
 
                 if (! is_array($data)) {
-                    throw new \RuntimeException('Invalid response from OpenAI API');
+                    throw new RuntimeException('Invalid response from OpenAI API');
                 }
 
                 /** @var array<string, mixed> $data */
@@ -147,7 +153,7 @@ final class OpenAIProvider implements AIProviderInterface
             throw $lastException;
         }
 
-        throw new \RuntimeException('Failed to get response from OpenAI API');
+        throw new RuntimeException('Failed to get response from OpenAI API');
     }
 
     /**
@@ -305,4 +311,3 @@ final class OpenAIProvider implements AIProviderInterface
         }
     }
 }
-

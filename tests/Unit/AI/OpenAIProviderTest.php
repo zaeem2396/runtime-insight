@@ -7,7 +7,6 @@ namespace ClarityPHP\RuntimeInsight\Tests\Unit\AI;
 use ClarityPHP\RuntimeInsight\AI\OpenAIProvider;
 use ClarityPHP\RuntimeInsight\Config;
 use ClarityPHP\RuntimeInsight\DTO\ExceptionInfo;
-use ClarityPHP\RuntimeInsight\DTO\Explanation;
 use ClarityPHP\RuntimeInsight\DTO\RuntimeContext;
 use ClarityPHP\RuntimeInsight\DTO\SourceContext;
 use ClarityPHP\RuntimeInsight\DTO\StackTraceInfo;
@@ -24,6 +23,7 @@ use Psr\Log\LoggerInterface;
 final class OpenAIProviderTest extends TestCase
 {
     private Config $config;
+
     private LoggerInterface $logger;
 
     protected function setUp(): void
@@ -234,4 +234,3 @@ final class OpenAIProviderTest extends TestCase
         );
     }
 }
-

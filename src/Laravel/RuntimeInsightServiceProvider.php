@@ -67,6 +67,7 @@ class RuntimeInsightServiceProvider extends ServiceProvider
         // Register AI Provider (if configured)
         $this->app->singleton(AIProviderInterface::class, function (Application $app): ?AIProviderInterface {
             $config = $app->make(Config::class);
+
             return RuntimeInsightFactory::createAIProvider($config);
         });
 
