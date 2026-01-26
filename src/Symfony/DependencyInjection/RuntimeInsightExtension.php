@@ -6,6 +6,7 @@ namespace ClarityPHP\RuntimeInsight\Symfony\DependencyInjection;
 
 use ClarityPHP\RuntimeInsight\Config;
 use ClarityPHP\RuntimeInsight\Context\ContextBuilder;
+use ClarityPHP\RuntimeInsight\Contracts\AIProviderInterface;
 use ClarityPHP\RuntimeInsight\Contracts\AnalyzerInterface;
 use ClarityPHP\RuntimeInsight\Contracts\ContextBuilderInterface;
 use ClarityPHP\RuntimeInsight\Contracts\ExplanationEngineInterface;
@@ -60,11 +61,19 @@ final class RuntimeInsightExtension extends Extension
                 new Reference(Config::class),
             ]);
 
+        // Register AI Provider (if configured)
+        $container->register(AIProviderInterface::class)
+            ->setFactory([RuntimeInsightFactory::class, 'createAIProvider'])
+            ->setArguments([
+                new Reference(Config::class),
+            ]);
+
         // Register ExplanationEngine
         $container->register(ExplanationEngineInterface::class)
             ->setFactory([RuntimeInsightFactory::class, 'createExplanationEngine'])
             ->setArguments([
                 new Reference(Config::class),
+                new Reference(AIProviderInterface::class, ContainerBuilder::NULL_ON_INVALID_REFERENCE),
             ]);
 
         // Register main RuntimeInsight
