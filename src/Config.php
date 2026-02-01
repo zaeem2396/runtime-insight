@@ -37,6 +37,8 @@ final readonly class Config
         private array $disabledEnvironments = ['production'],
         private array $redactFields = ['password', 'token', 'secret', 'api_key'],
         private ?string $currentEnvironment = null,
+        private bool $cacheEnabled = true,
+        private int $cacheTtl = 3600,
     ) {}
 
     /**
@@ -62,6 +64,9 @@ final readonly class Config
         $disabledEnvironments = $config['disabled_environments'] ?? ['production'];
         $redactFields = $context['redact_fields'] ?? ['password', 'token', 'secret', 'api_key'];
         $currentEnvironment = $config['current_environment'] ?? null;
+        $cache = is_array($config['cache'] ?? null) ? $config['cache'] : [];
+        $cacheEnabled = $cache['enabled'] ?? true;
+        $cacheTtl = $cache['ttl'] ?? 3600;
 
         return new self(
             enabled: is_bool($enabled) ? $enabled : true,
@@ -79,6 +84,8 @@ final readonly class Config
             disabledEnvironments: self::filterStringArray($disabledEnvironments),
             redactFields: self::filterStringArray($redactFields),
             currentEnvironment: is_string($currentEnvironment) ? $currentEnvironment : null,
+            cacheEnabled: is_bool($cacheEnabled) ? $cacheEnabled : true,
+            cacheTtl: is_int($cacheTtl) ? $cacheTtl : 3600,
         );
     }
 
@@ -168,6 +175,8 @@ final readonly class Config
             disabledEnvironments: $this->disabledEnvironments,
             redactFields: $this->redactFields,
             currentEnvironment: $this->currentEnvironment,
+            cacheEnabled: $this->cacheEnabled,
+            cacheTtl: $this->cacheTtl,
         );
     }
 
@@ -192,6 +201,16 @@ final readonly class Config
     public function getRedactFields(): array
     {
         return $this->redactFields;
+    }
+
+    public function isCacheEnabled(): bool
+    {
+        return $this->cacheEnabled;
+    }
+
+    public function getCacheTtl(): int
+    {
+        return $this->cacheTtl;
     }
 
     /**

@@ -9,6 +9,8 @@ use ClarityPHP\RuntimeInsight\Context\ContextBuilder;
 use ClarityPHP\RuntimeInsight\Contracts\AIProviderInterface;
 use ClarityPHP\RuntimeInsight\Contracts\ContextBuilderInterface;
 use ClarityPHP\RuntimeInsight\Contracts\ExplanationEngineInterface;
+use ClarityPHP\RuntimeInsight\Engine\ArrayExplanationCache;
+use ClarityPHP\RuntimeInsight\Engine\CachingExplanationEngine;
 use ClarityPHP\RuntimeInsight\Engine\ExplanationEngine;
 use ClarityPHP\RuntimeInsight\Engine\Strategies\ArgumentCountStrategy;
 use ClarityPHP\RuntimeInsight\Engine\Strategies\ClassNotFoundStrategy;
@@ -53,11 +55,12 @@ final class RuntimeInsightFactory
 
     /**
      * Create the explanation engine with all default strategies.
+     * Wraps in CachingExplanationEngine when cache is enabled.
      */
     public static function createExplanationEngine(
         Config $config,
         ?AIProviderInterface $aiProvider = null,
-    ): ExplanationEngine {
+    ): ExplanationEngineInterface {
         // Create AI provider if not provided and AI is enabled
         if ($aiProvider === null && $config->isAIConfigured()) {
             $aiProvider = self::createAIProvider($config);
@@ -71,6 +74,10 @@ final class RuntimeInsightFactory
         $engine->addStrategy(new TypeErrorStrategy());
         $engine->addStrategy(new ArgumentCountStrategy());
         $engine->addStrategy(new ClassNotFoundStrategy());
+
+        if ($config->isCacheEnabled()) {
+            return new CachingExplanationEngine($engine, new ArrayExplanationCache(), $config);
+        }
 
         return $engine;
     }

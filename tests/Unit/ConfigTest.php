@@ -148,4 +148,43 @@ final class ConfigTest extends TestCase
         $this->assertSame('openai', $config->getAIProvider());
         $this->assertSame('gpt-4.1-mini', $withAnthropic->getAIModel());
     }
+
+    #[Test]
+    public function it_reads_cache_from_array(): void
+    {
+        $config = Config::fromArray([
+            'cache' => [
+                'enabled' => false,
+                'ttl' => 1800,
+            ],
+        ]);
+
+        $this->assertFalse($config->isCacheEnabled());
+        $this->assertSame(1800, $config->getCacheTtl());
+    }
+
+    #[Test]
+    public function it_uses_default_cache_when_not_in_array(): void
+    {
+        $config = Config::fromArray([]);
+
+        $this->assertTrue($config->isCacheEnabled());
+        $this->assertSame(3600, $config->getCacheTtl());
+    }
+
+    #[Test]
+    public function with_provider_preserves_cache_settings(): void
+    {
+        $config = new Config(
+            aiProvider: 'openai',
+            cacheEnabled: false,
+            cacheTtl: 900,
+        );
+
+        $withAnthropic = $config->withProvider('anthropic');
+
+        $this->assertSame('anthropic', $withAnthropic->getAIProvider());
+        $this->assertFalse($withAnthropic->isCacheEnabled());
+        $this->assertSame(900, $withAnthropic->getCacheTtl());
+    }
 }
