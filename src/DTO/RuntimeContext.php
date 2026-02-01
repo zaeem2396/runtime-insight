@@ -55,6 +55,13 @@ final readonly class RuntimeContext
             $summary .= "Request: {$this->requestContext->method} {$this->requestContext->uri}\n";
         }
 
+        if ($this->databaseContext !== null && ! $this->databaseContext->isEmpty()) {
+            $summary .= "\nRecent queries:\n";
+            foreach ($this->databaseContext->recentQueries as $q) {
+                $summary .= "  - " . $q . "\n";
+            }
+        }
+
         return $summary;
     }
 }
