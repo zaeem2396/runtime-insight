@@ -67,6 +67,7 @@ Confidence: 0.92
 - 🔌 **Framework Agnostic Core** - Shared logic between Laravel & Symfony
 - 🛡️ **Privacy First** - Sanitized request data, environment-aware
 - ⚡ **Non-Blocking** - Never interferes with your application's flow
+- 💾 **Explanation Caching** - Cache repeated errors to reduce API calls
 
 ---
 
@@ -208,6 +209,11 @@ return [
         'sanitize_inputs' => true,   // Scrub sensitive data
     ],
 
+    'cache' => [
+        'enabled' => true,           // Cache repeated error explanations
+        'ttl' => 3600,               // Seconds (default: 1 hour)
+    ],
+
     'environments' => ['local', 'staging'],  // Where to enable
 ];
 ```
@@ -280,6 +286,7 @@ Runtime Insight is designed for extensibility:
 
 - **AI Provider Factory** - `ProviderFactory` creates the configured provider (openai, anthropic, ollama) with optional fallback chain
 - **Custom AI Providers** - Implement the `AIProviderInterface`
+- **Explanation Caching** - When `cache.enabled` is true, the engine caches explanations by error signature (class, message, file, line) to avoid repeated AI calls
 - **Custom Explanation Strategies** - Add domain-specific patterns
 - **Custom Renderers** - Output to JSON, HTML, Slack, etc.
 
@@ -288,9 +295,19 @@ use ClarityPHP\RuntimeInsight\Contracts\AIProviderInterface;
 
 class CustomAIProvider implements AIProviderInterface
 {
+    public function getName(): string
+    {
+        return 'custom';
+    }
+
     public function analyze(RuntimeContext $context): Explanation
     {
         // Your custom AI integration
+    }
+
+    public function isAvailable(): bool
+    {
+        return true;
     }
 }
 ```
