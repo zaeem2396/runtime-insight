@@ -12,6 +12,7 @@ This guide covers all usage scenarios for ClarityPHP Runtime Insight.
 - [Artisan Commands](#artisan-commands-laravel)
 - [Console Commands](#console-commands-symfony)
 - [Configuration Options](#configuration-options)
+- [Caching](#caching)
 - [AI Provider Configuration](#ai-provider-configuration)
 - [Custom Integrations](#custom-integrations)
 - [Production Considerations](#production-considerations)
@@ -458,19 +459,29 @@ return [
     |--------------------------------------------------------------------------
     | Caching
     |--------------------------------------------------------------------------
+    |
+    | Cache explanations for identical errors (same class, message, file, line)
+    | to reduce AI API calls. The default implementation is in-memory per request.
+    |
     */
     'cache' => [
-        // Cache identical error explanations
-        'enabled' => true,
-        
-        // Cache TTL in seconds
-        'ttl' => 3600,
-        
-        // Cache store to use
-        'store' => env('RUNTIME_INSIGHT_CACHE_STORE', 'file'),
+        // Enable caching of repeated error explanations
+        'enabled' => env('RUNTIME_INSIGHT_CACHE_ENABLED', true),
+
+        // Cache TTL in seconds (0 = no expiry within the request)
+        'ttl' => env('RUNTIME_INSIGHT_CACHE_TTL', 3600),
     ],
 ];
 ```
+
+### Caching
+
+Explanation caching reduces AI API calls by storing results for identical errors (same exception class, message, file, and line). When caching is enabled, the explanation engine uses an in-memory cache (per request by default) with the configured TTL.
+
+| Option   | Description                          | Default |
+|----------|--------------------------------------|---------|
+| `enabled` | Enable caching of repeated errors   | `true`  |
+| `ttl`     | Time-to-live in seconds (0 = no expiry) | `3600` |
 
 ---
 
@@ -561,17 +572,45 @@ runtime_insight:
 3. Claude analyzes the error context and returns an explanation (JSON or fallback text)
 4. Token usage is recorded in metadata
 
-### Ollama (Local) *(planned for v0.5.0)*
+### Ollama (Local)
 
-Config structure for when Ollama support is added:
+The Ollama provider uses your local Ollama instance for inference. No API key is required. Set `ai.provider` to `ollama` and optionally configure `base_url` if Ollama is not on the default port.
+
+**Configuration:**
 
 ```php
+// config/runtime-insight.php (Laravel)
 'ai' => [
+    'enabled' => true,
     'provider' => 'ollama',
-    'model' => 'llama3.2',
-    'base_url' => 'http://localhost:11434',
+    'model' => 'llama3.2',  // or llama3.1, codellama, mistral, etc.
+    'base_url' => env('RUNTIME_INSIGHT_AI_BASE_URL', 'http://localhost:11434'),
+    'timeout' => 30,  // Local inference can be slower
 ],
 ```
+
+```yaml
+# config/packages/runtime_insight.yaml (Symfony)
+runtime_insight:
+    ai:
+        enabled: true
+        provider: ollama
+        model: llama3.2
+        base_url: 'http://localhost:11434'
+        timeout: 30
+```
+
+**Features:**
+- No API key required
+- Uses Ollama `/api/chat` endpoint
+- Configurable base URL for non-default Ollama hosts
+- Same JSON/text response handling as other providers
+
+**How it works:**
+1. Rule-based strategies are tried first
+2. If no strategy matches and AI is enabled, the local Ollama API is called
+3. The model analyzes the error context and returns an explanation
+4. Ensure Ollama is running (`ollama serve`) and the model is pulled (`ollama pull llama3.2`)
 
 ### Fallback chain
 
@@ -609,23 +648,38 @@ Only provider names that are supported by `ProviderFactory` (openai, anthropic, 
 
 ### Custom Provider
 
+Implement `AIProviderInterface` and provide `getName()`, `analyze()`, and `isAvailable()`:
+
 ```php
 use ClarityPHP\RuntimeInsight\Contracts\AIProviderInterface;
+use ClarityPHP\RuntimeInsight\DTO\Explanation;
+use ClarityPHP\RuntimeInsight\DTO\RuntimeContext;
 
 class MyCustomProvider implements AIProviderInterface
 {
+    public function getName(): string
+    {
+        return 'my_custom';
+    }
+
     public function analyze(RuntimeContext $context): Explanation
     {
-        // Your implementation
+        // Your implementation: call your AI service and return an Explanation
+        return new Explanation(
+            message: '...',
+            cause: '...',
+            suggestions: [],
+            confidence: 0.9,
+        );
     }
-    
+
     public function isAvailable(): bool
     {
         return true;
     }
 }
 
-// Register in service provider
+// Register in service provider (Laravel)
 $this->app->bind(AIProviderInterface::class, MyCustomProvider::class);
 ```
 
@@ -737,10 +791,10 @@ return [
 
 ### Performance Tips
 
-1. **Use caching** - Enable explanation caching for repeated errors
-2. **Short timeouts** - Keep AI timeout low (2-5 seconds)
-3. **Rule-based first** - Many common errors don't need AI
-4. **Async processing** - Consider queue-based analysis for production
+1. **Use caching** - Enable `cache.enabled` to cache explanations by error signature (class, message, file, line). Repeated identical errors reuse the cached explanation within the TTL.
+2. **Short timeouts** - Keep AI timeout low (2-5 seconds) for remote providers.
+3. **Rule-based first** - Many common errors don't need AI; built-in strategies run first.
+4. **Async processing** - Consider queue-based analysis for production.
 
 ---
 

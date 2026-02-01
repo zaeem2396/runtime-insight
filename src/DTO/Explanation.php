@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace ClarityPHP\RuntimeInsight\DTO;
 
+use function is_array;
+use function is_string;
+
 /**
  * Represents an explanation for a runtime error.
  */
@@ -96,5 +99,41 @@ final readonly class Explanation
             'location' => $this->location,
             'metadata' => $this->metadata,
         ];
+    }
+
+    /**
+     * Create an Explanation from an array (e.g. from cache).
+     *
+     * @param array<string, mixed> $data
+     */
+    public static function fromArray(array $data): self
+    {
+        $suggestions = [];
+        if (isset($data['suggestions']) && is_array($data['suggestions'])) {
+            foreach ($data['suggestions'] as $s) {
+                if (is_string($s)) {
+                    $suggestions[] = $s;
+                }
+            }
+        }
+
+        $metadata = [];
+        if (isset($data['metadata']) && is_array($data['metadata'])) {
+            foreach ($data['metadata'] as $k => $v) {
+                if (is_string($k)) {
+                    $metadata[$k] = $v;
+                }
+            }
+        }
+
+        return new self(
+            message: is_string($data['message'] ?? null) ? $data['message'] : '',
+            cause: is_string($data['cause'] ?? null) ? $data['cause'] : '',
+            suggestions: $suggestions,
+            confidence: isset($data['confidence']) && is_numeric($data['confidence']) ? (float) $data['confidence'] : 0.0,
+            errorType: is_string($data['error_type'] ?? null) ? $data['error_type'] : null,
+            location: is_string($data['location'] ?? null) ? $data['location'] : null,
+            metadata: $metadata,
+        );
     }
 }
