@@ -127,6 +127,7 @@ final class ContextBuilderTest extends TestCase
         $this->assertStringContainsString('RuntimeException', $summary);
         $this->assertStringContainsString('Something went wrong', $summary);
         $this->assertStringContainsString('File:', $summary);
+        $this->assertStringContainsString('Call chain:', $summary);
     }
 
     #[Test]

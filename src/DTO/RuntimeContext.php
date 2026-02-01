@@ -40,6 +40,11 @@ final readonly class RuntimeContext
         $summary .= "Message: {$this->exception->message}\n";
         $summary .= "File: {$this->exception->file}:{$this->exception->line}\n\n";
 
+        $callChain = $this->stackTrace->getCallChainSummary(10);
+        if ($callChain !== '') {
+            $summary .= "Call chain:\n{$callChain}\n\n";
+        }
+
         if ($this->sourceContext->codeSnippet !== '') {
             $summary .= "Code Context:\n{$this->sourceContext->codeSnippet}\n\n";
         }
