@@ -13,6 +13,7 @@ This guide covers all usage scenarios for ClarityPHP Runtime Insight.
 - [Console Commands](#console-commands-symfony)
 - [Configuration Options](#configuration-options)
 - [Caching](#caching)
+- [Database query context](#database-query-context)
 - [AI Provider Configuration](#ai-provider-configuration)
 - [Custom Integrations](#custom-integrations)
 - [Production Considerations](#production-considerations)
@@ -426,6 +427,12 @@ return [
             'secret',
             'api_key',
         ],
+
+        // Include recent database queries (Laravel: uses DB::getQueryLog())
+        'include_database_queries' => env('RUNTIME_INSIGHT_INCLUDE_DATABASE_QUERIES', false),
+
+        // Maximum number of recent queries to capture
+        'max_database_queries' => (int) env('RUNTIME_INSIGHT_MAX_DATABASE_QUERIES', 5),
     ],
 
     /*
@@ -482,6 +489,28 @@ Explanation caching reduces AI API calls by storing results for identical errors
 |----------|--------------------------------------|---------|
 | `enabled` | Enable caching of repeated errors   | `true`  |
 | `ttl`     | Time-to-live in seconds (0 = no expiry) | `3600` |
+
+### Database query context
+
+When enabled, Runtime Insight can include recent database queries in the context sent to the AI. This helps explain errors that occur during or after database operations.
+
+**Laravel:** Uses Laravel's query log (`DB::getQueryLog()`). Enable the query log in your app (e.g. in `AppServiceProvider` for local/staging) so that queries are recorded before the exception occurs:
+
+```php
+// AppServiceProvider.php (optional – enable when you want query context)
+if (app()->environment('local', 'staging')) {
+    \Illuminate\Support\Facades\DB::enableQueryLog();
+}
+```
+
+Then set `context.include_database_queries` to `true` in your Runtime Insight config. The last N queries (up to `max_database_queries`) are included in the AI summary.
+
+| Option                     | Description                          | Default |
+|----------------------------|--------------------------------------|---------|
+| `include_database_queries` | Include recent queries in context   | `false` |
+| `max_database_queries`      | Maximum number of queries to capture | `5`    |
+
+**Symfony:** Database query context is not yet implemented; the option is accepted in config but no queries are captured.
 
 ---
 
