@@ -559,17 +559,48 @@ runtime_insight:
 3. Claude analyzes the error context and returns an explanation (JSON or fallback text)
 4. Token usage is recorded in metadata
 
-### Ollama (Local) *(planned for v0.5.0)*
+### Ollama (Local)
 
-Config structure for when Ollama support is added:
+The Ollama provider uses your local Ollama server for error analysis. No API key is required. Set `ai.provider` to `ollama` and optionally `ai.base_url` if Ollama is not on the default host/port.
+
+**Configuration:**
 
 ```php
+// config/runtime-insight.php (Laravel)
 'ai' => [
+    'enabled' => true,
     'provider' => 'ollama',
-    'model' => 'llama3.2',
-    'base_url' => 'http://localhost:11434',
+    'model' => 'llama3.2',  // or llama3.1, codellama, mistral, etc.
+    'base_url' => env('RUNTIME_INSIGHT_AI_BASE_URL', 'http://localhost:11434'),
+    'timeout' => 30,  // local models may need longer
 ],
 ```
+
+```yaml
+# config/packages/runtime_insight.yaml (Symfony)
+runtime_insight:
+    ai:
+        enabled: true
+        provider: ollama
+        model: llama3.2
+        base_url: '%env(default::RUNTIME_INSIGHT_AI_BASE_URL)%'
+        timeout: 30
+```
+
+**Features:**
+- No API key required (local inference)
+- Uses Ollama `/api/chat` with JSON format
+- Configurable base URL (default `http://localhost:11434`)
+- Eval counts in explanation metadata (`eval_count`, `prompt_eval_count`)
+- Same JSON response shape as other providers for consistent parsing
+
+**How it works:**
+1. Rule-based strategies are tried first
+2. If no strategy matches and AI is enabled, the Ollama chat API is called
+3. The model analyzes the error context and returns an explanation (JSON or fallback text)
+4. Token/eval counts are recorded in metadata
+
+**Prerequisites:** Run [Ollama](https://ollama.com) locally and pull a model (e.g. `ollama pull llama3.2`).
 
 ### Custom Provider
 
