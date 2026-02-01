@@ -11,7 +11,7 @@ use Psr\Log\LoggerInterface;
 /**
  * Factory for creating AI provider instances based on configuration.
  *
- * Supports: openai (additional providers in later releases).
+ * Supports: openai, anthropic (ollama in later releases).
  */
 final class ProviderFactory
 {
@@ -28,6 +28,7 @@ final class ProviderFactory
 
         return match ($provider) {
             'openai' => new OpenAIProvider($config, $this->logger),
+            'anthropic' => new AnthropicProvider($config, $this->logger),
             default => null,
         };
     }
