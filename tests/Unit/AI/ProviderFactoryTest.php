@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace ClarityPHP\RuntimeInsight\Tests\Unit\AI;
 
 use ClarityPHP\RuntimeInsight\AI\AnthropicProvider;
+use ClarityPHP\RuntimeInsight\AI\FallbackChainProvider;
 use ClarityPHP\RuntimeInsight\AI\OpenAIProvider;
 use ClarityPHP\RuntimeInsight\AI\ProviderFactory;
 use ClarityPHP\RuntimeInsight\Config;
@@ -83,5 +84,54 @@ final class ProviderFactoryTest extends TestCase
         $provider = ProviderFactory::createProvider($config);
 
         $this->assertNull($provider);
+    }
+
+    public function test_create_returns_fallback_chain_when_fallback_configured(): void
+    {
+        $config = new Config(
+            enabled: true,
+            aiEnabled: true,
+            aiProvider: 'openai',
+            aiApiKey: 'test-key',
+            aiFallback: ['anthropic'],
+        );
+
+        $factory = new ProviderFactory();
+        $provider = $factory->create($config);
+
+        $this->assertInstanceOf(FallbackChainProvider::class, $provider);
+        $this->assertSame('fallback', $provider->getName());
+        $this->assertTrue($provider->isAvailable());
+    }
+
+    public function test_create_returns_single_provider_when_fallback_empty(): void
+    {
+        $config = new Config(
+            enabled: true,
+            aiEnabled: true,
+            aiProvider: 'openai',
+            aiApiKey: 'test-key',
+            aiFallback: [],
+        );
+
+        $factory = new ProviderFactory();
+        $provider = $factory->create($config);
+
+        $this->assertInstanceOf(OpenAIProvider::class, $provider);
+    }
+
+    public function test_create_for_provider_returns_single_provider(): void
+    {
+        $config = new Config(
+            enabled: true,
+            aiEnabled: true,
+            aiProvider: 'anthropic',
+            aiApiKey: 'key',
+        );
+
+        $factory = new ProviderFactory();
+        $provider = $factory->createForProvider($config);
+
+        $this->assertInstanceOf(AnthropicProvider::class, $provider);
     }
 }

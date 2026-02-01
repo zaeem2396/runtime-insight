@@ -95,4 +95,43 @@ final class ConfigTest extends TestCase
         $this->assertFalse($configWithoutKey->isAIEnabled());
         $this->assertTrue($configWithKey->isAIEnabled());
     }
+
+    #[Test]
+    public function it_reads_fallback_from_array(): void
+    {
+        $config = Config::fromArray([
+            'ai' => [
+                'provider' => 'openai',
+                'fallback' => ['anthropic', 'ollama'],
+            ],
+        ]);
+
+        $this->assertSame(['anthropic', 'ollama'], $config->getAIFallback());
+    }
+
+    #[Test]
+    public function it_returns_empty_fallback_by_default(): void
+    {
+        $config = Config::fromArray([]);
+
+        $this->assertSame([], $config->getAIFallback());
+    }
+
+    #[Test]
+    public function with_provider_returns_new_config_with_that_provider(): void
+    {
+        $config = new Config(
+            enabled: true,
+            aiEnabled: true,
+            aiProvider: 'openai',
+            aiModel: 'gpt-4.1-mini',
+            aiApiKey: 'key',
+        );
+
+        $withAnthropic = $config->withProvider('anthropic');
+
+        $this->assertSame('anthropic', $withAnthropic->getAIProvider());
+        $this->assertSame('openai', $config->getAIProvider());
+        $this->assertSame('gpt-4.1-mini', $withAnthropic->getAIModel());
+    }
 }

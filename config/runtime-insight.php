@@ -30,6 +30,8 @@ return [
         'timeout' => env('RUNTIME_INSIGHT_AI_TIMEOUT', 5),
         'max_tokens' => env('RUNTIME_INSIGHT_AI_MAX_TOKENS', 1000),
         'base_url' => env('RUNTIME_INSIGHT_AI_BASE_URL'),
+        // Fallback providers to try if the primary fails (e.g. ['anthropic', 'ollama'])
+        'fallback' => [],
     ],
 
     /*

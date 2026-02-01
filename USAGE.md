@@ -519,6 +519,8 @@ runtime_insight:
 
 The active provider is chosen from config (`ai.provider`) and instantiated via `ProviderFactory` (used by `RuntimeInsightFactory::createAIProvider`). You can create a provider directly with `ProviderFactory::createProvider($config)`.
 
+**Fallback chain:** Set `ai.fallback` to an array of provider names (e.g. `['anthropic', 'ollama']`). If the primary provider returns an empty explanation (e.g. API error or rate limit), the next provider in the list is tried until one returns a result. See [Fallback chain](#fallback-chain) below.
+
 ### Anthropic (Claude)
 
 The Anthropic provider uses the Claude Messages API for error analysis. Set `ai.provider` to `anthropic` and your Anthropic API key.
@@ -570,6 +572,40 @@ Config structure for when Ollama support is added:
     'base_url' => 'http://localhost:11434',
 ],
 ```
+
+### Fallback chain
+
+You can configure a list of fallback providers. If the primary provider returns an empty explanation (e.g. API error, rate limit, or timeout), the next provider in the list is tried until one returns a result.
+
+**Configuration:**
+
+```php
+// config/runtime-insight.php (Laravel)
+'ai' => [
+    'enabled' => true,
+    'provider' => 'openai',
+    'api_key' => env('RUNTIME_INSIGHT_AI_KEY'),
+    'fallback' => ['anthropic', 'ollama'],  // try these if OpenAI fails
+],
+```
+
+```yaml
+# config/packages/runtime_insight.yaml (Symfony)
+runtime_insight:
+    ai:
+        enabled: true
+        provider: openai
+        api_key: '%env(RUNTIME_INSIGHT_AI_KEY)%'
+        fallback: ['anthropic', 'ollama']
+```
+
+**Behaviour:**
+1. The primary provider (e.g. OpenAI) is called first.
+2. If it returns an empty explanation, the next provider in `fallback` is tried (e.g. Anthropic, then Ollama).
+3. The first non-empty explanation is returned.
+4. If all providers return empty, an empty explanation is returned.
+
+Only provider names that are supported by `ProviderFactory` (openai, anthropic, ollama) are used; unknown names are skipped. The primary provider is never duplicated in the chain.
 
 ### Custom Provider
 

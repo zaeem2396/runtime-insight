@@ -19,6 +19,7 @@ final readonly class Config
      * @param array<string> $environments
      * @param array<string> $disabledEnvironments
      * @param array<string> $redactFields
+     * @param array<string> $aiFallback
      */
     public function __construct(
         private bool $enabled = true,
@@ -27,6 +28,7 @@ final readonly class Config
         private string $aiModel = 'gpt-4.1-mini',
         private ?string $aiApiKey = null,
         private int $aiTimeout = 5,
+        private array $aiFallback = [],
         private int $sourceLines = 10,
         private bool $includeRequest = true,
         private bool $sanitizeInputs = true,
@@ -50,6 +52,7 @@ final readonly class Config
         $aiModel = $ai['model'] ?? 'gpt-4.1-mini';
         $aiApiKey = $ai['api_key'] ?? null;
         $aiTimeout = $ai['timeout'] ?? 5;
+        $aiFallback = $ai['fallback'] ?? [];
         $sourceLines = $context['source_lines'] ?? 10;
         $includeRequest = $context['include_request'] ?? true;
         $sanitizeInputs = $context['sanitize_inputs'] ?? true;
@@ -65,6 +68,7 @@ final readonly class Config
             aiModel: is_string($aiModel) ? $aiModel : 'gpt-4.1-mini',
             aiApiKey: is_string($aiApiKey) ? $aiApiKey : null,
             aiTimeout: is_int($aiTimeout) ? $aiTimeout : 5,
+            aiFallback: self::filterStringArray($aiFallback),
             sourceLines: is_int($sourceLines) ? $sourceLines : 10,
             includeRequest: is_bool($includeRequest) ? $includeRequest : true,
             sanitizeInputs: is_bool($sanitizeInputs) ? $sanitizeInputs : true,
@@ -123,6 +127,39 @@ final readonly class Config
     public function getAITimeout(): int
     {
         return $this->aiTimeout;
+    }
+
+    /**
+     * Fallback provider names to try if the primary provider fails.
+     *
+     * @return array<string>
+     */
+    public function getAIFallback(): array
+    {
+        return $this->aiFallback;
+    }
+
+    /**
+     * Return a new Config with the given AI provider (for building fallback chain).
+     */
+    public function withProvider(string $provider): self
+    {
+        return new self(
+            enabled: $this->enabled,
+            aiEnabled: $this->aiEnabled,
+            aiProvider: $provider,
+            aiModel: $this->aiModel,
+            aiApiKey: $this->aiApiKey,
+            aiTimeout: $this->aiTimeout,
+            aiFallback: $this->aiFallback,
+            sourceLines: $this->sourceLines,
+            includeRequest: $this->includeRequest,
+            sanitizeInputs: $this->sanitizeInputs,
+            environments: $this->environments,
+            disabledEnvironments: $this->disabledEnvironments,
+            redactFields: $this->redactFields,
+            currentEnvironment: $this->currentEnvironment,
+        );
     }
 
     public function getSourceLines(): int
