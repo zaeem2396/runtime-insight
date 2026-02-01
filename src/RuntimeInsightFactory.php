@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace ClarityPHP\RuntimeInsight;
 
-use ClarityPHP\RuntimeInsight\AI\OpenAIProvider;
+use ClarityPHP\RuntimeInsight\AI\ProviderFactory;
 use ClarityPHP\RuntimeInsight\Context\ContextBuilder;
 use ClarityPHP\RuntimeInsight\Contracts\AIProviderInterface;
 use ClarityPHP\RuntimeInsight\Contracts\ContextBuilderInterface;
@@ -80,11 +80,6 @@ final class RuntimeInsightFactory
      */
     public static function createAIProvider(Config $config): ?AIProviderInterface
     {
-        $provider = $config->getAIProvider();
-
-        return match ($provider) {
-            'openai' => new OpenAIProvider($config),
-            default => null,
-        };
+        return ProviderFactory::createProvider($config);
     }
 }
