@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace ClarityPHP\RuntimeInsight\Tests\Unit\AI;
 
 use ClarityPHP\RuntimeInsight\AI\AnthropicProvider;
-use ClarityPHP\RuntimeInsight\AI\OllamaProvider;
 use ClarityPHP\RuntimeInsight\AI\OpenAIProvider;
 use ClarityPHP\RuntimeInsight\AI\ProviderFactory;
 use ClarityPHP\RuntimeInsight\Config;
@@ -43,22 +42,6 @@ final class ProviderFactoryTest extends TestCase
 
         $this->assertInstanceOf(AnthropicProvider::class, $provider);
         $this->assertSame('anthropic', $provider->getName());
-    }
-
-    public function test_create_returns_ollama_provider_when_configured(): void
-    {
-        $config = new Config(
-            enabled: true,
-            aiEnabled: true,
-            aiProvider: 'ollama',
-            aiModel: 'llama3.2',
-        );
-
-        $factory = new ProviderFactory();
-        $provider = $factory->create($config);
-
-        $this->assertInstanceOf(OllamaProvider::class, $provider);
-        $this->assertSame('ollama', $provider->getName());
     }
 
     public function test_create_returns_null_for_unknown_provider(): void

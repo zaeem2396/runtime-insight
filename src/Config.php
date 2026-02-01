@@ -26,7 +26,6 @@ final readonly class Config
         private string $aiProvider = 'openai',
         private string $aiModel = 'gpt-4.1-mini',
         private ?string $aiApiKey = null,
-        private ?string $aiBaseUrl = null,
         private int $aiTimeout = 5,
         private int $sourceLines = 10,
         private bool $includeRequest = true,
@@ -50,7 +49,6 @@ final readonly class Config
         $aiProvider = $ai['provider'] ?? 'openai';
         $aiModel = $ai['model'] ?? 'gpt-4.1-mini';
         $aiApiKey = $ai['api_key'] ?? null;
-        $aiBaseUrl = $ai['base_url'] ?? null;
         $aiTimeout = $ai['timeout'] ?? 5;
         $sourceLines = $context['source_lines'] ?? 10;
         $includeRequest = $context['include_request'] ?? true;
@@ -66,7 +64,6 @@ final readonly class Config
             aiProvider: is_string($aiProvider) ? $aiProvider : 'openai',
             aiModel: is_string($aiModel) ? $aiModel : 'gpt-4.1-mini',
             aiApiKey: is_string($aiApiKey) ? $aiApiKey : null,
-            aiBaseUrl: is_string($aiBaseUrl) ? $aiBaseUrl : null,
             aiTimeout: is_int($aiTimeout) ? $aiTimeout : 5,
             sourceLines: is_int($sourceLines) ? $sourceLines : 10,
             includeRequest: is_bool($includeRequest) ? $includeRequest : true,
@@ -121,11 +118,6 @@ final readonly class Config
     public function getAIApiKey(): ?string
     {
         return $this->aiApiKey;
-    }
-
-    public function getAIBaseUrl(): ?string
-    {
-        return $this->aiBaseUrl;
     }
 
     public function getAITimeout(): int
