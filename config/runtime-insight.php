@@ -70,6 +70,12 @@ return [
             'api_key',
             'authorization',
         ],
+
+        // Include recent database queries in context (e.g. Laravel query log)
+        'include_database_queries' => env('RUNTIME_INSIGHT_INCLUDE_DATABASE_QUERIES', false),
+
+        // Maximum number of recent queries to capture
+        'max_database_queries' => (int) env('RUNTIME_INSIGHT_MAX_DATABASE_QUERIES', 5),
     ],
 
     /*
