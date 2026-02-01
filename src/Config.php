@@ -27,6 +27,7 @@ final readonly class Config
         private string $aiProvider = 'openai',
         private string $aiModel = 'gpt-4.1-mini',
         private ?string $aiApiKey = null,
+        private ?string $aiBaseUrl = null,
         private int $aiTimeout = 5,
         private array $aiFallback = [],
         private int $sourceLines = 10,
@@ -51,6 +52,7 @@ final readonly class Config
         $aiProvider = $ai['provider'] ?? 'openai';
         $aiModel = $ai['model'] ?? 'gpt-4.1-mini';
         $aiApiKey = $ai['api_key'] ?? null;
+        $aiBaseUrl = $ai['base_url'] ?? null;
         $aiTimeout = $ai['timeout'] ?? 5;
         $aiFallback = $ai['fallback'] ?? [];
         $sourceLines = $context['source_lines'] ?? 10;
@@ -67,6 +69,7 @@ final readonly class Config
             aiProvider: is_string($aiProvider) ? $aiProvider : 'openai',
             aiModel: is_string($aiModel) ? $aiModel : 'gpt-4.1-mini',
             aiApiKey: is_string($aiApiKey) ? $aiApiKey : null,
+            aiBaseUrl: is_string($aiBaseUrl) ? $aiBaseUrl : null,
             aiTimeout: is_int($aiTimeout) ? $aiTimeout : 5,
             aiFallback: self::filterStringArray($aiFallback),
             sourceLines: is_int($sourceLines) ? $sourceLines : 10,
@@ -124,6 +127,11 @@ final readonly class Config
         return $this->aiApiKey;
     }
 
+    public function getAIBaseUrl(): ?string
+    {
+        return $this->aiBaseUrl;
+    }
+
     public function getAITimeout(): int
     {
         return $this->aiTimeout;
@@ -150,6 +158,7 @@ final readonly class Config
             aiProvider: $provider,
             aiModel: $this->aiModel,
             aiApiKey: $this->aiApiKey,
+            aiBaseUrl: $this->aiBaseUrl,
             aiTimeout: $this->aiTimeout,
             aiFallback: $this->aiFallback,
             sourceLines: $this->sourceLines,
