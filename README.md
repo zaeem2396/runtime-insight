@@ -68,6 +68,7 @@ Confidence: 0.92
 - 🛡️ **Privacy First** - Sanitized request data, environment-aware
 - ⚡ **Non-Blocking** - Never interferes with your application's flow
 - 💾 **Explanation Caching** - Cache repeated errors to reduce API calls
+- 🗄️ **Database Query Context** - Optional recent queries in context (Laravel)
 
 ---
 
@@ -207,6 +208,8 @@ return [
         'source_lines' => 10,        // Lines of code around error
         'include_request' => true,   // Include request context
         'sanitize_inputs' => true,   // Scrub sensitive data
+        'include_database_queries' => false,  // Recent queries (Laravel query log)
+        'max_database_queries' => 5,
     ],
 
     'cache' => [

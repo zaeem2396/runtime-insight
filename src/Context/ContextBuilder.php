@@ -7,6 +7,7 @@ namespace ClarityPHP\RuntimeInsight\Context;
 use ClarityPHP\RuntimeInsight\Config;
 use ClarityPHP\RuntimeInsight\Contracts\ContextBuilderInterface;
 use ClarityPHP\RuntimeInsight\DTO\ApplicationContext;
+use ClarityPHP\RuntimeInsight\DTO\DatabaseContext;
 use ClarityPHP\RuntimeInsight\DTO\ExceptionInfo;
 use ClarityPHP\RuntimeInsight\DTO\RequestContext;
 use ClarityPHP\RuntimeInsight\DTO\RuntimeContext;
@@ -51,6 +52,7 @@ final class ContextBuilder implements ContextBuilderInterface
                 ? $this->buildRequestContext()
                 : null,
             applicationContext: $this->buildApplicationContext(),
+            databaseContext: $this->buildDatabaseContext(),
         );
     }
 
@@ -137,6 +139,16 @@ final class ContextBuilder implements ContextBuilderInterface
     {
         // Base implementation returns null
         // Framework-specific adapters will provide actual application context
+        return null;
+    }
+
+    /**
+     * Build database/query context (placeholder - framework adapters build their own).
+     *
+     * @phpstan-ignore-next-line return.unusedType (framework builders pass DatabaseContext in RuntimeContext)
+     */
+    private function buildDatabaseContext(): ?DatabaseContext
+    {
         return null;
     }
 

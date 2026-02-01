@@ -54,6 +54,7 @@ final class SymfonyContextBuilder implements ContextBuilderInterface
                 ? $this->buildRequestContext()
                 : null,
             applicationContext: $this->buildApplicationContext(),
+            databaseContext: $baseContext->databaseContext,
         );
     }
 

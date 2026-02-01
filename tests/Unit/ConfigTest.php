@@ -187,4 +187,27 @@ final class ConfigTest extends TestCase
         $this->assertFalse($withAnthropic->isCacheEnabled());
         $this->assertSame(900, $withAnthropic->getCacheTtl());
     }
+
+    #[Test]
+    public function it_reads_database_context_from_array(): void
+    {
+        $config = Config::fromArray([
+            'context' => [
+                'include_database_queries' => true,
+                'max_database_queries' => 10,
+            ],
+        ]);
+
+        $this->assertTrue($config->includeDatabaseQueries());
+        $this->assertSame(10, $config->getMaxDatabaseQueries());
+    }
+
+    #[Test]
+    public function it_uses_default_database_context_when_not_in_array(): void
+    {
+        $config = Config::fromArray([]);
+
+        $this->assertFalse($config->includeDatabaseQueries());
+        $this->assertSame(5, $config->getMaxDatabaseQueries());
+    }
 }

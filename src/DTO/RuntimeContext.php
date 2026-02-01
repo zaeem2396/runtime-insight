@@ -15,6 +15,7 @@ final readonly class RuntimeContext
         public SourceContext $sourceContext,
         public ?RequestContext $requestContext = null,
         public ?ApplicationContext $applicationContext = null,
+        public ?DatabaseContext $databaseContext = null,
     ) {}
 
     /**
@@ -28,6 +29,7 @@ final readonly class RuntimeContext
             'source_context' => $this->sourceContext->toArray(),
             'request_context' => $this->requestContext?->toArray(),
             'application_context' => $this->applicationContext?->toArray(),
+            'database_context' => $this->databaseContext?->toArray(),
         ];
     }
 
@@ -51,6 +53,13 @@ final readonly class RuntimeContext
 
         if ($this->requestContext !== null) {
             $summary .= "Request: {$this->requestContext->method} {$this->requestContext->uri}\n";
+        }
+
+        if ($this->databaseContext !== null && ! $this->databaseContext->isEmpty()) {
+            $summary .= "\nRecent queries:\n";
+            foreach ($this->databaseContext->recentQueries as $q) {
+                $summary .= '  - ' . $q . "\n";
+            }
         }
 
         return $summary;

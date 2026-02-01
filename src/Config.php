@@ -39,6 +39,8 @@ final readonly class Config
         private ?string $currentEnvironment = null,
         private bool $cacheEnabled = true,
         private int $cacheTtl = 3600,
+        private bool $includeDatabaseQueries = false,
+        private int $maxDatabaseQueries = 5,
     ) {}
 
     /**
@@ -67,6 +69,8 @@ final readonly class Config
         $cache = is_array($config['cache'] ?? null) ? $config['cache'] : [];
         $cacheEnabled = $cache['enabled'] ?? true;
         $cacheTtl = $cache['ttl'] ?? 3600;
+        $includeDatabaseQueries = $context['include_database_queries'] ?? false;
+        $maxDatabaseQueries = $context['max_database_queries'] ?? 5;
 
         return new self(
             enabled: is_bool($enabled) ? $enabled : true,
@@ -86,6 +90,8 @@ final readonly class Config
             currentEnvironment: is_string($currentEnvironment) ? $currentEnvironment : null,
             cacheEnabled: is_bool($cacheEnabled) ? $cacheEnabled : true,
             cacheTtl: is_int($cacheTtl) ? $cacheTtl : 3600,
+            includeDatabaseQueries: is_bool($includeDatabaseQueries) ? $includeDatabaseQueries : false,
+            maxDatabaseQueries: is_int($maxDatabaseQueries) ? $maxDatabaseQueries : 5,
         );
     }
 
@@ -177,6 +183,8 @@ final readonly class Config
             currentEnvironment: $this->currentEnvironment,
             cacheEnabled: $this->cacheEnabled,
             cacheTtl: $this->cacheTtl,
+            includeDatabaseQueries: $this->includeDatabaseQueries,
+            maxDatabaseQueries: $this->maxDatabaseQueries,
         );
     }
 
@@ -211,6 +219,16 @@ final readonly class Config
     public function getCacheTtl(): int
     {
         return $this->cacheTtl;
+    }
+
+    public function includeDatabaseQueries(): bool
+    {
+        return $this->includeDatabaseQueries;
+    }
+
+    public function getMaxDatabaseQueries(): int
+    {
+        return $this->maxDatabaseQueries;
     }
 
     /**

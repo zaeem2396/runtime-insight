@@ -8,18 +8,22 @@ use ClarityPHP\RuntimeInsight\Config;
 use ClarityPHP\RuntimeInsight\Context\ContextBuilder;
 use ClarityPHP\RuntimeInsight\Contracts\ContextBuilderInterface;
 use ClarityPHP\RuntimeInsight\DTO\ApplicationContext;
+use ClarityPHP\RuntimeInsight\DTO\DatabaseContext;
 use ClarityPHP\RuntimeInsight\DTO\RequestContext;
 use ClarityPHP\RuntimeInsight\DTO\RuntimeContext;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Route;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route as RouteFacade;
 use Throwable;
 
+use function array_slice;
 use function in_array;
 use function is_array;
 use function is_string;
+use function sprintf;
 
 /**
  * Laravel-specific context builder that extends base ContextBuilder
@@ -48,7 +52,43 @@ final class LaravelContextBuilder implements ContextBuilderInterface
                 ? $this->buildRequestContext()
                 : null,
             applicationContext: $this->buildApplicationContext(),
+            databaseContext: $this->buildDatabaseContext(),
         );
+    }
+
+    /**
+     * Build database/query context from Laravel query log (when enabled).
+     */
+    private function buildDatabaseContext(): ?DatabaseContext
+    {
+        if (! $this->config->includeDatabaseQueries()) {
+            return null;
+        }
+
+        try {
+            /** @var array<int, array<string, mixed>> $log */
+            $log = DB::getQueryLog();
+            if ($log === []) {
+                return null;
+            }
+
+            $max = $this->config->getMaxDatabaseQueries();
+            $recent = array_slice($log, -$max);
+            $queries = [];
+
+            foreach ($recent as $entry) {
+                /** @var array<string, mixed> $entry */
+                $query = isset($entry['query']) && is_string($entry['query']) ? $entry['query'] : '';
+                $time = isset($entry['time']) && is_numeric($entry['time']) ? (float) $entry['time'] : null;
+                if ($query !== '') {
+                    $queries[] = $time !== null ? sprintf('%s [%.2fms]', $query, $time) : $query;
+                }
+            }
+
+            return $queries === [] ? null : new DatabaseContext(recentQueries: $queries);
+        } catch (Throwable) {
+            return null;
+        }
     }
 
     /**
