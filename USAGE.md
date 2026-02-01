@@ -519,17 +519,45 @@ runtime_insight:
 
 The active provider is chosen from config (`ai.provider`) and instantiated via `ProviderFactory` (used by `RuntimeInsightFactory::createAIProvider`). You can create a provider directly with `ProviderFactory::createProvider($config)`.
 
-### Anthropic (Claude) *(planned for v0.5.0)*
+### Anthropic (Claude)
 
-Config structure for when Claude support is added:
+The Anthropic provider uses the Claude Messages API for error analysis. Set `ai.provider` to `anthropic` and your Anthropic API key.
+
+**Configuration:**
 
 ```php
+// config/runtime-insight.php (Laravel)
 'ai' => [
+    'enabled' => true,
     'provider' => 'anthropic',
-    'model' => 'claude-sonnet-4-20250514',
-    'api_key' => env('ANTHROPIC_API_KEY'),
+    'model' => 'claude-sonnet-4-20250514',  // or claude-3-5-haiku-20241022, claude-3-opus-latest, etc.
+    'api_key' => env('RUNTIME_INSIGHT_AI_KEY'),  // or ANTHROPIC_API_KEY
+    'timeout' => 5,
 ],
 ```
+
+```yaml
+# config/packages/runtime_insight.yaml (Symfony)
+runtime_insight:
+    ai:
+        enabled: true
+        provider: anthropic
+        model: claude-sonnet-4-20250514
+        api_key: '%env(RUNTIME_INSIGHT_AI_KEY)%'
+        timeout: 5
+```
+
+**Features:**
+- Messages API with system prompt and user message
+- Retry with exponential backoff on rate limits (429)
+- Token usage tracking (input + output) in explanation metadata
+- Same JSON response format as OpenAI for consistent parsing
+
+**How it works:**
+1. Rule-based strategies are tried first
+2. If no strategy matches and AI is enabled, the Anthropic Messages API is called
+3. Claude analyzes the error context and returns an explanation (JSON or fallback text)
+4. Token usage is recorded in metadata
 
 ### Ollama (Local) *(planned for v0.5.0)*
 
