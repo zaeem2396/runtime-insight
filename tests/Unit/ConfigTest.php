@@ -97,6 +97,20 @@ final class ConfigTest extends TestCase
     }
 
     #[Test]
+    public function it_reads_base_url_from_array(): void
+    {
+        $config = Config::fromArray([
+            'ai' => [
+                'provider' => 'ollama',
+                'model' => 'llama3.2',
+                'base_url' => 'http://localhost:11434',
+            ],
+        ]);
+
+        $this->assertSame('http://localhost:11434', $config->getAIBaseUrl());
+    }
+
+    #[Test]
     public function it_reads_fallback_from_array(): void
     {
         $config = Config::fromArray([
