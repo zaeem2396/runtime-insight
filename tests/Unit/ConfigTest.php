@@ -34,6 +34,7 @@ final class ConfigTest extends TestCase
         $this->assertSame('anthropic', $config->getAIProvider());
         $this->assertSame('claude-sonnet-4-20250514', $config->getAIModel());
         $this->assertSame('test-key', $config->getAIApiKey());
+        $this->assertNull($config->getAIBaseUrl());
         $this->assertSame(10, $config->getAITimeout());
         $this->assertSame(15, $config->getSourceLines());
         $this->assertFalse($config->shouldIncludeRequest());
@@ -94,5 +95,19 @@ final class ConfigTest extends TestCase
 
         $this->assertFalse($configWithoutKey->isAIEnabled());
         $this->assertTrue($configWithKey->isAIEnabled());
+    }
+
+    #[Test]
+    public function it_reads_base_url_from_array(): void
+    {
+        $config = Config::fromArray([
+            'ai' => [
+                'provider' => 'ollama',
+                'model' => 'llama3.2',
+                'base_url' => 'http://localhost:11434',
+            ],
+        ]);
+
+        $this->assertSame('http://localhost:11434', $config->getAIBaseUrl());
     }
 }

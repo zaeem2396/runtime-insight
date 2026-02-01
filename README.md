@@ -278,7 +278,7 @@ See [USAGE.md](USAGE.md) for detailed documentation.
 
 Runtime Insight is designed for extensibility:
 
-- **AI Provider Factory** - `ProviderFactory` creates the configured provider (openai, anthropic; ollama in v0.5.0)
+- **AI Provider Factory** - `ProviderFactory` creates the configured provider (openai, anthropic, ollama)
 - **Custom AI Providers** - Implement the `AIProviderInterface`
 - **Custom Explanation Strategies** - Add domain-specific patterns
 - **Custom Renderers** - Output to JSON, HTML, Slack, etc.
