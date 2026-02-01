@@ -517,7 +517,11 @@ runtime_insight:
 3. The AI analyzes the error context and returns an explanation
 4. Token usage is tracked for monitoring
 
-### Anthropic (Claude)
+The active provider is chosen from config (`ai.provider`) and instantiated via `ProviderFactory` (used by `RuntimeInsightFactory::createAIProvider`). You can create a provider directly with `ProviderFactory::createProvider($config)`.
+
+### Anthropic (Claude) *(planned for v0.5.0)*
+
+Config structure for when Claude support is added:
 
 ```php
 'ai' => [
@@ -527,7 +531,9 @@ runtime_insight:
 ],
 ```
 
-### Ollama (Local)
+### Ollama (Local) *(planned for v0.5.0)*
+
+Config structure for when Ollama support is added:
 
 ```php
 'ai' => [
