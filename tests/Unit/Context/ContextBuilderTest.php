@@ -143,6 +143,7 @@ final class ContextBuilderTest extends TestCase
         $this->assertArrayHasKey('source_context', $array);
         $this->assertArrayHasKey('request_context', $array);
         $this->assertArrayHasKey('application_context', $array);
+        $this->assertArrayHasKey('database_context', $array);
     }
 
     #[Test]

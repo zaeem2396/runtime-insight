@@ -58,7 +58,7 @@ final readonly class RuntimeContext
         if ($this->databaseContext !== null && ! $this->databaseContext->isEmpty()) {
             $summary .= "\nRecent queries:\n";
             foreach ($this->databaseContext->recentQueries as $q) {
-                $summary .= "  - " . $q . "\n";
+                $summary .= '  - ' . $q . "\n";
             }
         }
 

@@ -12,16 +12,18 @@ use ClarityPHP\RuntimeInsight\DTO\DatabaseContext;
 use ClarityPHP\RuntimeInsight\DTO\RequestContext;
 use ClarityPHP\RuntimeInsight\DTO\RuntimeContext;
 use Illuminate\Contracts\Foundation\Application;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Route;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route as RouteFacade;
 use Throwable;
 
+use function array_slice;
 use function in_array;
 use function is_array;
 use function is_string;
+use function sprintf;
 
 /**
  * Laravel-specific context builder that extends base ContextBuilder
