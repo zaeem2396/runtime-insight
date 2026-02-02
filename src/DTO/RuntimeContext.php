@@ -64,6 +64,14 @@ final readonly class RuntimeContext
             }
         }
 
+        if ($this->performanceContext !== null && ! $this->performanceContext->isEmpty()) {
+            $summary .= "\nPerformance:\n";
+            $summary .= '  Peak memory: ' . $this->performanceContext->getPeakMemoryFormatted() . "\n";
+            if ($this->performanceContext->scriptRuntimeSeconds > 0) {
+                $summary .= '  Script runtime: ' . round($this->performanceContext->scriptRuntimeSeconds, 2) . "s\n";
+            }
+        }
+
         return $summary;
     }
 }
