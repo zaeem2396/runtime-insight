@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace ClarityPHP\RuntimeInsight\DTO;
 
+use function count;
+
 /**
  * Memory and performance context at time of error.
  */

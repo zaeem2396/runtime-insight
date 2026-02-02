@@ -210,4 +210,24 @@ final class ConfigTest extends TestCase
         $this->assertFalse($config->includeDatabaseQueries());
         $this->assertSame(5, $config->getMaxDatabaseQueries());
     }
+
+    #[Test]
+    public function it_reads_performance_context_from_array(): void
+    {
+        $config = Config::fromArray([
+            'context' => [
+                'include_performance_context' => true,
+            ],
+        ]);
+
+        $this->assertTrue($config->includePerformanceContext());
+    }
+
+    #[Test]
+    public function it_uses_default_performance_context_when_not_in_array(): void
+    {
+        $config = Config::fromArray([]);
+
+        $this->assertFalse($config->includePerformanceContext());
+    }
 }
