@@ -16,6 +16,7 @@ final readonly class RuntimeContext
         public ?RequestContext $requestContext = null,
         public ?ApplicationContext $applicationContext = null,
         public ?DatabaseContext $databaseContext = null,
+        public ?PerformanceContext $performanceContext = null,
     ) {}
 
     /**
@@ -30,6 +31,7 @@ final readonly class RuntimeContext
             'request_context' => $this->requestContext?->toArray(),
             'application_context' => $this->applicationContext?->toArray(),
             'database_context' => $this->databaseContext?->toArray(),
+            'performance_context' => $this->performanceContext?->toArray(),
         ];
     }
 
