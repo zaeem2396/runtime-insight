@@ -76,6 +76,9 @@ return [
 
         // Maximum number of recent queries to capture
         'max_database_queries' => (int) env('RUNTIME_INSIGHT_MAX_DATABASE_QUERIES', 5),
+
+        // Include memory/performance context (peak memory at time of error)
+        'include_performance_context' => env('RUNTIME_INSIGHT_INCLUDE_PERFORMANCE_CONTEXT', false),
     ],
 
     /*

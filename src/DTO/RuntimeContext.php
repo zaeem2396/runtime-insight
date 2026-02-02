@@ -16,6 +16,7 @@ final readonly class RuntimeContext
         public ?RequestContext $requestContext = null,
         public ?ApplicationContext $applicationContext = null,
         public ?DatabaseContext $databaseContext = null,
+        public ?PerformanceContext $performanceContext = null,
     ) {}
 
     /**
@@ -30,6 +31,7 @@ final readonly class RuntimeContext
             'request_context' => $this->requestContext?->toArray(),
             'application_context' => $this->applicationContext?->toArray(),
             'database_context' => $this->databaseContext?->toArray(),
+            'performance_context' => $this->performanceContext?->toArray(),
         ];
     }
 
@@ -59,6 +61,14 @@ final readonly class RuntimeContext
             $summary .= "\nRecent queries:\n";
             foreach ($this->databaseContext->recentQueries as $q) {
                 $summary .= '  - ' . $q . "\n";
+            }
+        }
+
+        if ($this->performanceContext !== null && ! $this->performanceContext->isEmpty()) {
+            $summary .= "\nPerformance:\n";
+            $summary .= '  Peak memory: ' . $this->performanceContext->getPeakMemoryFormatted() . "\n";
+            if ($this->performanceContext->scriptRuntimeSeconds > 0) {
+                $summary .= '  Script runtime: ' . round($this->performanceContext->scriptRuntimeSeconds, 2) . "s\n";
             }
         }
 

@@ -144,6 +144,7 @@ final class ContextBuilderTest extends TestCase
         $this->assertArrayHasKey('request_context', $array);
         $this->assertArrayHasKey('application_context', $array);
         $this->assertArrayHasKey('database_context', $array);
+        $this->assertArrayHasKey('performance_context', $array);
     }
 
     #[Test]
@@ -158,5 +159,26 @@ final class ContextBuilderTest extends TestCase
 
         // Should have at most 5 lines (2 before + error line + 2 after)
         $this->assertLessThanOrEqual(5, count($context->sourceContext->lines));
+    }
+
+    #[Test]
+    public function it_includes_performance_context_when_enabled(): void
+    {
+        $builder = new ContextBuilder(new Config(includePerformanceContext: true));
+        $exception = new Exception('Test');
+        $context = $builder->build($exception);
+
+        $this->assertNotNull($context->performanceContext);
+        $this->assertGreaterThanOrEqual(0, $context->performanceContext->peakMemoryBytes);
+    }
+
+    #[Test]
+    public function it_omits_performance_context_when_disabled(): void
+    {
+        $builder = new ContextBuilder(new Config(includePerformanceContext: false));
+        $exception = new Exception('Test');
+        $context = $builder->build($exception);
+
+        $this->assertNull($context->performanceContext);
     }
 }

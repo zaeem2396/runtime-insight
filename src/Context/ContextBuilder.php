@@ -9,6 +9,7 @@ use ClarityPHP\RuntimeInsight\Contracts\ContextBuilderInterface;
 use ClarityPHP\RuntimeInsight\DTO\ApplicationContext;
 use ClarityPHP\RuntimeInsight\DTO\DatabaseContext;
 use ClarityPHP\RuntimeInsight\DTO\ExceptionInfo;
+use ClarityPHP\RuntimeInsight\DTO\PerformanceContext;
 use ClarityPHP\RuntimeInsight\DTO\RequestContext;
 use ClarityPHP\RuntimeInsight\DTO\RuntimeContext;
 use ClarityPHP\RuntimeInsight\DTO\SourceContext;
@@ -53,6 +54,7 @@ final class ContextBuilder implements ContextBuilderInterface
                 : null,
             applicationContext: $this->buildApplicationContext(),
             databaseContext: $this->buildDatabaseContext(),
+            performanceContext: $this->buildPerformanceContext(),
         );
     }
 
@@ -150,6 +152,21 @@ final class ContextBuilder implements ContextBuilderInterface
     private function buildDatabaseContext(): ?DatabaseContext
     {
         return null;
+    }
+
+    /**
+     * Build memory/performance context when enabled.
+     */
+    private function buildPerformanceContext(): ?PerformanceContext
+    {
+        if (! $this->config->includePerformanceContext()) {
+            return null;
+        }
+
+        return new PerformanceContext(
+            peakMemoryBytes: memory_get_peak_usage(true),
+            scriptRuntimeSeconds: 0.0,
+        );
     }
 
     /**

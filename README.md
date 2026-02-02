@@ -69,6 +69,7 @@ Confidence: 0.92
 - ⚡ **Non-Blocking** - Never interferes with your application's flow
 - 💾 **Explanation Caching** - Cache repeated errors to reduce API calls
 - 🗄️ **Database Query Context** - Optional recent queries in context (Laravel)
+- 📊 **Memory & Performance Context** - Optional peak memory at time of error
 
 ---
 
@@ -210,6 +211,7 @@ return [
         'sanitize_inputs' => true,   // Scrub sensitive data
         'include_database_queries' => false,  // Recent queries (Laravel query log)
         'max_database_queries' => 5,
+        'include_performance_context' => false,  // Peak memory at time of error
     ],
 
     'cache' => [
