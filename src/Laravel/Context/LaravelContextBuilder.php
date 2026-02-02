@@ -53,6 +53,7 @@ final class LaravelContextBuilder implements ContextBuilderInterface
                 : null,
             applicationContext: $this->buildApplicationContext(),
             databaseContext: $this->buildDatabaseContext(),
+            performanceContext: $baseContext->performanceContext,
         );
     }
 
