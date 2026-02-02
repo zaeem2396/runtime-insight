@@ -14,6 +14,7 @@ This guide covers all usage scenarios for ClarityPHP Runtime Insight.
 - [Configuration Options](#configuration-options)
 - [Caching](#caching)
 - [Database query context](#database-query-context)
+- [Memory and performance context](#memory-and-performance-context)
 - [AI Provider Configuration](#ai-provider-configuration)
 - [Custom Integrations](#custom-integrations)
 - [Production Considerations](#production-considerations)
@@ -433,6 +434,9 @@ return [
 
         // Maximum number of recent queries to capture
         'max_database_queries' => (int) env('RUNTIME_INSIGHT_MAX_DATABASE_QUERIES', 5),
+
+        // Include memory/performance context (peak memory at time of error)
+        'include_performance_context' => env('RUNTIME_INSIGHT_INCLUDE_PERFORMANCE_CONTEXT', false),
     ],
 
     /*
@@ -511,6 +515,23 @@ Then set `context.include_database_queries` to `true` in your Runtime Insight co
 | `max_database_queries`      | Maximum number of queries to capture | `5`    |
 
 **Symfony:** Database query context is not yet implemented; the option is accepted in config but no queries are captured.
+
+### Memory and performance context
+
+When enabled, Runtime Insight captures memory and performance data at the time of the error and includes it in the context sent to the AI. This helps explain errors that may be related to memory limits or long-running operations.
+
+**What is captured:**
+
+- **Peak memory** – `memory_get_peak_usage(true)` (real memory, in bytes), formatted for the summary (e.g. "12.5 MB").
+- **Script runtime** – Reserved for future use (e.g. elapsed time since request start).
+
+**Configuration:**
+
+| Option                      | Description                          | Default |
+|-----------------------------|--------------------------------------|---------|
+| `include_performance_context` | Include peak memory in context     | `false` |
+
+Set `context.include_performance_context` to `true` in your config (or `RUNTIME_INSIGHT_INCLUDE_PERFORMANCE_CONTEXT=true` in Laravel). The AI summary will then include a "Performance:" section with peak memory.
 
 ---
 
