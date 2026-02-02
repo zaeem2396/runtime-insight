@@ -49,29 +49,9 @@ final class ExceptionHandler
      */
     public function formatExplanation(Explanation $explanation): string
     {
-        $output = "❗ Runtime Error Explained\n\n";
-        $output .= "Error:\n  {$explanation->getMessage()}\n\n";
+        $renderer = new \ClarityPHP\RuntimeInsight\Renderer\ConsoleOutputRenderer();
 
-        if ($explanation->getCause() !== '') {
-            $output .= "Why this happened:\n  {$explanation->getCause()}\n\n";
-        }
-
-        if ($explanation->getLocation() !== null) {
-            $output .= "Where:\n  {$explanation->getLocation()}\n\n";
-        }
-
-        $suggestions = $explanation->getSuggestions();
-        if ($suggestions !== []) {
-            $output .= "Suggested Fix:\n";
-            foreach ($suggestions as $suggestion) {
-                $output .= "  - {$suggestion}\n";
-            }
-            $output .= "\n";
-        }
-
-        $output .= "Confidence: {$explanation->getConfidence()}\n";
-
-        return $output;
+        return $renderer->render($explanation);
     }
 
     /**

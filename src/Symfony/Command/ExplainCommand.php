@@ -6,6 +6,7 @@ namespace ClarityPHP\RuntimeInsight\Symfony\Command;
 
 use ClarityPHP\RuntimeInsight\Contracts\AnalyzerInterface;
 use ClarityPHP\RuntimeInsight\DTO\Explanation;
+use ClarityPHP\RuntimeInsight\Renderer\RendererFactory;
 use Exception;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -21,7 +22,6 @@ use function file_get_contents;
 use function is_int;
 use function is_readable;
 use function is_string;
-use function json_encode;
 use function preg_match_all;
 
 /**
@@ -44,7 +44,7 @@ final class ExplainCommand extends Command
         $this
             ->addOption('log', 'l', InputOption::VALUE_REQUIRED, 'Path to log file to analyze')
             ->addOption('line', null, InputOption::VALUE_REQUIRED, 'Line number in log file')
-            ->addOption('format', 'f', InputOption::VALUE_REQUIRED, 'Output format (text, json, markdown)', 'text');
+            ->addOption('format', 'f', InputOption::VALUE_REQUIRED, 'Output format (text, json, markdown, html, ide)', 'text');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -149,81 +149,7 @@ final class ExplainCommand extends Command
     private function outputExplanation(Explanation $explanation, InputInterface $input, SymfonyStyle $io): void
     {
         $format = $input->getOption('format');
-
-        match ($format) {
-            'json' => $this->outputJson($explanation, $io),
-            'markdown' => $this->outputMarkdown($explanation, $io),
-            default => $this->outputText($explanation, $io),
-        };
-    }
-
-    /**
-     * Output explanation as formatted text.
-     */
-    private function outputText(Explanation $explanation, SymfonyStyle $io): void
-    {
-        $io->title('Runtime Error Explained');
-        $io->section('Error');
-        $io->text($explanation->getMessage());
-
-        if ($explanation->getCause() !== '') {
-            $io->section('Why this happened');
-            $io->text($explanation->getCause());
-        }
-
-        if ($explanation->getLocation() !== null) {
-            $io->section('Where');
-            $io->text($explanation->getLocation());
-        }
-
-        $suggestions = $explanation->getSuggestions();
-        if ($suggestions !== []) {
-            $io->section('Suggested Fix');
-            $io->listing($suggestions);
-        }
-
-        $io->text("Confidence: {$explanation->getConfidence()}");
-    }
-
-    /**
-     * Output explanation as JSON.
-     */
-    private function outputJson(Explanation $explanation, SymfonyStyle $io): void
-    {
-        $json = json_encode($explanation->toArray(), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-        $io->writeln($json !== false ? $json : '{}');
-    }
-
-    /**
-     * Output explanation as Markdown.
-     */
-    private function outputMarkdown(Explanation $explanation, SymfonyStyle $io): void
-    {
-        $output = "# Runtime Error Explanation\n\n";
-        $output .= "## Error\n\n";
-        $output .= "```\n{$explanation->getMessage()}\n```\n\n";
-
-        if ($explanation->getCause() !== '') {
-            $output .= "## Why This Happened\n\n";
-            $output .= "{$explanation->getCause()}\n\n";
-        }
-
-        if ($explanation->getLocation() !== null) {
-            $output .= "## Location\n\n";
-            $output .= "`{$explanation->getLocation()}`\n\n";
-        }
-
-        $suggestions = $explanation->getSuggestions();
-        if ($suggestions !== []) {
-            $output .= "## Suggested Fixes\n\n";
-            foreach ($suggestions as $suggestion) {
-                $output .= "- {$suggestion}\n";
-            }
-            $output .= "\n";
-        }
-
-        $output .= "**Confidence:** {$explanation->getConfidence()}\n";
-
-        $io->writeln($output);
+        $renderer = RendererFactory::forFormat(is_string($format) ? $format : 'text');
+        $io->writeln($renderer->render($explanation));
     }
 }
