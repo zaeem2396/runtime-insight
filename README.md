@@ -293,6 +293,7 @@ Runtime Insight is designed for extensibility:
 - **Custom AI Providers** - Implement the `AIProviderInterface`
 - **Explanation Caching** - When `cache.enabled` is true, the engine caches explanations by error signature (class, message, file, line) to avoid repeated AI calls
 - **Custom Explanation Strategies** - Add domain-specific patterns
+- **Output & Rendering** - `RendererFactory::forFormat()` supports text, json, markdown, html, ide. Use `RendererInterface` for custom renderers.
 - **Custom Renderers** - Output to JSON, HTML, Slack, etc.
 
 ```php

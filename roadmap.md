@@ -103,11 +103,11 @@
 ## Phase 3: Developer Experience (v0.7.0 - v0.9.0)
 
 ### v0.7.0 - Output & Rendering
-- [ ] Console output formatter
-- [ ] JSON export
-- [ ] Markdown export
-- [ ] HTML debug view
-- [ ] IDE integration hooks
+- [x] Console output formatter (ConsoleOutputRenderer)
+- [x] JSON export (JsonRenderer)
+- [x] Markdown export (MarkdownRenderer)
+- [x] HTML debug view (HtmlRenderer)
+- [x] IDE integration hooks (IdeRenderer, format=ide)
 
 ### v0.8.0 - Advanced Commands
 - [ ] Batch analysis (analyze all errors in log)
