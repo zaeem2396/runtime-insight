@@ -41,6 +41,7 @@ final readonly class Config
         private int $cacheTtl = 3600,
         private bool $includeDatabaseQueries = false,
         private int $maxDatabaseQueries = 5,
+        private bool $includePerformanceContext = false,
     ) {}
 
     /**
@@ -71,6 +72,7 @@ final readonly class Config
         $cacheTtl = $cache['ttl'] ?? 3600;
         $includeDatabaseQueries = $context['include_database_queries'] ?? false;
         $maxDatabaseQueries = $context['max_database_queries'] ?? 5;
+        $includePerformanceContext = $context['include_performance_context'] ?? false;
 
         return new self(
             enabled: is_bool($enabled) ? $enabled : true,
@@ -92,6 +94,7 @@ final readonly class Config
             cacheTtl: is_int($cacheTtl) ? $cacheTtl : 3600,
             includeDatabaseQueries: is_bool($includeDatabaseQueries) ? $includeDatabaseQueries : false,
             maxDatabaseQueries: is_int($maxDatabaseQueries) ? $maxDatabaseQueries : 5,
+            includePerformanceContext: is_bool($includePerformanceContext) ? $includePerformanceContext : false,
         );
     }
 
@@ -185,6 +188,7 @@ final readonly class Config
             cacheTtl: $this->cacheTtl,
             includeDatabaseQueries: $this->includeDatabaseQueries,
             maxDatabaseQueries: $this->maxDatabaseQueries,
+            includePerformanceContext: $this->includePerformanceContext,
         );
     }
 
@@ -229,6 +233,11 @@ final readonly class Config
     public function getMaxDatabaseQueries(): int
     {
         return $this->maxDatabaseQueries;
+    }
+
+    public function includePerformanceContext(): bool
+    {
+        return $this->includePerformanceContext;
     }
 
     /**
