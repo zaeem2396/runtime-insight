@@ -213,6 +213,12 @@ php artisan runtime:explain --format=json
 
 # Output as Markdown
 php artisan runtime:explain --format=markdown
+
+# Output as HTML (debug view)
+php artisan runtime:explain --format=html
+
+# Output with IDE-friendly location (file:line on first line)
+php artisan runtime:explain --format=ide
 ```
 
 **Options:**
@@ -221,7 +227,7 @@ php artisan runtime:explain --format=markdown
 |--------|-------------|---------|
 | `--log` | Path to log file | None (searches for last exception) |
 | `--line` | Line number in log file | Last exception |
-| `--format` | Output format (text, json, markdown) | text |
+| `--format` | Output format (text, json, markdown, html, ide) | text |
 
 **Example Output:**
 
@@ -311,7 +317,7 @@ php bin/console runtime:explain --format=markdown
 |--------|-------------|---------|
 | `--log` | Path to log file | None (searches for last exception) |
 | `--line` | Line number in log file | Last exception |
-| `--format` | Output format (text, json, markdown) | text |
+| `--format` | Output format (text, json, markdown, html, ide) | text |
 
 ### `runtime:doctor`
 
@@ -777,6 +783,20 @@ class PaymentErrorStrategy implements ExplanationStrategyInterface
 }
 ```
 
+### Output formats
+
+The `runtime:explain` command (and Symfony `runtime:explain`) support multiple output formats via `--format`:
+
+| Format    | Description |
+|-----------|-------------|
+| `text`    | Human-readable console output (default) |
+| `json`    | JSON (explanation as structured data) |
+| `markdown`| Markdown document |
+| `html`    | HTML debug view (styled page) |
+| `ide`     | Same as text but with file:line on first line for IDE link detection |
+
+Use `ClarityPHP\RuntimeInsight\Renderer\RendererFactory::forFormat($format)` to get a `RendererInterface` implementation programmatically.
+
 ### Custom Output Renderers
 
 ```php
@@ -785,12 +805,9 @@ use ClarityPHP\RuntimeInsight\DTO\Explanation;
 
 class SlackRenderer implements RendererInterface
 {
-    public function render(Explanation $explanation): void
+    public function render(Explanation $explanation): string
     {
-        // Send to Slack webhook
-        Http::post(config('services.slack.webhook'), [
-            'text' => $this->formatForSlack($explanation),
-        ]);
+        return $this->formatForSlack($explanation);
     }
 }
 ```

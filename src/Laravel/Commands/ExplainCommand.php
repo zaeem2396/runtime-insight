@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace ClarityPHP\RuntimeInsight\Laravel\Commands;
 
 use ClarityPHP\RuntimeInsight\Contracts\AnalyzerInterface;
-use ClarityPHP\RuntimeInsight\Laravel\ExceptionHandler;
+use ClarityPHP\RuntimeInsight\Renderer\RendererFactory;
 use Exception;
 use Illuminate\Console\Command;
 use Throwable;
@@ -30,7 +30,7 @@ final class ExplainCommand extends Command
     protected $signature = 'runtime:explain
                             {--log= : Path to log file to analyze}
                             {--line= : Line number in log file}
-                            {--format=text : Output format (text, json, markdown)}';
+                            {--format=text : Output format (text, json, markdown, html, ide)}';
 
     /**
      * The console command description.
@@ -41,7 +41,6 @@ final class ExplainCommand extends Command
 
     public function __construct(
         private readonly AnalyzerInterface $analyzer,
-        private readonly ExceptionHandler $exceptionHandler,
     ) {
         parent::__construct();
     }
@@ -144,61 +143,7 @@ final class ExplainCommand extends Command
     private function outputExplanation(\ClarityPHP\RuntimeInsight\DTO\Explanation $explanation): void
     {
         $format = $this->option('format');
-
-        match ($format) {
-            'json' => $this->outputJson($explanation),
-            'markdown' => $this->outputMarkdown($explanation),
-            default => $this->outputText($explanation),
-        };
-    }
-
-    /**
-     * Output explanation as formatted text.
-     */
-    private function outputText(\ClarityPHP\RuntimeInsight\DTO\Explanation $explanation): void
-    {
-        $this->line($this->exceptionHandler->formatExplanation($explanation));
-    }
-
-    /**
-     * Output explanation as JSON.
-     */
-    private function outputJson(\ClarityPHP\RuntimeInsight\DTO\Explanation $explanation): void
-    {
-        $json = json_encode($explanation->toArray(), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-        $this->line($json !== false ? $json : '{}');
-    }
-
-    /**
-     * Output explanation as Markdown.
-     */
-    private function outputMarkdown(\ClarityPHP\RuntimeInsight\DTO\Explanation $explanation): void
-    {
-        $output = "# Runtime Error Explanation\n\n";
-        $output .= "## Error\n\n";
-        $output .= "```\n{$explanation->getMessage()}\n```\n\n";
-
-        if ($explanation->getCause() !== '') {
-            $output .= "## Why This Happened\n\n";
-            $output .= "{$explanation->getCause()}\n\n";
-        }
-
-        if ($explanation->getLocation() !== null) {
-            $output .= "## Location\n\n";
-            $output .= "`{$explanation->getLocation()}`\n\n";
-        }
-
-        $suggestions = $explanation->getSuggestions();
-        if ($suggestions !== []) {
-            $output .= "## Suggested Fixes\n\n";
-            foreach ($suggestions as $suggestion) {
-                $output .= "- {$suggestion}\n";
-            }
-            $output .= "\n";
-        }
-
-        $output .= "**Confidence:** {$explanation->getConfidence()}\n";
-
-        $this->line($output);
+        $renderer = RendererFactory::forFormat(is_string($format) ? $format : 'text');
+        $this->line($renderer->render($explanation));
     }
 }
