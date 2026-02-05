@@ -7,7 +7,6 @@ namespace ClarityPHP\RuntimeInsight\Symfony\Command;
 use ClarityPHP\RuntimeInsight\Contracts\AnalyzerInterface;
 use ClarityPHP\RuntimeInsight\DTO\Explanation;
 use ClarityPHP\RuntimeInsight\Renderer\RendererFactory;
-use Exception;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -22,7 +21,9 @@ use function file_get_contents;
 use function is_int;
 use function is_readable;
 use function is_string;
+use function preg_match;
 use function preg_match_all;
+use function trim;
 
 /**
  * Console command to explain the last runtime error.
@@ -50,15 +51,32 @@ final class ExplainCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
-        $throwable = $this->getException($input, $io);
+        $logFile = $input->getOption('log');
+        $lineOpt = $input->getOption('line');
 
-        if ($throwable === null) {
-            $io->error('No exception found to analyze.');
+        if ($logFile !== null && is_string($logFile)) {
+            $lineNumber = null;
+            if ($lineOpt !== null) {
+                if (is_int($lineOpt)) {
+                    $lineNumber = $lineOpt;
+                } elseif (is_string($lineOpt) && is_numeric($lineOpt)) {
+                    $lineNumber = (int) $lineOpt;
+                }
+            }
+            $entry = $this->parseExceptionFromLog($logFile, $lineNumber, $io);
+            if ($entry === null) {
+                return Command::FAILURE;
+            }
+            $explanation = $this->analyzer->analyzeFromLog($entry['message'], $entry['file'], $entry['line']);
+        } else {
+            $throwable = $this->getException($input, $io);
+            if ($throwable === null) {
+                $io->error('No exception found to analyze.');
 
-            return Command::FAILURE;
+                return Command::FAILURE;
+            }
+            $explanation = $this->analyzer->analyze($throwable);
         }
-
-        $explanation = $this->analyzer->analyze($throwable);
 
         if ($explanation->isEmpty()) {
             $io->warning('Runtime Insight is disabled or no explanation could be generated.');
@@ -72,35 +90,19 @@ final class ExplainCommand extends Command
     }
 
     /**
-     * Get the exception to analyze.
+     * Get the exception to analyze (when not using --log).
      */
     private function getException(InputInterface $input, SymfonyStyle $io): ?Throwable
     {
-        $logFile = $input->getOption('log');
-        $line = $input->getOption('line');
-
-        if ($logFile !== null && is_string($logFile)) {
-            $lineNumber = null;
-            if ($line !== null) {
-                if (is_int($line)) {
-                    $lineNumber = $line;
-                } elseif (is_string($line) && is_numeric($line)) {
-                    $lineNumber = (int) $line;
-                }
-            }
-
-            return $this->parseExceptionFromLog($logFile, $lineNumber, $io);
-        }
-
-        // Try to get from in-memory buffer (if available)
-        // For now, return null
         return null;
     }
 
     /**
-     * Parse exception from log file.
+     * Parse exception from log file. Returns message, file, and line for the log entry.
+     *
+     * @return array{message: string, file: string, line: int}|null
      */
-    private function parseExceptionFromLog(string $logFile, ?int $lineNumber, SymfonyStyle $io): ?Throwable
+    private function parseExceptionFromLog(string $logFile, ?int $lineNumber, SymfonyStyle $io): ?array
     {
         if (! file_exists($logFile) || ! is_readable($logFile)) {
             $io->error("Log file not found or not readable: {$logFile}");
@@ -115,8 +117,7 @@ final class ExplainCommand extends Command
             return null;
         }
 
-        // Simple regex to find exception patterns
-        $pattern = '/\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\] .*?\.ERROR: (.+?)(?=\[|\Z)/s';
+        $pattern = '/\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\] [^\n]*\.ERROR: (.+?)(?=\n\[\d{4}-\d{2}-\d{2}|\Z)/s';
 
         if (preg_match_all($pattern, $content, $matches, PREG_SET_ORDER) === false) {
             $io->warning('No exceptions found in log file.');
@@ -127,20 +128,32 @@ final class ExplainCommand extends Command
         if ($lineNumber !== null && isset($matches[$lineNumber - 1])) {
             $match = $matches[$lineNumber - 1];
         } else {
-            // Get the last exception
             $match = $matches[count($matches) - 1] ?? null;
         }
 
-        if ($match === null) {
+        if ($match === null || ! isset($match[2])) {
             $io->warning('No matching exception found.');
 
             return null;
         }
 
-        // For now, create a generic exception
-        // preg_match guarantees index 2 exists when match succeeds
-        /** @phpstan-ignore-next-line */
-        return new Exception($match[2] ?? 'Exception from log');
+        $entry = $match[2];
+        $message = trim($entry);
+        if (preg_match('/^(.+?)\s+\{\s*"/s', $entry, $msgMatch) === 1) {
+            $message = trim($msgMatch[1]);
+        }
+        if ($message === '') {
+            $message = 'Exception from log';
+        }
+
+        $file = 'unknown';
+        $line = 0;
+        if (preg_match('/\s+at\s+([^\s:]+(?:\.php)?):(\d+)/', $entry, $locMatch) === 1) {
+            $file = $locMatch[1];
+            $line = (int) $locMatch[2];
+        }
+
+        return ['message' => $message, 'file' => $file, 'line' => $line];
     }
 
     /**
