@@ -186,7 +186,7 @@ class CustomExceptionHandler
         );
         
         // Log or display the explanation
-        if ($explanation->hasExplanation()) {
+        if (! $explanation->isEmpty()) {
             // Your custom handling
         }
     }
@@ -889,7 +889,7 @@ Check API key and network connectivity.
 
 ## Next Steps
 
-- Read the [API Reference](docs/api.md) for programmatic usage
-- Check [Examples](docs/examples/) for common use cases
+- See [Configuration Options](#configuration-options) and [AI Provider Configuration](#ai-provider-configuration) for full setup
+- Use `RendererFactory::forFormat()` and `RuntimeInsightFactory::create()` for programmatic usage (see [README](README.md))
 - Join our [Discord](https://discord.gg/clarityphp) for support
 
