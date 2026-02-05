@@ -31,17 +31,23 @@ composer require clarityphp/runtime-insight
 
 ### Basic Configuration
 
-After installation, create your configuration file and set up your AI provider API key:
+After installation, add your OpenAI API key (OpenAI is the default AI provider):
 
 ```bash
-# Laravel
-php artisan vendor:publish --tag=runtime-insight-config
+# Laravel: add OPEN_AI_APIKEY to .env if not present
+php artisan runtime:install
 
-# Set your API key in .env
-RUNTIME_INSIGHT_AI_KEY=your-api-key-here
+# Then set your key in .env
+OPEN_AI_APIKEY=your-api-key-here
 ```
 
-That's it! Runtime Insight will now automatically analyze exceptions and provide explanations.
+Optional: publish the config file to customize settings:
+
+```bash
+php artisan vendor:publish --tag=runtime-insight-config
+```
+
+If you run `php artisan runtime:explain` without setting `OPEN_AI_APIKEY`, you will see: *No OpenAI API key found. Set OPEN_AI_APIKEY in your .env file.*
 
 ---
 
@@ -196,6 +202,14 @@ class CustomExceptionHandler
 ---
 
 ## Artisan Commands (Laravel)
+
+#### `runtime:install`
+
+Adds `OPEN_AI_APIKEY=` to your `.env` file if it is not already there. Run once after installing the package so you can set your OpenAI API key. The default AI provider is OpenAI.
+
+```bash
+php artisan runtime:install
+```
 
 #### `runtime:explain`
 
@@ -389,8 +403,8 @@ return [
         // Model to use
         'model' => env('RUNTIME_INSIGHT_AI_MODEL', 'gpt-4.1-mini'),
         
-        // API key (provider-specific)
-        'api_key' => env('RUNTIME_INSIGHT_AI_KEY'),
+        // API key: OPEN_AI_APIKEY for OpenAI (default), or RUNTIME_INSIGHT_AI_KEY
+        'api_key' => env('OPEN_AI_APIKEY') ?? env('RUNTIME_INSIGHT_AI_KEY'),
         
         // Request timeout in seconds
         'timeout' => env('RUNTIME_INSIGHT_AI_TIMEOUT', 5),
@@ -543,9 +557,9 @@ Set `context.include_performance_context` to `true` in your config (or `RUNTIME_
 
 ## AI Provider Configuration
 
-### OpenAI
+### OpenAI (default provider)
 
-The OpenAI provider is now fully integrated and automatically used when configured.
+OpenAI is the default AI provider. Set your API key in `.env` as `OPEN_AI_APIKEY` (or run `php artisan runtime:install` to add the line, then fill it in).
 
 **Configuration:**
 
@@ -553,9 +567,9 @@ The OpenAI provider is now fully integrated and automatically used when configur
 // config/runtime-insight.php (Laravel)
 'ai' => [
     'enabled' => true,
-    'provider' => 'openai',
+    'provider' => 'openai',   // default
     'model' => 'gpt-4.1-mini',  // or gpt-4.1, gpt-4o, gpt-4-turbo
-    'api_key' => env('RUNTIME_INSIGHT_AI_KEY'),
+    // api_key is read from OPEN_AI_APIKEY (or RUNTIME_INSIGHT_AI_KEY) in .env
     'timeout' => 5,  // seconds
 ],
 ```
