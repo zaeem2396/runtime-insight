@@ -44,7 +44,7 @@ Feature suggestions are welcome! Please:
 
 ### Prerequisites
 
-- PHP 8.5+
+- PHP 8.2+
 - Composer 2.x
 - Git
 
@@ -69,7 +69,7 @@ composer test
 composer test:coverage
 
 # Run specific test file
-./vendor/bin/phpunit tests/Unit/ExampleTest.php
+./vendor/bin/phpunit tests/Unit/ConfigTest.php
 ```
 
 ### Static Analysis
