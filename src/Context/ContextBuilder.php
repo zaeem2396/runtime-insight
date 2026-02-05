@@ -59,6 +59,47 @@ final class ContextBuilder implements ContextBuilderInterface
     }
 
     /**
+     * Build a runtime context from a log entry (message, file, line).
+     */
+    public function buildFromLogEntry(string $message, string $file, int $line): RuntimeContext
+    {
+        $exception = new ExceptionInfo(
+            class: \Exception::class,
+            message: $message,
+            code: 0,
+            file: $file,
+            line: $line,
+            previousClass: null,
+            previousMessage: null,
+        );
+        $frame = new StackFrame(
+            file: $file,
+            line: $line,
+            class: null,
+            function: null,
+            type: null,
+            args: [],
+            isVendor: $this->isVendorPath($file),
+        );
+        $stackTrace = new StackTraceInfo(
+            frames: [$frame],
+            rawTrace: "#0 {$file}({$line}): (log entry)",
+        );
+
+        return new RuntimeContext(
+            exception: $exception,
+            stackTrace: $stackTrace,
+            sourceContext: $this->buildSourceContext($file, $line),
+            requestContext: $this->config->shouldIncludeRequest()
+                ? $this->buildRequestContext()
+                : null,
+            applicationContext: $this->buildApplicationContext(),
+            databaseContext: $this->buildDatabaseContext(),
+            performanceContext: $this->buildPerformanceContext(),
+        );
+    }
+
+    /**
      * Build stack trace info from throwable.
      */
     private function buildStackTrace(Throwable $throwable): StackTraceInfo

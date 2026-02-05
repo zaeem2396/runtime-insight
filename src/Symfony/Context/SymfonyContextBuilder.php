@@ -60,6 +60,26 @@ final class SymfonyContextBuilder implements ContextBuilderInterface
     }
 
     /**
+     * Build a runtime context from a log entry with Symfony-specific information.
+     */
+    public function buildFromLogEntry(string $message, string $file, int $line): RuntimeContext
+    {
+        $baseContext = $this->baseBuilder->buildFromLogEntry($message, $file, $line);
+
+        return new RuntimeContext(
+            exception: $baseContext->exception,
+            stackTrace: $baseContext->stackTrace,
+            sourceContext: $baseContext->sourceContext,
+            requestContext: $this->config->shouldIncludeRequest()
+                ? $this->buildRequestContext()
+                : null,
+            applicationContext: $this->buildApplicationContext(),
+            databaseContext: $baseContext->databaseContext,
+            performanceContext: $baseContext->performanceContext,
+        );
+    }
+
+    /**
      * Build request context from Symfony request.
      */
     private function buildRequestContext(): ?RequestContext
