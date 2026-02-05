@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace ClarityPHP\RuntimeInsight\Laravel\Commands;
 
+use ClarityPHP\RuntimeInsight\Config;
 use ClarityPHP\RuntimeInsight\Contracts\AnalyzerInterface;
 use ClarityPHP\RuntimeInsight\Renderer\RendererFactory;
 use Illuminate\Console\Command;
@@ -41,6 +42,7 @@ final class ExplainCommand extends Command
     protected $description = 'Explain the most recent runtime error';
 
     public function __construct(
+        private readonly Config $config,
         private readonly AnalyzerInterface $analyzer,
     ) {
         parent::__construct();
@@ -51,6 +53,14 @@ final class ExplainCommand extends Command
      */
     public function handle(): int
     {
+        if ($this->config->isAIConfigured()
+            && $this->config->getAIProvider() === 'openai'
+            && ($this->config->getAIApiKey() === null || $this->config->getAIApiKey() === '')) {
+            $this->error('No OpenAI API key found. Set OPEN_AI_APIKEY in your .env file.');
+
+            return self::FAILURE;
+        }
+
         $logFile = $this->option('log');
         $lineOpt = $this->option('line');
 
