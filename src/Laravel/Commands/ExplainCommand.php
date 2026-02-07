@@ -272,12 +272,24 @@ final class ExplainCommand extends Command
     }
 
     /**
-     * Output the explanation in the requested format.
+     * Output the explanation in the requested format (console or file).
      */
     private function outputExplanation(\ClarityPHP\RuntimeInsight\DTO\Explanation $explanation): void
     {
+        $outputPath = $this->option('output');
         $format = $this->option('format');
         $renderer = RendererFactory::forFormat(is_string($format) ? $format : 'text');
-        $this->line($renderer->render($explanation));
+        $content = $renderer->render($explanation);
+
+        if ($outputPath !== null && is_string($outputPath) && $outputPath !== '') {
+            if (file_put_contents($outputPath, $content) === false) {
+                $this->error("Could not write to file: {$outputPath}");
+
+                return;
+            }
+            $this->info("Explanation written to {$outputPath}");
+        } else {
+            $this->line($content);
+        }
     }
 }
