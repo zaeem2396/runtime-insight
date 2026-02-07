@@ -35,14 +35,15 @@ final class ExplainCommand extends Command
                             {--line= : Line number in log file}
                             {--all : Analyze all exceptions in the log file (use with --log)}
                             {--limit= : Max number of entries to analyze in batch (default: 10)}
-                            {--format=text : Output format (text, json, markdown, html, ide)}';
+                            {--format=text : Output format (text, json, markdown, html, ide)}
+                            {--output= : Write explanation to file instead of console}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Explain the most recent runtime error';
+    protected $description = 'Explain the most recent runtime error (use --output to write to a file)';
 
     public function __construct(
         private readonly Config $config,
