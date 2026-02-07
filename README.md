@@ -266,6 +266,9 @@ php artisan runtime:explain --log=storage/logs/laravel.log --line=243
 php artisan runtime:explain --log=storage/logs/laravel.log --all
 php artisan runtime:explain --log=storage/logs/laravel.log --all --limit=5
 
+# Write explanation to a file
+php artisan runtime:explain --log=storage/logs/laravel.log --output=explanation.txt
+
 # Run diagnostics
 php artisan runtime:doctor
 ```
