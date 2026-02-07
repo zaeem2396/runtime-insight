@@ -32,6 +32,8 @@ final class ExplainCommand extends Command
     protected $signature = 'runtime:explain
                             {--log= : Path to log file to analyze}
                             {--line= : Line number in log file}
+                            {--all : Analyze all exceptions in the log file (use with --log)}
+                            {--limit= : Max number of entries to analyze in batch (default: 10)}
                             {--format=text : Output format (text, json, markdown, html, ide)}';
 
     /**
@@ -63,6 +65,11 @@ final class ExplainCommand extends Command
 
         $logFile = $this->option('log');
         $lineOpt = $this->option('line');
+        $all = $this->option('all');
+
+        if ($logFile !== null && is_string($logFile) && $all) {
+            return $this->handleBatch($logFile);
+        }
 
         if ($logFile !== null && is_string($logFile)) {
             $entry = $this->parseExceptionFromLog($logFile, $lineOpt !== null ? (int) $lineOpt : null);
@@ -208,6 +215,59 @@ final class ExplainCommand extends Command
         }
 
         return ['message' => $message, 'file' => $file, 'line' => $line];
+    }
+
+    /**
+     * Analyze all (or limited) exceptions in a log file and output batch results.
+     */
+    private function handleBatch(string $logFile): int
+    {
+        $entries = $this->parseAllExceptionsFromLog($logFile);
+        if ($entries === null || $entries === []) {
+            return self::FAILURE;
+        }
+
+        $limitOpt = $this->option('limit');
+        $limit = $limitOpt !== null && is_numeric($limitOpt) ? (int) $limitOpt : 10;
+        $limit = $limit < 1 ? 10 : $limit;
+
+        // Take last N entries (most recent)
+        $toAnalyze = array_slice($entries, -$limit);
+
+        $explanations = [];
+        foreach ($toAnalyze as $entry) {
+            $explanations[] = $this->analyzer->analyzeFromLog(
+                $entry['message'],
+                $entry['file'],
+                $entry['line'],
+            );
+        }
+
+        $this->outputBatchExplanations($explanations);
+
+        return self::SUCCESS;
+    }
+
+    /**
+     * Output multiple explanations (batch mode).
+     *
+     * @param array<int, \ClarityPHP\RuntimeInsight\DTO\Explanation> $explanations
+     */
+    private function outputBatchExplanations(array $explanations): void
+    {
+        $format = $this->option('format');
+        $format = is_string($format) ? $format : 'text';
+        $renderer = RendererFactory::forFormat($format);
+
+        $count = count($explanations);
+        foreach ($explanations as $i => $explanation) {
+            if ($count > 1) {
+                $this->line('');
+                $this->line('--- Exception ' . ($i + 1) . ' / ' . $count . ' ---');
+                $this->line('');
+            }
+            $this->line($renderer->render($explanation));
+        }
     }
 
     /**
