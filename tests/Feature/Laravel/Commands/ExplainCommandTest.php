@@ -73,18 +73,18 @@ final class ExplainCommandTest extends TestCase
             ->assertExitCode(0);
     }
 
+    protected function getPackageProviders($app): array
+    {
+        return [
+            \ClarityPHP\RuntimeInsight\Laravel\RuntimeInsightServiceProvider::class,
+        ];
+    }
+
     private function writeTempLog(string $content): string
     {
         $path = sys_get_temp_dir() . '/runtime-insight-test-' . uniqid() . '.log';
         file_put_contents($path, $content);
 
         return $path;
-    }
-
-    protected function getPackageProviders($app): array
-    {
-        return [
-            \ClarityPHP\RuntimeInsight\Laravel\RuntimeInsightServiceProvider::class,
-        ];
     }
 }

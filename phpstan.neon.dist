@@ -8,3 +8,8 @@ parameters:
     ignoreErrors:
         # Ignore Laravel facade static calls
         - '#Call to static method .+ on a class-string#'
+        # getException() is a hook that currently always returns null; return type ?Throwable is the API contract
+        - message: '#Method .+::getException\(\) never returns Throwable so it can be removed from the return type\.#'
+          path: src/Laravel/Commands/ExplainCommand.php
+        - message: '#Method .+::getException\(\) never returns Throwable so it can be removed from the return type\.#'
+          path: src/Symfony/Command/ExplainCommand.php

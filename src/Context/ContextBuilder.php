@@ -15,6 +15,7 @@ use ClarityPHP\RuntimeInsight\DTO\RuntimeContext;
 use ClarityPHP\RuntimeInsight\DTO\SourceContext;
 use ClarityPHP\RuntimeInsight\DTO\StackFrame;
 use ClarityPHP\RuntimeInsight\DTO\StackTraceInfo;
+use Exception;
 use Throwable;
 
 use function count;
@@ -64,7 +65,7 @@ final class ContextBuilder implements ContextBuilderInterface
     public function buildFromLogEntry(string $message, string $file, int $line): RuntimeContext
     {
         $exception = new ExceptionInfo(
-            class: \Exception::class,
+            class: Exception::class,
             message: $message,
             code: 0,
             file: $file,

@@ -91,6 +91,8 @@ final class ExplainCommand extends Command
 
     /**
      * Get the exception to analyze (when not using --log).
+     *
+     * @return Throwable|null Hook for in-memory exception; currently always null.
      */
     private function getException(InputInterface $input, SymfonyStyle $io): ?Throwable
     {
@@ -131,7 +133,7 @@ final class ExplainCommand extends Command
             $match = $matches[count($matches) - 1] ?? null;
         }
 
-        if ($match === null || ! isset($match[2])) {
+        if (! isset($match[2])) {
             $io->warning('No matching exception found.');
 
             return null;

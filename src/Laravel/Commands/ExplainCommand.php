@@ -93,6 +93,8 @@ final class ExplainCommand extends Command
 
     /**
      * Get the exception to analyze (when not using --log).
+     *
+     * @return Throwable|null Hook for in-memory/cache exception; currently always null.
      */
     private function getException(): ?Throwable
     {
@@ -136,7 +138,7 @@ final class ExplainCommand extends Command
             $match = $matches[count($matches) - 1] ?? null;
         }
 
-        if ($match === null || ! isset($match[2])) {
+        if (! isset($match[2])) {
             $this->warn('No matching exception found.');
 
             return null;
