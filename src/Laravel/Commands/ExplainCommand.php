@@ -144,19 +144,62 @@ final class ExplainCommand extends Command
             return null;
         }
 
-        $entry = $match[2];
+        return $this->parseEntryFromMatch($match[2]);
+    }
 
-        // Extract message: Laravel often logs "message {\"exception\":\"...\"}" — use text before " {" when present
+    /**
+     * Parse all exception entries from a log file (for batch analysis).
+     *
+     * @return array<int, array{message: string, file: string, line: int}>|null
+     */
+    private function parseAllExceptionsFromLog(string $logFile): ?array
+    {
+        if (! file_exists($logFile) || ! is_readable($logFile)) {
+            $this->error("Log file not found or not readable: {$logFile}");
+
+            return null;
+        }
+
+        $content = file_get_contents($logFile);
+        if ($content === false) {
+            $this->error("Could not read log file: {$logFile}");
+
+            return null;
+        }
+
+        $pattern = '/\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\] [^\n]*\.ERROR: (.+?)(?=\n\[\d{4}-\d{2}-\d{2}|\Z)/s';
+
+        if (preg_match_all($pattern, $content, $matches, PREG_SET_ORDER) === false) {
+            $this->warn('No exceptions found in log file.');
+
+            return null;
+        }
+
+        $entries = [];
+        foreach ($matches as $match) {
+            if (isset($match[2])) {
+                $entries[] = $this->parseEntryFromMatch($match[2]);
+            }
+        }
+
+        return $entries;
+    }
+
+    /**
+     * Extract message, file, and line from a raw log entry string.
+     *
+     * @return array{message: string, file: string, line: int}
+     */
+    private function parseEntryFromMatch(string $entry): array
+    {
         $message = trim($entry);
         if (preg_match('/^(.+?)\s+\{\s*"/s', $entry, $msgMatch) === 1) {
             $message = trim($msgMatch[1]);
         }
-
         if ($message === '') {
             $message = 'Exception from log';
         }
 
-        // Extract file and line from Laravel exception format: " at /path/file.php:123" or " at path/file.php:123"
         $file = 'unknown';
         $line = 0;
         if (preg_match('/\s+at\s+([^\s:]+(?:\.php)?):(\d+)/', $entry, $locMatch) === 1) {
