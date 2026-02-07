@@ -250,7 +250,7 @@ final class ExplainCommand extends Command
     }
 
     /**
-     * Output multiple explanations (batch mode).
+     * Output multiple explanations (batch mode); optionally write to file.
      *
      * @param array<int, \ClarityPHP\RuntimeInsight\DTO\Explanation> $explanations
      */
@@ -259,15 +259,32 @@ final class ExplainCommand extends Command
         $format = $this->option('format');
         $format = is_string($format) ? $format : 'text';
         $renderer = RendererFactory::forFormat($format);
+        $outputPath = $this->option('output');
+        $toFile = $outputPath !== null && is_string($outputPath) && $outputPath !== '';
 
         $count = count($explanations);
+        $parts = [];
+
         foreach ($explanations as $i => $explanation) {
             if ($count > 1) {
-                $this->line('');
-                $this->line('--- Exception ' . ($i + 1) . ' / ' . $count . ' ---');
-                $this->line('');
+                $parts[] = '';
+                $parts[] = '--- Exception ' . ($i + 1) . ' / ' . $count . ' ---';
+                $parts[] = '';
             }
-            $this->line($renderer->render($explanation));
+            $parts[] = $renderer->render($explanation);
+        }
+
+        $content = implode("\n", $parts);
+
+        if ($toFile) {
+            if (file_put_contents($outputPath, $content) === false) {
+                $this->error("Could not write to file: {$outputPath}");
+
+                return;
+            }
+            $this->info("Explanation written to {$outputPath}");
+        } else {
+            $this->output->write($content);
         }
     }
 
