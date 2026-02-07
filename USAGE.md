@@ -222,6 +222,12 @@ php artisan runtime:explain
 # Explain from a specific log file and line
 php artisan runtime:explain --log=storage/logs/laravel.log --line=243
 
+# Batch: analyze all exceptions in the log (last 10 by default)
+php artisan runtime:explain --log=storage/logs/laravel.log --all
+
+# Batch with a custom limit (e.g. last 5 entries)
+php artisan runtime:explain --log=storage/logs/laravel.log --all --limit=5
+
 # Output as JSON
 php artisan runtime:explain --format=json
 
@@ -241,7 +247,11 @@ php artisan runtime:explain --format=ide
 |--------|-------------|---------|
 | `--log` | Path to log file | None (searches for last exception) |
 | `--line` | Line number in log file | Last exception |
+| `--all` | Analyze all exceptions in the log (use with `--log`); use `--limit` to cap how many | Off |
+| `--limit` | Max entries to analyze in batch mode (most recent; default 10) | 10 |
 | `--format` | Output format (text, json, markdown, html, ide) | text |
+
+**Batch analysis:** Use `--all` with `--log` to explain multiple exceptions in one run. The command analyzes the most recent entries first (up to `--limit`, default 10) to avoid excessive API calls. Each explanation is output with a separator (e.g. "Exception 1 / N").
 
 **Example Output:**
 
@@ -318,6 +328,10 @@ php bin/console runtime:explain --log=var/log/dev.log
 # With line number
 php bin/console runtime:explain --log=var/log/dev.log --line=243
 
+# Batch: analyze all (or last N) exceptions in the log
+php bin/console runtime:explain --log=var/log/dev.log --all
+php bin/console runtime:explain --log=var/log/dev.log --all --limit=5
+
 # JSON output
 php bin/console runtime:explain --format=json
 
@@ -331,6 +345,8 @@ php bin/console runtime:explain --format=markdown
 |--------|-------------|---------|
 | `--log` | Path to log file | None (searches for last exception) |
 | `--line` | Line number in log file | Last exception |
+| `--all` | Analyze all exceptions in the log (use with `--log`) | Off |
+| `--limit` | Max entries in batch mode (default 10) | 10 |
 | `--format` | Output format (text, json, markdown, html, ide) | text |
 
 ### `runtime:doctor`

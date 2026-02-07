@@ -262,6 +262,10 @@ php artisan runtime:explain
 # Explain a specific log entry
 php artisan runtime:explain --log=storage/logs/laravel.log --line=243
 
+# Batch: explain all (or last N) exceptions in a log file
+php artisan runtime:explain --log=storage/logs/laravel.log --all
+php artisan runtime:explain --log=storage/logs/laravel.log --all --limit=5
+
 # Run diagnostics
 php artisan runtime:doctor
 ```

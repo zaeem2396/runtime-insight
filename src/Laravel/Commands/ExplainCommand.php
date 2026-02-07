@@ -10,6 +10,7 @@ use ClarityPHP\RuntimeInsight\Renderer\RendererFactory;
 use Illuminate\Console\Command;
 use Throwable;
 
+use function array_slice;
 use function count;
 use function file_exists;
 use function file_get_contents;
@@ -32,6 +33,8 @@ final class ExplainCommand extends Command
     protected $signature = 'runtime:explain
                             {--log= : Path to log file to analyze}
                             {--line= : Line number in log file}
+                            {--all : Analyze all exceptions in the log file (use with --log)}
+                            {--limit= : Max number of entries to analyze in batch (default: 10)}
                             {--format=text : Output format (text, json, markdown, html, ide)}';
 
     /**
@@ -63,6 +66,11 @@ final class ExplainCommand extends Command
 
         $logFile = $this->option('log');
         $lineOpt = $this->option('line');
+        $all = $this->option('all');
+
+        if ($logFile !== null && is_string($logFile) && $all) {
+            return $this->handleBatch($logFile);
+        }
 
         if ($logFile !== null && is_string($logFile)) {
             $entry = $this->parseExceptionFromLog($logFile, $lineOpt !== null ? (int) $lineOpt : null);
@@ -144,19 +152,61 @@ final class ExplainCommand extends Command
             return null;
         }
 
-        $entry = $match[2];
+        return $this->parseEntryFromMatch($match[2]);
+    }
 
-        // Extract message: Laravel often logs "message {\"exception\":\"...\"}" — use text before " {" when present
+    /**
+     * Parse all exception entries from a log file (for batch analysis).
+     *
+     * @return array<int, array{message: string, file: string, line: int}>|null
+     */
+    private function parseAllExceptionsFromLog(string $logFile): ?array
+    {
+        if (! file_exists($logFile) || ! is_readable($logFile)) {
+            $this->error("Log file not found or not readable: {$logFile}");
+
+            return null;
+        }
+
+        $content = file_get_contents($logFile);
+        if ($content === false) {
+            $this->error("Could not read log file: {$logFile}");
+
+            return null;
+        }
+
+        $pattern = '/\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\] [^\n]*\.ERROR: (.+?)(?=\n\[\d{4}-\d{2}-\d{2}|\Z)/s';
+
+        if (preg_match_all($pattern, $content, $matches, PREG_SET_ORDER) === false) {
+            $this->warn('No exceptions found in log file.');
+
+            return null;
+        }
+
+        $entries = [];
+        foreach ($matches as $match) {
+            /** @var array{0: string, 1: string, 2: string} $match */
+            $entries[] = $this->parseEntryFromMatch($match[2]);
+        }
+
+        return $entries;
+    }
+
+    /**
+     * Extract message, file, and line from a raw log entry string.
+     *
+     * @return array{message: string, file: string, line: int}
+     */
+    private function parseEntryFromMatch(string $entry): array
+    {
         $message = trim($entry);
         if (preg_match('/^(.+?)\s+\{\s*"/s', $entry, $msgMatch) === 1) {
             $message = trim($msgMatch[1]);
         }
-
         if ($message === '') {
             $message = 'Exception from log';
         }
 
-        // Extract file and line from Laravel exception format: " at /path/file.php:123" or " at path/file.php:123"
         $file = 'unknown';
         $line = 0;
         if (preg_match('/\s+at\s+([^\s:]+(?:\.php)?):(\d+)/', $entry, $locMatch) === 1) {
@@ -165,6 +215,59 @@ final class ExplainCommand extends Command
         }
 
         return ['message' => $message, 'file' => $file, 'line' => $line];
+    }
+
+    /**
+     * Analyze all (or limited) exceptions in a log file and output batch results.
+     */
+    private function handleBatch(string $logFile): int
+    {
+        $entries = $this->parseAllExceptionsFromLog($logFile);
+        if ($entries === null || $entries === []) {
+            return self::FAILURE;
+        }
+
+        $limitOpt = $this->option('limit');
+        $limit = $limitOpt !== null && is_numeric($limitOpt) ? (int) $limitOpt : 10;
+        $limit = $limit < 1 ? 10 : $limit;
+
+        // Take last N entries (most recent)
+        $toAnalyze = array_slice($entries, -$limit);
+
+        $explanations = [];
+        foreach ($toAnalyze as $entry) {
+            $explanations[] = $this->analyzer->analyzeFromLog(
+                $entry['message'],
+                $entry['file'],
+                $entry['line'],
+            );
+        }
+
+        $this->outputBatchExplanations($explanations);
+
+        return self::SUCCESS;
+    }
+
+    /**
+     * Output multiple explanations (batch mode).
+     *
+     * @param array<int, \ClarityPHP\RuntimeInsight\DTO\Explanation> $explanations
+     */
+    private function outputBatchExplanations(array $explanations): void
+    {
+        $format = $this->option('format');
+        $format = is_string($format) ? $format : 'text';
+        $renderer = RendererFactory::forFormat($format);
+
+        $count = count($explanations);
+        foreach ($explanations as $i => $explanation) {
+            if ($count > 1) {
+                $this->line('');
+                $this->line('--- Exception ' . ($i + 1) . ' / ' . $count . ' ---');
+                $this->line('');
+            }
+            $this->line($renderer->render($explanation));
+        }
     }
 
     /**

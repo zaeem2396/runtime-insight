@@ -73,6 +73,30 @@ final class ExplainCommandTest extends TestCase
             ->assertExitCode(0);
     }
 
+    public function test_it_batch_analyzes_all_exceptions_with_all_flag(): void
+    {
+        $logPath = $this->writeTempLog(
+            "[2025-01-15 12:00:00] local.ERROR: First error at /app/one.php:10\n"
+            . "[2025-01-15 12:01:00] local.ERROR: Second error at /app/two.php:20\n",
+        );
+
+        $this->analyzer
+            ->expects($this->exactly(2))
+            ->method('analyzeFromLog')
+            ->willReturn(new Explanation(
+                message: 'Test',
+                cause: 'Test cause',
+                suggestions: [],
+                confidence: 0.8,
+                location: null,
+            ));
+
+        $this->artisan('runtime:explain', ['--log' => $logPath, '--all' => true])
+            ->expectsOutputToContain('Exception 1 / 2')
+            ->expectsOutputToContain('Exception 2 / 2')
+            ->assertExitCode(0);
+    }
+
     protected function getPackageProviders($app): array
     {
         return [
