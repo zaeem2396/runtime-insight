@@ -263,20 +263,18 @@ final class ExplainCommand extends Command
         $toFile = $outputPath !== null && is_string($outputPath) && $outputPath !== '';
 
         $count = count($explanations);
-        $parts = [];
-
-        foreach ($explanations as $i => $explanation) {
-            if ($count > 1) {
-                $parts[] = '';
-                $parts[] = '--- Exception ' . ($i + 1) . ' / ' . $count . ' ---';
-                $parts[] = '';
-            }
-            $parts[] = $renderer->render($explanation);
-        }
-
-        $content = implode("\n", $parts);
 
         if ($toFile) {
+            $parts = [];
+            foreach ($explanations as $i => $explanation) {
+                if ($count > 1) {
+                    $parts[] = '';
+                    $parts[] = '--- Exception ' . ($i + 1) . ' / ' . $count . ' ---';
+                    $parts[] = '';
+                }
+                $parts[] = $renderer->render($explanation);
+            }
+            $content = implode("\n", $parts);
             if (file_put_contents($outputPath, $content) === false) {
                 $this->error("Could not write to file: {$outputPath}");
 
@@ -284,7 +282,14 @@ final class ExplainCommand extends Command
             }
             $this->info("Explanation written to {$outputPath}");
         } else {
-            $this->output->write($content);
+            foreach ($explanations as $i => $explanation) {
+                if ($count > 1) {
+                    $this->line('');
+                    $this->line('--- Exception ' . ($i + 1) . ' / ' . $count . ' ---');
+                    $this->line('');
+                }
+                $this->line($renderer->render($explanation));
+            }
         }
     }
 
