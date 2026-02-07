@@ -48,7 +48,8 @@ final class ExplainCommand extends Command
             ->addOption('line', null, InputOption::VALUE_REQUIRED, 'Line number in log file')
             ->addOption('all', null, InputOption::VALUE_NONE, 'Analyze all exceptions in the log file (use with --log)')
             ->addOption('limit', null, InputOption::VALUE_REQUIRED, 'Max number of entries to analyze in batch (default: 10)')
-            ->addOption('format', 'f', InputOption::VALUE_REQUIRED, 'Output format (text, json, markdown, html, ide)', 'text');
+            ->addOption('format', 'f', InputOption::VALUE_REQUIRED, 'Output format (text, json, markdown, html, ide)', 'text')
+            ->addOption('output', 'o', InputOption::VALUE_REQUIRED, 'Write explanation to file instead of console');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -250,7 +251,7 @@ final class ExplainCommand extends Command
     }
 
     /**
-     * Output multiple explanations (batch mode).
+     * Output multiple explanations (batch mode); optionally write to file.
      *
      * @param array<int, Explanation> $explanations
      */
@@ -259,25 +260,59 @@ final class ExplainCommand extends Command
         $format = $input->getOption('format');
         $format = is_string($format) ? $format : 'text';
         $renderer = RendererFactory::forFormat($format);
+        $outputPath = $input->getOption('output');
+        $toFile = $outputPath !== null && is_string($outputPath) && $outputPath !== '';
 
         $count = count($explanations);
-        foreach ($explanations as $i => $explanation) {
-            if ($count > 1) {
-                $io->writeln('');
-                $io->writeln('--- Exception ' . ($i + 1) . ' / ' . $count . ' ---');
-                $io->writeln('');
+
+        if ($toFile) {
+            $parts = [];
+            foreach ($explanations as $i => $explanation) {
+                if ($count > 1) {
+                    $parts[] = '';
+                    $parts[] = '--- Exception ' . ($i + 1) . ' / ' . $count . ' ---';
+                    $parts[] = '';
+                }
+                $parts[] = $renderer->render($explanation);
             }
-            $io->writeln($renderer->render($explanation));
+            $content = implode("\n", $parts);
+            if (file_put_contents($outputPath, $content) === false) {
+                $io->error("Could not write to file: {$outputPath}");
+
+                return;
+            }
+            $io->success("Explanation written to {$outputPath}");
+        } else {
+            foreach ($explanations as $i => $explanation) {
+                if ($count > 1) {
+                    $io->writeln('');
+                    $io->writeln('--- Exception ' . ($i + 1) . ' / ' . $count . ' ---');
+                    $io->writeln('');
+                }
+                $io->writeln($renderer->render($explanation));
+            }
         }
     }
 
     /**
-     * Output the explanation in the requested format.
+     * Output the explanation in the requested format (console or file).
      */
     private function outputExplanation(Explanation $explanation, InputInterface $input, SymfonyStyle $io): void
     {
+        $outputPath = $input->getOption('output');
         $format = $input->getOption('format');
         $renderer = RendererFactory::forFormat(is_string($format) ? $format : 'text');
-        $io->writeln($renderer->render($explanation));
+        $content = $renderer->render($explanation);
+
+        if ($outputPath !== null && is_string($outputPath) && $outputPath !== '') {
+            if (file_put_contents($outputPath, $content) === false) {
+                $io->error("Could not write to file: {$outputPath}");
+
+                return;
+            }
+            $io->success("Explanation written to {$outputPath}");
+        } else {
+            $io->writeln($content);
+        }
     }
 }
