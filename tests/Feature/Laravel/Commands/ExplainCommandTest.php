@@ -77,7 +77,7 @@ final class ExplainCommandTest extends TestCase
     {
         $logPath = $this->writeTempLog(
             "[2025-01-15 12:00:00] local.ERROR: First error at /app/one.php:10\n"
-            . "[2025-01-15 12:01:00] local.ERROR: Second error at /app/two.php:20\n"
+            . "[2025-01-15 12:01:00] local.ERROR: Second error at /app/two.php:20\n",
         );
 
         $this->analyzer

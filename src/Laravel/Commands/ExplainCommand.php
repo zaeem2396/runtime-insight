@@ -10,6 +10,7 @@ use ClarityPHP\RuntimeInsight\Renderer\RendererFactory;
 use Illuminate\Console\Command;
 use Throwable;
 
+use function array_slice;
 use function count;
 use function file_exists;
 use function file_get_contents;
@@ -184,9 +185,8 @@ final class ExplainCommand extends Command
 
         $entries = [];
         foreach ($matches as $match) {
-            if (isset($match[2])) {
-                $entries[] = $this->parseEntryFromMatch($match[2]);
-            }
+            /** @var array{0: string, 1: string, 2: string} $match */
+            $entries[] = $this->parseEntryFromMatch($match[2]);
         }
 
         return $entries;
