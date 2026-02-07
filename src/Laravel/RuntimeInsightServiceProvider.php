@@ -12,6 +12,7 @@ use ClarityPHP\RuntimeInsight\Contracts\ContextBuilderInterface;
 use ClarityPHP\RuntimeInsight\Contracts\ExplanationEngineInterface;
 use ClarityPHP\RuntimeInsight\Laravel\Commands\DoctorCommand;
 use ClarityPHP\RuntimeInsight\Laravel\Commands\ExplainCommand;
+use ClarityPHP\RuntimeInsight\Laravel\Commands\InstallCommand;
 use ClarityPHP\RuntimeInsight\Laravel\Context\LaravelContextBuilder;
 use ClarityPHP\RuntimeInsight\RuntimeInsight;
 use ClarityPHP\RuntimeInsight\RuntimeInsightFactory;
@@ -113,6 +114,7 @@ class RuntimeInsightServiceProvider extends ServiceProvider
             $this->commands([
                 ExplainCommand::class,
                 DoctorCommand::class,
+                InstallCommand::class,
             ]);
         }
     }

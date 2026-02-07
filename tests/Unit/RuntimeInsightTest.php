@@ -150,4 +150,18 @@ final class RuntimeInsightTest extends TestCase
         $this->assertFalse($explanation->isEmpty());
         $this->assertSame(0.3, $explanation->getConfidence()); // Fallback confidence
     }
+
+    #[Test]
+    public function it_analyzes_from_log_entry_with_correct_location(): void
+    {
+        $message = 'Undefined array key "id"';
+        $file = '/app/Http/Controllers/OrderController.php';
+        $line = 42;
+
+        $explanation = $this->insight->analyzeFromLog($message, $file, $line);
+
+        $this->assertInstanceOf(Explanation::class, $explanation);
+        $this->assertFalse($explanation->isEmpty());
+        $this->assertSame("{$file}:{$line}", $explanation->getLocation());
+    }
 }

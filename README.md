@@ -105,6 +105,14 @@ Each strategy provides:
 composer require clarityphp/runtime-insight
 ```
 
+**Laravel:** After installing, add the OpenAI API key to your `.env` (used by default):
+
+```bash
+php artisan runtime:install
+```
+
+This appends `OPEN_AI_APIKEY=` to your `.env` if it is not already there. Set your [OpenAI API key](https://platform.openai.com/api-keys) as the value. If you run `php artisan runtime:explain` without a key, you will see: *No OpenAI API key found.*
+
 ## 🚀 Quick Start (Standalone)
 
 ```php
@@ -131,11 +139,21 @@ try {
 
 ### Laravel
 
-The package auto-registers via Laravel's package discovery. Publish the config:
+The package auto-registers via Laravel's package discovery.
+
+1. Publish the config (optional):
 
 ```bash
 php artisan vendor:publish --tag=runtime-insight-config
 ```
+
+2. Add your OpenAI API key (default AI provider):
+
+```bash
+php artisan runtime:install
+```
+
+Then set `OPEN_AI_APIKEY` in `.env` to your key. If it is missing when you run the explain command, you will see *No OpenAI API key found.*
 
 **Automatic Exception Analysis:**
 
@@ -160,6 +178,9 @@ class Handler extends ExceptionHandler
 **Artisan Commands:**
 
 ```bash
+# Add OPEN_AI_APIKEY to .env (run once after install)
+php artisan runtime:install
+
 # Explain the last error
 php artisan runtime:explain
 
@@ -200,8 +221,9 @@ return [
 
     'ai' => [
         'enabled' => true,
-        'provider' => 'openai',      // openai, anthropic, ollama
+        'provider' => 'openai',      // openai (default), anthropic, ollama
         'model' => 'gpt-4.1-mini',
+        // Set OPEN_AI_APIKEY in .env (or run php artisan runtime:install)
         'timeout' => 5,
     ],
 

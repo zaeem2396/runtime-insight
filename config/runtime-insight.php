@@ -26,7 +26,8 @@ return [
         'enabled' => env('RUNTIME_INSIGHT_AI_ENABLED', true),
         'provider' => env('RUNTIME_INSIGHT_AI_PROVIDER', 'openai'),
         'model' => env('RUNTIME_INSIGHT_AI_MODEL', 'gpt-4.1-mini'),
-        'api_key' => env('RUNTIME_INSIGHT_AI_KEY'),
+        // OpenAI: use OPEN_AI_APIKEY (recommended) or RUNTIME_INSIGHT_AI_KEY
+        'api_key' => env('OPEN_AI_APIKEY') ?? env('RUNTIME_INSIGHT_AI_KEY'),
         'timeout' => env('RUNTIME_INSIGHT_AI_TIMEOUT', 5),
         'max_tokens' => env('RUNTIME_INSIGHT_AI_MAX_TOKENS', 1000),
         'base_url' => env('RUNTIME_INSIGHT_AI_BASE_URL'),
