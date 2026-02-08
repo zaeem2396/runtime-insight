@@ -60,10 +60,13 @@ final class ExplanationEngine implements ExplanationEngineInterface
 
         // Fall back to AI if enabled and available
         if ($this->config->isAIEnabled() && $this->aiProvider !== null && $this->aiProvider->isAvailable()) {
-            return $this->aiProvider->analyze($context);
+            $explanation = $this->aiProvider->analyze($context);
+            if (! $explanation->isEmpty()) {
+                return $explanation;
+            }
         }
 
-        // Return a basic explanation if no strategy matched
+        // Return a basic explanation when no strategy matched or AI returned empty
         return $this->buildFallbackExplanation($context);
     }
 

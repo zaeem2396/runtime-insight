@@ -162,7 +162,7 @@ final class DoctorCommand extends Command
         $apiKey = $this->config->getAIApiKey();
         if ($apiKey === null || $apiKey === '') {
             $io->error('  ❌ AI API key is not configured');
-            $io->text('     Set runtime_insight.ai.api_key in your configuration');
+            $io->text('     Set OPEN_AI_APIKEY or RUNTIME_INSIGHT_AI_KEY in your .env, or runtime_insight.ai.api_key in config');
 
             return false;
         }

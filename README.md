@@ -111,7 +111,7 @@ composer require clarityphp/runtime-insight
 php artisan runtime:install
 ```
 
-This appends `OPEN_AI_APIKEY=` to your `.env` if it is not already there. Set your [OpenAI API key](https://platform.openai.com/api-keys) as the value. If you run `php artisan runtime:explain` without a key, you will see: *No OpenAI API key found.*
+This appends `OPEN_AI_APIKEY=` to your `.env` if it is not already there. Set your [OpenAI API key](https://platform.openai.com/api-keys) as the value (you can also use `RUNTIME_INSIGHT_AI_KEY`). If you run `php artisan runtime:explain` without a key, you will see: *No OpenAI API key found. Set OPEN_AI_APIKEY or RUNTIME_INSIGHT_AI_KEY in your .env file.*
 
 ## 🚀 Quick Start (Standalone)
 
@@ -153,7 +153,7 @@ php artisan vendor:publish --tag=runtime-insight-config
 php artisan runtime:install
 ```
 
-Then set `OPEN_AI_APIKEY` in `.env` to your key. If it is missing when you run the explain command, you will see *No OpenAI API key found.*
+Then set `OPEN_AI_APIKEY` or `RUNTIME_INSIGHT_AI_KEY` in `.env` to your key. If it is missing when you run the explain command, you will see *No OpenAI API key found.*
 
 **Automatic Exception Analysis:**
 
