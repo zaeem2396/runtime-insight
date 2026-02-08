@@ -47,7 +47,7 @@ Optional: publish the config file to customize settings:
 php artisan vendor:publish --tag=runtime-insight-config
 ```
 
-If you run `php artisan runtime:explain` without setting `OPEN_AI_APIKEY`, you will see: *No OpenAI API key found. Set OPEN_AI_APIKEY in your .env file.*
+If you run `php artisan runtime:explain` without an API key, you will see: *No OpenAI API key found. Set OPEN_AI_APIKEY or RUNTIME_INSIGHT_AI_KEY in your .env file.*
 
 ---
 
@@ -910,6 +910,9 @@ return [
 ### Common Issues
 
 **"AI provider not responding"**
+
+When the AI provider fails (timeout, rate limit, or API error) or returns an empty response, the engine automatically falls back to a rule-based explanation so you still get a basic explanation instead of "no explanation could be generated".
+
 ```bash
 php artisan runtime:doctor
 ```
