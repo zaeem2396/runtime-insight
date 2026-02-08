@@ -114,6 +114,7 @@ final class DoctorCommandTest extends TestCase
         $this->assertSame(1, $commandTester->getStatusCode());
         $output = $commandTester->getDisplay();
         $this->assertStringContainsString('AI API key is not configured', $output);
+        $this->assertStringContainsString('RUNTIME_INSIGHT_AI_KEY', $output);
     }
 
     public function test_it_reports_analyzer_errors(): void

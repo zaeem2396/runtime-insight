@@ -50,6 +50,16 @@ final class DoctorCommandTest extends TestCase
         }
     }
 
+    public function test_it_suggests_both_env_vars_when_api_key_missing(): void
+    {
+        $this->app['config']->set('runtime-insight.ai.api_key', null);
+
+        $this->artisan('runtime:doctor')
+            ->expectsOutputToContain('No OpenAI API key found')
+            ->expectsOutputToContain('RUNTIME_INSIGHT_AI_KEY')
+            ->assertExitCode(1);
+    }
+
     protected function getPackageProviders($app): array
     {
         return [

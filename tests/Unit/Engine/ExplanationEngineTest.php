@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace ClarityPHP\RuntimeInsight\Tests\Unit\Engine;
 
 use ClarityPHP\RuntimeInsight\Config;
+use ClarityPHP\RuntimeInsight\Contracts\AIProviderInterface;
 use ClarityPHP\RuntimeInsight\Contracts\ExplanationStrategyInterface;
 use ClarityPHP\RuntimeInsight\DTO\ExceptionInfo;
 use ClarityPHP\RuntimeInsight\DTO\Explanation;
@@ -116,6 +117,33 @@ final class ExplanationEngineTest extends TestCase
 
         $this->assertCount(1, $strategies);
         $this->assertSame($strategy, $strategies[0]);
+    }
+
+    #[Test]
+    public function it_falls_back_to_rule_based_when_ai_returns_empty(): void
+    {
+        $config = Config::fromArray([
+            'enabled' => true,
+            'ai' => [
+                'enabled' => true,
+                'provider' => 'openai',
+                'api_key' => 'test-key',
+            ],
+        ]);
+
+        $emptyProvider = $this->createMock(AIProviderInterface::class);
+        $emptyProvider->method('isAvailable')->willReturn(true);
+        $emptyProvider->method('analyze')->willReturn(Explanation::empty());
+
+        $engine = new ExplanationEngine($config, $emptyProvider);
+        $context = $this->createContext('API failed error', 'Exception');
+
+        $explanation = $engine->explain($context);
+
+        $this->assertFalse($explanation->isEmpty());
+        $this->assertSame('API failed error', $explanation->getMessage());
+        $this->assertSame(0.3, $explanation->getConfidence());
+        $this->assertStringContainsString('exception of type', $explanation->getCause());
     }
 
     private function createContext(string $message, string $class): RuntimeContext
