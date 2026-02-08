@@ -170,7 +170,7 @@ final class DoctorCommand extends Command
         $apiKey = $this->config->getAIApiKey();
         if ($apiKey === null || $apiKey === '') {
             $this->error('  ❌ No OpenAI API key found');
-            $this->line('     Set OPEN_AI_APIKEY in your .env file');
+            $this->line('     Set OPEN_AI_APIKEY or RUNTIME_INSIGHT_AI_KEY in your .env file');
 
             return false;
         }

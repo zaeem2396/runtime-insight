@@ -60,7 +60,7 @@ final class ExplainCommand extends Command
         if ($this->config->isAIConfigured()
             && $this->config->getAIProvider() === 'openai'
             && ($this->config->getAIApiKey() === null || $this->config->getAIApiKey() === '')) {
-            $this->error('No OpenAI API key found. Set OPEN_AI_APIKEY in your .env file.');
+            $this->error('No OpenAI API key found. Set OPEN_AI_APIKEY or RUNTIME_INSIGHT_AI_KEY in your .env file.');
 
             return self::FAILURE;
         }
