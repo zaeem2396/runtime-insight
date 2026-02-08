@@ -97,6 +97,33 @@ final class ExplainCommandTest extends TestCase
             ->assertExitCode(0);
     }
 
+    public function test_it_writes_explanation_to_file_when_output_option_set(): void
+    {
+        $logPath = $this->writeTempLog(
+            '[2025-01-15 12:00:00] local.ERROR: Test error at /app/Test.php:1',
+        );
+        $outPath = sys_get_temp_dir() . '/runtime-insight-out-' . uniqid() . '.txt';
+
+        $this->analyzer
+            ->method('analyzeFromLog')
+            ->willReturn(new Explanation(
+                message: 'Test error',
+                cause: 'Test cause',
+                suggestions: ['Fix it'],
+                confidence: 0.9,
+                location: '/app/Test.php:1',
+            ));
+
+        $this->artisan('runtime:explain', ['--log' => $logPath, '--output' => $outPath])
+            ->expectsOutputToContain('Explanation written to')
+            ->assertExitCode(0);
+
+        $this->assertFileExists($outPath);
+        $content = file_get_contents($outPath);
+        $this->assertStringContainsString('Test error', $content);
+        $this->assertStringContainsString('Test cause', $content);
+    }
+
     protected function getPackageProviders($app): array
     {
         return [

@@ -237,6 +237,9 @@ php artisan runtime:explain --format=markdown
 # Output as HTML (debug view)
 php artisan runtime:explain --format=html
 
+# Write explanation to a file
+php artisan runtime:explain --log=storage/logs/laravel.log --output=explanation.txt
+
 # Output with IDE-friendly location (file:line on first line)
 php artisan runtime:explain --format=ide
 ```
@@ -250,8 +253,11 @@ php artisan runtime:explain --format=ide
 | `--all` | Analyze all exceptions in the log (use with `--log`); use `--limit` to cap how many | Off |
 | `--limit` | Max entries to analyze in batch mode (most recent; default 10) | 10 |
 | `--format` | Output format (text, json, markdown, html, ide) | text |
+| `--output` | Write explanation to file instead of console | None |
 
 **Batch analysis:** Use `--all` with `--log` to explain multiple exceptions in one run. The command analyzes the most recent entries first (up to `--limit`, default 10) to avoid excessive API calls. Each explanation is output with a separator (e.g. "Exception 1 / N").
+
+**Export to file:** Use `--output=path` (or `-o path` on Symfony) to write the explanation to a file instead of the console. Works with single and batch mode.
 
 **Example Output:**
 
@@ -332,6 +338,9 @@ php bin/console runtime:explain --log=var/log/dev.log --line=243
 php bin/console runtime:explain --log=var/log/dev.log --all
 php bin/console runtime:explain --log=var/log/dev.log --all --limit=5
 
+# Write explanation to a file (-o)
+php bin/console runtime:explain --log=var/log/dev.log --output=explanation.txt
+
 # JSON output
 php bin/console runtime:explain --format=json
 
@@ -348,6 +357,7 @@ php bin/console runtime:explain --format=markdown
 | `--all` | Analyze all exceptions in the log (use with `--log`) | Off |
 | `--limit` | Max entries in batch mode (default 10) | 10 |
 | `--format` | Output format (text, json, markdown, html, ide) | text |
+| `--output`, `-o` | Write explanation to file instead of console | None |
 
 ### `runtime:doctor`
 

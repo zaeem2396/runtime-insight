@@ -35,14 +35,15 @@ final class ExplainCommand extends Command
                             {--line= : Line number in log file}
                             {--all : Analyze all exceptions in the log file (use with --log)}
                             {--limit= : Max number of entries to analyze in batch (default: 10)}
-                            {--format=text : Output format (text, json, markdown, html, ide)}';
+                            {--format=text : Output format (text, json, markdown, html, ide)}
+                            {--output= : Write explanation to file instead of console}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Explain the most recent runtime error';
+    protected $description = 'Explain the most recent runtime error (use --output to write to a file)';
 
     public function __construct(
         private readonly Config $config,
@@ -249,7 +250,7 @@ final class ExplainCommand extends Command
     }
 
     /**
-     * Output multiple explanations (batch mode).
+     * Output multiple explanations (batch mode); optionally write to file.
      *
      * @param array<int, \ClarityPHP\RuntimeInsight\DTO\Explanation> $explanations
      */
@@ -258,25 +259,59 @@ final class ExplainCommand extends Command
         $format = $this->option('format');
         $format = is_string($format) ? $format : 'text';
         $renderer = RendererFactory::forFormat($format);
+        $outputPath = $this->option('output');
+        $toFile = $outputPath !== null && is_string($outputPath) && $outputPath !== '';
 
         $count = count($explanations);
-        foreach ($explanations as $i => $explanation) {
-            if ($count > 1) {
-                $this->line('');
-                $this->line('--- Exception ' . ($i + 1) . ' / ' . $count . ' ---');
-                $this->line('');
+
+        if ($toFile) {
+            $parts = [];
+            foreach ($explanations as $i => $explanation) {
+                if ($count > 1) {
+                    $parts[] = '';
+                    $parts[] = '--- Exception ' . ($i + 1) . ' / ' . $count . ' ---';
+                    $parts[] = '';
+                }
+                $parts[] = $renderer->render($explanation);
             }
-            $this->line($renderer->render($explanation));
+            $content = implode("\n", $parts);
+            if (file_put_contents($outputPath, $content) === false) {
+                $this->error("Could not write to file: {$outputPath}");
+
+                return;
+            }
+            $this->info("Explanation written to {$outputPath}");
+        } else {
+            foreach ($explanations as $i => $explanation) {
+                if ($count > 1) {
+                    $this->line('');
+                    $this->line('--- Exception ' . ($i + 1) . ' / ' . $count . ' ---');
+                    $this->line('');
+                }
+                $this->line($renderer->render($explanation));
+            }
         }
     }
 
     /**
-     * Output the explanation in the requested format.
+     * Output the explanation in the requested format (console or file).
      */
     private function outputExplanation(\ClarityPHP\RuntimeInsight\DTO\Explanation $explanation): void
     {
+        $outputPath = $this->option('output');
         $format = $this->option('format');
         $renderer = RendererFactory::forFormat(is_string($format) ? $format : 'text');
-        $this->line($renderer->render($explanation));
+        $content = $renderer->render($explanation);
+
+        if ($outputPath !== null && is_string($outputPath) && $outputPath !== '') {
+            if (file_put_contents($outputPath, $content) === false) {
+                $this->error("Could not write to file: {$outputPath}");
+
+                return;
+            }
+            $this->info("Explanation written to {$outputPath}");
+        } else {
+            $this->line($content);
+        }
     }
 }
