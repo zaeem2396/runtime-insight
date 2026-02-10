@@ -255,6 +255,8 @@ php artisan runtime:explain --format=ide
 | `--format` | Output format (text, json, markdown, html, ide) | text |
 | `--output` | Write explanation to file instead of console | None |
 
+**Log-based analysis:** When you use `--log`, the command parses the exception type (e.g. `TypeError`, `ErrorException`) from each log entry. That allows rule-based strategies to match correctly, so you get accurate explanations and suggestions instead of a generic "Exception" fallback.
+
 **Batch analysis:** Use `--all` with `--log` to explain multiple exceptions in one run. The command analyzes the most recent entries first (up to `--limit`, default 10) to avoid excessive API calls. Each explanation is output with a separator (e.g. "Exception 1 / N").
 
 **Export to file:** Use `--output=path` (or `-o path` on Symfony) to write the explanation to a file instead of the console. Works with single and batch mode.
