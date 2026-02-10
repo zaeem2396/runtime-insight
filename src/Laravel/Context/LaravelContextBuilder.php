@@ -60,9 +60,9 @@ final class LaravelContextBuilder implements ContextBuilderInterface
     /**
      * Build a runtime context from a log entry with Laravel-specific information.
      */
-    public function buildFromLogEntry(string $message, string $file, int $line): RuntimeContext
+    public function buildFromLogEntry(string $message, string $file, int $line, string $exceptionClass = 'Exception'): RuntimeContext
     {
-        $baseContext = $this->baseBuilder->buildFromLogEntry($message, $file, $line);
+        $baseContext = $this->baseBuilder->buildFromLogEntry($message, $file, $line, $exceptionClass);
 
         return new RuntimeContext(
             exception: $baseContext->exception,

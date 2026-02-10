@@ -18,8 +18,8 @@ interface AnalyzerInterface
     public function analyze(Throwable $throwable): Explanation;
 
     /**
-     * Analyze a log entry (message, file, line) and generate an explanation.
-     * Used when explaining from --log so "Where" shows the actual error location.
+     * Analyze a log entry (message, file, line, optional exception class) and generate an explanation.
+     * Used when explaining from --log; exceptionClass allows rule-based strategies to match (e.g. TypeError).
      */
-    public function analyzeFromLog(string $message, string $file, int $line): Explanation;
+    public function analyzeFromLog(string $message, string $file, int $line, string $exceptionClass = 'Exception'): Explanation;
 }

@@ -259,7 +259,7 @@ Once installed, Runtime Insight automatically intercepts exceptions and logs exp
 # Explain the most recent runtime error
 php artisan runtime:explain
 
-# Explain a specific log entry
+# Explain a specific log entry (exception type is parsed from the log for accurate strategy matching)
 php artisan runtime:explain --log=storage/logs/laravel.log --line=243
 
 # Batch: explain all (or last N) exceptions in a log file

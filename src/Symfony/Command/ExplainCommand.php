@@ -76,7 +76,12 @@ final class ExplainCommand extends Command
             if ($entry === null) {
                 return Command::FAILURE;
             }
-            $explanation = $this->analyzer->analyzeFromLog($entry['message'], $entry['file'], $entry['line']);
+            $explanation = $this->analyzer->analyzeFromLog(
+                $entry['message'],
+                $entry['file'],
+                $entry['line'],
+                $entry['exceptionClass'],
+            );
         } else {
             $throwable = $this->getException($input, $io);
             if ($throwable === null) {
@@ -111,7 +116,7 @@ final class ExplainCommand extends Command
     /**
      * Parse exception from log file. Returns message, file, and line for the log entry.
      *
-     * @return array{message: string, file: string, line: int}|null
+     * @return array{message: string, file: string, line: int, exceptionClass: string}|null
      */
     private function parseExceptionFromLog(string $logFile, ?int $lineNumber, SymfonyStyle $io): ?array
     {
@@ -154,7 +159,7 @@ final class ExplainCommand extends Command
     /**
      * Parse all exception entries from a log file (for batch analysis).
      *
-     * @return array<int, array{message: string, file: string, line: int}>|null
+     * @return array<int, array{message: string, file: string, line: int, exceptionClass: string}>|null
      */
     private function parseAllExceptionsFromLog(string $logFile, SymfonyStyle $io): ?array
     {
@@ -189,9 +194,9 @@ final class ExplainCommand extends Command
     }
 
     /**
-     * Extract message, file, and line from a raw log entry string.
+     * Extract message, file, line, and exception class from a raw log entry string.
      *
-     * @return array{message: string, file: string, line: int}
+     * @return array{message: string, file: string, line: int, exceptionClass: string}
      */
     private function parseEntryFromMatch(string $entry): array
     {
@@ -210,7 +215,13 @@ final class ExplainCommand extends Command
             $line = (int) $locMatch[2];
         }
 
-        return ['message' => $message, 'file' => $file, 'line' => $line];
+        $exceptionClass = 'Exception';
+        // Match (TypeError(...): or (ErrorException at /path or (ErrorException(...):
+        if (preg_match('/\(([A-Za-z_][A-Za-z0-9_]*)\s*(?:[:(]|at\b)/', $entry, $classMatch) === 1) {
+            $exceptionClass = $classMatch[1];
+        }
+
+        return ['message' => $message, 'file' => $file, 'line' => $line, 'exceptionClass' => $exceptionClass];
     }
 
     /**
@@ -242,6 +253,7 @@ final class ExplainCommand extends Command
                 $entry['message'],
                 $entry['file'],
                 $entry['line'],
+                $entry['exceptionClass'],
             );
         }
 
