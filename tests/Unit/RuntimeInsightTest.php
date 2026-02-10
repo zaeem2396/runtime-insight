@@ -164,4 +164,21 @@ final class RuntimeInsightTest extends TestCase
         $this->assertFalse($explanation->isEmpty());
         $this->assertSame("{$file}:{$line}", $explanation->getLocation());
     }
+
+    #[Test]
+    public function it_analyzes_from_log_entry_with_exception_class_for_strategy_matching(): void
+    {
+        $message = 'Argument #1 ($name) must be of type string, int given';
+        $file = '/app/Http/Controllers/CalcController.php';
+        $line = 22;
+        $exceptionClass = 'TypeError';
+
+        $explanation = $this->insight->analyzeFromLog($message, $file, $line, $exceptionClass);
+
+        $this->assertInstanceOf(Explanation::class, $explanation);
+        $this->assertFalse($explanation->isEmpty());
+        $this->assertSame("{$file}:{$line}", $explanation->getLocation());
+        // With correct exception class, TypeErrorStrategy matches and returns confidence 0.90
+        $this->assertGreaterThanOrEqual(0.9, $explanation->getConfidence());
+    }
 }
