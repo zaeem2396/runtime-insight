@@ -40,15 +40,15 @@ final class RuntimeInsight implements AnalyzerInterface
     }
 
     /**
-     * Analyze a log entry (message, file, line) and generate an explanation.
+     * Analyze a log entry (message, file, line, optional exception class) and generate an explanation.
      */
-    public function analyzeFromLog(string $message, string $file, int $line): Explanation
+    public function analyzeFromLog(string $message, string $file, int $line, string $exceptionClass = 'Exception'): Explanation
     {
         if (! $this->config->isEnabled()) {
             return Explanation::empty();
         }
 
-        $context = $this->contextBuilder->buildFromLogEntry($message, $file, $line);
+        $context = $this->contextBuilder->buildFromLogEntry($message, $file, $line, $exceptionClass);
 
         return $this->explanationEngine->explain($context);
     }
