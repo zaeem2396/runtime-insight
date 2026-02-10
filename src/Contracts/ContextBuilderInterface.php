@@ -18,8 +18,9 @@ interface ContextBuilderInterface
     public function build(Throwable $throwable): RuntimeContext;
 
     /**
-     * Build a runtime context from a log entry (message, file, line).
+     * Build a runtime context from a log entry (message, file, line, optional exception class).
      * Used when explaining from --log so "Where" shows the actual error location.
+     * When exceptionClass is parsed from the log (e.g. TypeError), rule-based strategies can match.
      */
-    public function buildFromLogEntry(string $message, string $file, int $line): RuntimeContext;
+    public function buildFromLogEntry(string $message, string $file, int $line, string $exceptionClass = 'Exception'): RuntimeContext;
 }
