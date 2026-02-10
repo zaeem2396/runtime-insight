@@ -59,7 +59,7 @@ final class ExplainCommandTest extends TestCase
 
         $this->analyzer
             ->method('analyzeFromLog')
-            ->with('Undefined array key "id"', '/app/Http/Controllers/OrderController.php', 137)
+            ->with('Undefined array key "id"', '/app/Http/Controllers/OrderController.php', 137, 'ErrorException')
             ->willReturn(new Explanation(
                 message: 'Undefined array key "id"',
                 cause: 'Test',
@@ -94,6 +94,32 @@ final class ExplainCommandTest extends TestCase
         $this->artisan('runtime:explain', ['--log' => $logPath, '--all' => true])
             ->expectsOutputToContain('Exception 1 / 2')
             ->expectsOutputToContain('Exception 2 / 2')
+            ->assertExitCode(0);
+    }
+
+    public function test_it_parses_exception_class_from_log_for_strategy_matching(): void
+    {
+        $logPath = $this->writeTempLog(
+            '[2025-01-15 12:00:00] local.ERROR: Unsupported operand types {"exception":"[object] (TypeError at /app/Http/Controllers/CalcController.php:22)',
+        );
+
+        $this->analyzer
+            ->method('analyzeFromLog')
+            ->with(
+                'Unsupported operand types',
+                '/app/Http/Controllers/CalcController.php',
+                22,
+                'TypeError',
+            )
+            ->willReturn(new Explanation(
+                message: 'Unsupported operand types',
+                cause: 'Type mismatch',
+                suggestions: [],
+                confidence: 0.9,
+                location: '/app/Http/Controllers/CalcController.php:22',
+            ));
+
+        $this->artisan('runtime:explain', ['--log' => $logPath])
             ->assertExitCode(0);
     }
 

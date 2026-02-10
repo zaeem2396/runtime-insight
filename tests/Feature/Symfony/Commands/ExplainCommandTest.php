@@ -82,6 +82,33 @@ final class ExplainCommandTest extends TestCase
         $this->assertInstanceOf(ExplainCommand::class, $this->command);
     }
 
+    public function test_it_passes_parsed_exception_class_to_analyzer_when_using_log(): void
+    {
+        $logPath = $this->writeTempLog(
+            '[2025-01-15 12:00:00] local.ERROR: Argument #1 must be of type string {"exception":"[object] (TypeError at /app/Http/Handlers.php:10)',
+        );
+
+        $this->analyzer
+            ->method('analyzeFromLog')
+            ->with(
+                'Argument #1 must be of type string',
+                '/app/Http/Handlers.php',
+                10,
+                'TypeError',
+            )
+            ->willReturn(new Explanation(
+                message: 'Argument #1 must be of type string',
+                cause: 'Type mismatch',
+                suggestions: [],
+                confidence: 0.9,
+                location: '/app/Http/Handlers.php:10',
+            ));
+
+        $this->commandTester->execute(['--log' => $logPath]);
+
+        $this->assertSame(0, $this->commandTester->getStatusCode());
+    }
+
     public function test_it_writes_explanation_to_file_when_output_option_set(): void
     {
         $logPath = $this->writeTempLog(
