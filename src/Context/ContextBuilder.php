@@ -60,12 +60,12 @@ final class ContextBuilder implements ContextBuilderInterface
     }
 
     /**
-     * Build a runtime context from a log entry (message, file, line).
+     * Build a runtime context from a log entry (message, file, line, optional exception class).
      */
-    public function buildFromLogEntry(string $message, string $file, int $line): RuntimeContext
+    public function buildFromLogEntry(string $message, string $file, int $line, string $exceptionClass = 'Exception'): RuntimeContext
     {
         $exception = new ExceptionInfo(
-            class: Exception::class,
+            class: $exceptionClass,
             message: $message,
             code: 0,
             file: $file,
