@@ -181,4 +181,29 @@ final class ContextBuilderTest extends TestCase
 
         $this->assertNull($context->performanceContext);
     }
+
+    #[Test]
+    public function it_builds_from_log_entry_with_parsed_exception_class(): void
+    {
+        $message = 'Unsupported operand types: string + int';
+        $file = '/app/Http/Controllers/CalcController.php';
+        $line = 22;
+        $exceptionClass = 'TypeError';
+
+        $context = $this->builder->buildFromLogEntry($message, $file, $line, $exceptionClass);
+
+        $this->assertInstanceOf(RuntimeContext::class, $context);
+        $this->assertSame($exceptionClass, $context->exception->class);
+        $this->assertSame($message, $context->exception->message);
+        $this->assertSame($file, $context->exception->file);
+        $this->assertSame($line, $context->exception->line);
+    }
+
+    #[Test]
+    public function it_builds_from_log_entry_defaults_exception_class_to_exception(): void
+    {
+        $context = $this->builder->buildFromLogEntry('Some error', '/app/foo.php', 10);
+
+        $this->assertSame('Exception', $context->exception->class);
+    }
 }
