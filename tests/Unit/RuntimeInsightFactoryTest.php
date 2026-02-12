@@ -42,7 +42,7 @@ final class RuntimeInsightFactoryTest extends TestCase
         $engine = RuntimeInsightFactory::createExplanationEngine($config);
 
         $this->assertInstanceOf(ExplanationEngine::class, $engine);
-        $this->assertCount(5, $engine->getStrategies());
+        $this->assertCount(8, $engine->getStrategies());
     }
 
     #[Test]
