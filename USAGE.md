@@ -785,6 +785,15 @@ $this->app->bind(AIProviderInterface::class, MyCustomProvider::class);
 
 ## Custom Integrations
 
+### Built-in strategies and descriptive fallback
+
+Runtime Insight supports **all error types** with descriptive explanations ([#25](https://github.com/zaeem2396/runtime-insight/issues/25)):
+
+- **Dedicated strategies** cover: null pointer, undefined index, type error, argument count, class not found, division by zero, parse error, and value error. Each returns a specific cause and suggestions with high confidence.
+- **Descriptive fallback:** When no strategy matches (e.g. `RuntimeException`, `InvalidArgumentException`, `LogicException`), the engine returns a **descriptive** cause and suggestions for that exception class instead of a generic “An exception of type X was thrown” message. Unknown exception types also get a short descriptive sentence and location-based suggestions.
+
+So every error gets a clear, actionable explanation whether or not it has a dedicated strategy.
+
 ### Custom Explanation Strategies
 
 Add domain-specific error patterns:
