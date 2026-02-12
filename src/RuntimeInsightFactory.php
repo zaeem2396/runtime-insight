@@ -14,9 +14,12 @@ use ClarityPHP\RuntimeInsight\Engine\CachingExplanationEngine;
 use ClarityPHP\RuntimeInsight\Engine\ExplanationEngine;
 use ClarityPHP\RuntimeInsight\Engine\Strategies\ArgumentCountStrategy;
 use ClarityPHP\RuntimeInsight\Engine\Strategies\ClassNotFoundStrategy;
+use ClarityPHP\RuntimeInsight\Engine\Strategies\DivisionByZeroErrorStrategy;
 use ClarityPHP\RuntimeInsight\Engine\Strategies\NullPointerStrategy;
+use ClarityPHP\RuntimeInsight\Engine\Strategies\ParseErrorStrategy;
 use ClarityPHP\RuntimeInsight\Engine\Strategies\TypeErrorStrategy;
 use ClarityPHP\RuntimeInsight\Engine\Strategies\UndefinedIndexStrategy;
+use ClarityPHP\RuntimeInsight\Engine\Strategies\ValueErrorStrategy;
 
 /**
  * Factory for creating RuntimeInsight instances.
@@ -74,6 +77,9 @@ final class RuntimeInsightFactory
         $engine->addStrategy(new TypeErrorStrategy());
         $engine->addStrategy(new ArgumentCountStrategy());
         $engine->addStrategy(new ClassNotFoundStrategy());
+        $engine->addStrategy(new DivisionByZeroErrorStrategy());
+        $engine->addStrategy(new ParseErrorStrategy());
+        $engine->addStrategy(new ValueErrorStrategy());
 
         if ($config->isCacheEnabled()) {
             return new CachingExplanationEngine($engine, new ArrayExplanationCache(), $config);

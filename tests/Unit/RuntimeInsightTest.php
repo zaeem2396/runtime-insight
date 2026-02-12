@@ -146,9 +146,10 @@ final class RuntimeInsightTest extends TestCase
 
         $explanation = $this->insight->analyze($exception);
 
-        // Should still provide an explanation
+        // Should still provide a descriptive fallback explanation (fixes #25)
         $this->assertFalse($explanation->isEmpty());
-        $this->assertSame(0.3, $explanation->getConfidence()); // Fallback confidence
+        $this->assertSame(0.5, $explanation->getConfidence());
+        $this->assertStringContainsString('exception', $explanation->getCause());
     }
 
     #[Test]
