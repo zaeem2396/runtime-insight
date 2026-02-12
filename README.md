@@ -75,7 +75,10 @@ Confidence: 0.92
 
 ## 🎯 Supported Error Types
 
-Runtime Insight includes built-in strategies for common PHP errors:
+Runtime Insight supports **all error types** with descriptive explanations (fixes [#25](https://github.com/zaeem2396/runtime-insight/issues/25)):
+
+- **Dedicated strategies** for common PHP errors (high confidence, specific cause and suggestions).
+- **Descriptive fallback** for any other exception type (RuntimeException, LogicException, InvalidArgumentException, etc.) so you never get a generic “exception was thrown” message.
 
 | Error Type | Example | Confidence |
 |------------|---------|------------|
@@ -84,6 +87,11 @@ Runtime Insight includes built-in strategies for common PHP errors:
 | **Type Error** | `Argument #1 must be of type string, int given` | 0.90 |
 | **Argument Count** | `Too few arguments to function` | 0.92 |
 | **Class Not Found** | `Class 'App\Models\User' not found` | 0.88 |
+| **Division by Zero** | `Division by zero` | 0.90 |
+| **Parse Error** | `syntax error, unexpected "}"` | 0.88 |
+| **Value Error** | `first(): Argument #1 must be a non-empty array` | 0.85 |
+
+Unmatched exceptions (e.g. `RuntimeException`, `InvalidArgumentException`) receive a **descriptive fallback** (cause + suggestions) instead of a generic message.
 
 Each strategy provides:
 - **Cause explanation** - Why the error occurred
