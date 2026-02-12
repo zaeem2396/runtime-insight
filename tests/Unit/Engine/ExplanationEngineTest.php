@@ -34,7 +34,8 @@ final class ExplanationEngineTest extends TestCase
 
         $this->assertInstanceOf(Explanation::class, $explanation);
         $this->assertSame('Some error', $explanation->getMessage());
-        $this->assertSame(0.3, $explanation->getConfidence());
+        $this->assertSame(0.5, $explanation->getConfidence());
+        $this->assertStringContainsString('exception', $explanation->getCause());
     }
 
     #[Test]
@@ -73,8 +74,8 @@ final class ExplanationEngineTest extends TestCase
         $context = $this->createContext('Test error', 'Exception');
         $explanation = $this->engine->explain($context);
 
-        // Should fall back to default explanation
-        $this->assertSame(0.3, $explanation->getConfidence());
+        // Should fall back to descriptive explanation
+        $this->assertSame(0.5, $explanation->getConfidence());
     }
 
     #[Test]
@@ -120,6 +121,18 @@ final class ExplanationEngineTest extends TestCase
     }
 
     #[Test]
+    public function it_returns_descriptive_fallback_for_runtime_exception(): void
+    {
+        $context = $this->createContext('Resource not found', 'RuntimeException');
+
+        $explanation = $this->engine->explain($context);
+
+        $this->assertSame(0.5, $explanation->getConfidence());
+        $this->assertStringContainsString('runtime exception', $explanation->getCause());
+        $this->assertNotEmpty($explanation->getSuggestions());
+    }
+
+    #[Test]
     public function it_falls_back_to_rule_based_when_ai_returns_empty(): void
     {
         $config = Config::fromArray([
@@ -142,8 +155,8 @@ final class ExplanationEngineTest extends TestCase
 
         $this->assertFalse($explanation->isEmpty());
         $this->assertSame('API failed error', $explanation->getMessage());
-        $this->assertSame(0.3, $explanation->getConfidence());
-        $this->assertStringContainsString('exception of type', $explanation->getCause());
+        $this->assertSame(0.5, $explanation->getConfidence());
+        $this->assertStringContainsString('exception', $explanation->getCause());
     }
 
     private function createContext(string $message, string $class): RuntimeContext
