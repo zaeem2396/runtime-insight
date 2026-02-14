@@ -28,6 +28,16 @@ final class MarkdownRenderer implements RendererInterface
             $output .= "`{$explanation->getLocation()}`\n\n";
         }
 
+        if ($explanation->getCallSiteLocation() !== null) {
+            $output .= "## Called From (fix here)\n\n";
+            $output .= "`{$explanation->getCallSiteLocation()}`\n\n";
+        }
+
+        if ($explanation->getCodeSnippet() !== null) {
+            $output .= "## Code Block (to update)\n\n";
+            $output .= "```\n{$explanation->getCodeSnippet()}\n```\n\n";
+        }
+
         $suggestions = $explanation->getSuggestions();
         if ($suggestions !== []) {
             $output .= "## Suggested Fixes\n\n";
