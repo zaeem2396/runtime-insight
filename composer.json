@@ -1,5 +1,5 @@
 {
-    "name": "clarityphp/runtime-insight",
+    "name": "zaeem2396/runtime-insight",
     "description": "AI-Augmented PHP Runtime Error Analyzer & Explainer for Laravel and Symfony applications",
     "type": "library",
     "license": "MIT",
@@ -22,10 +22,10 @@
             "email": "zaeemansari87@gmail.com"
         }
     ],
-    "homepage": "https://github.com/clarityphp/runtime-insight",
+    "homepage": "https://github.com/zaeem2396/runtime-insight",
     "support": {
-        "issues": "https://github.com/clarityphp/runtime-insight/issues",
-        "source": "https://github.com/clarityphp/runtime-insight"
+        "issues": "https://github.com/zaeem2396/runtime-insight/issues",
+        "source": "https://github.com/zaeem2396/runtime-insight"
     },
     "require": {
         "php": "^8.2",
