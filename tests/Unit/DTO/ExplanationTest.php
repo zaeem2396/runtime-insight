@@ -101,5 +101,61 @@ final class ExplanationTest extends TestCase
         $this->assertNull($explanation->getErrorType());
         $this->assertNull($explanation->getLocation());
         $this->assertSame([], $explanation->getMetadata());
+        $this->assertNull($explanation->getCodeSnippet());
+        $this->assertNull($explanation->getCallSiteLocation());
+    }
+
+    #[Test]
+    public function it_supports_code_snippet_and_call_site_location(): void
+    {
+        $explanation = new Explanation(
+            message: 'Type error',
+            cause: 'Cause',
+            suggestions: [],
+            confidence: 0.9,
+            location: '/app/foo.php:10',
+            codeSnippet: '  → 10 | $x->bar();',
+            callSiteLocation: '/app/Controller.php:145',
+        );
+
+        $this->assertSame('  → 10 | $x->bar();', $explanation->getCodeSnippet());
+        $this->assertSame('/app/Controller.php:145', $explanation->getCallSiteLocation());
+    }
+
+    #[Test]
+    public function it_creates_copy_with_code_context_via_with_code_context(): void
+    {
+        $base = new Explanation(
+            message: 'Error',
+            cause: 'Cause',
+            suggestions: [],
+            confidence: 0.8,
+            location: '/app/foo.php:5',
+        );
+
+        $enriched = $base->withCodeContext('  → 5 | requireString($value);', '/app/Controller.php:145');
+
+        $this->assertNull($base->getCodeSnippet());
+        $this->assertSame('  → 5 | requireString($value);', $enriched->getCodeSnippet());
+        $this->assertSame('/app/Controller.php:145', $enriched->getCallSiteLocation());
+        $this->assertSame('Error', $enriched->getMessage());
+    }
+
+    #[Test]
+    public function it_roundtrips_code_snippet_and_call_site_via_to_array_from_array(): void
+    {
+        $explanation = new Explanation(
+            message: 'Err',
+            cause: 'Cause',
+            suggestions: [],
+            confidence: 0.7,
+            codeSnippet: '  10 | $a = null;',
+            callSiteLocation: '/app/Test.php:20',
+        );
+
+        $restored = Explanation::fromArray($explanation->toArray());
+
+        $this->assertSame('  10 | $a = null;', $restored->getCodeSnippet());
+        $this->assertSame('/app/Test.php:20', $restored->getCallSiteLocation());
     }
 }
