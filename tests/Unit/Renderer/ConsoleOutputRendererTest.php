@@ -32,4 +32,26 @@ final class ConsoleOutputRendererTest extends TestCase
         $this->assertStringContainsString('Check for null', $output);
         $this->assertStringContainsString('0.9', $output);
     }
+
+    #[Test]
+    public function it_includes_code_block_and_called_from_when_present(): void
+    {
+        $explanation = new Explanation(
+            message: 'Type error',
+            cause: 'Argument was null',
+            suggestions: ['Add null check'],
+            confidence: 0.9,
+            location: '/app/foo.php:148',
+            codeSnippet: "  → 148 | requireString(\$value);\n",
+            callSiteLocation: '/app/Controller.php:145',
+        );
+
+        $renderer = new ConsoleOutputRenderer();
+        $output = $renderer->render($explanation);
+
+        $this->assertStringContainsString('Called from (fix here):', $output);
+        $this->assertStringContainsString('/app/Controller.php:145', $output);
+        $this->assertStringContainsString('Code block (to update):', $output);
+        $this->assertStringContainsString('148 | requireString', $output);
+    }
 }
