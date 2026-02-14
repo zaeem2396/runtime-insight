@@ -32,4 +32,26 @@ final class MarkdownRendererTest extends TestCase
         $this->assertStringContainsString('`src/Service.php:10`', $output);
         $this->assertStringContainsString('**Confidence:** 0.88', $output);
     }
+
+    #[Test]
+    public function it_includes_code_block_and_called_from_in_markdown_when_present(): void
+    {
+        $explanation = new Explanation(
+            message: 'Type error',
+            cause: 'Cause',
+            suggestions: [],
+            confidence: 0.9,
+            location: '/app/foo.php:10',
+            codeSnippet: "  → 10 | \$x->bar();\n",
+            callSiteLocation: '/app/Controller.php:5',
+        );
+
+        $renderer = new MarkdownRenderer();
+        $output = $renderer->render($explanation);
+
+        $this->assertStringContainsString('## Called From (fix here)', $output);
+        $this->assertStringContainsString('`/app/Controller.php:5`', $output);
+        $this->assertStringContainsString('## Code Block (to update)', $output);
+        $this->assertStringContainsString('10 | $x->bar();', $output);
+    }
 }

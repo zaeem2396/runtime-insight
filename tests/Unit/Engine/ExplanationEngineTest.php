@@ -159,6 +159,34 @@ final class ExplanationEngineTest extends TestCase
         $this->assertStringContainsString('exception', $explanation->getCause());
     }
 
+    #[Test]
+    public function it_enriches_explanation_with_code_snippet_and_call_site_when_available(): void
+    {
+        $sourceContext = new SourceContext(
+            file: '/app/Controller.php',
+            errorLine: 148,
+            lines: [148 => '    public function requireString(string $value): void'],
+            codeSnippet: "  → 148 |     public function requireString(string \$value): void\n",
+        );
+        $context = new RuntimeContext(
+            exception: new ExceptionInfo(
+                class: 'TypeError',
+                message: 'Argument #1 ($value) must be of type string, null given, called in /app/Controller.php on line 145',
+                code: 0,
+                file: '/app/Controller.php',
+                line: 148,
+            ),
+            stackTrace: new StackTraceInfo(frames: []),
+            sourceContext: $sourceContext,
+        );
+
+        $engine = new ExplanationEngine(new Config());
+        $explanation = $engine->explain($context);
+
+        $this->assertStringContainsString('requireString', $explanation->getCodeSnippet());
+        $this->assertSame('/app/Controller.php:145', $explanation->getCallSiteLocation());
+    }
+
     private function createContext(string $message, string $class): RuntimeContext
     {
         return new RuntimeContext(

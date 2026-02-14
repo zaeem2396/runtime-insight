@@ -25,6 +25,15 @@ final class ConsoleOutputRenderer implements RendererInterface
             $output .= "Where:\n  {$explanation->getLocation()}\n\n";
         }
 
+        if ($explanation->getCallSiteLocation() !== null) {
+            $output .= "Called from (fix here):\n  {$explanation->getCallSiteLocation()}\n\n";
+        }
+
+        if ($explanation->getCodeSnippet() !== null) {
+            $output .= "Code block (to update):\n";
+            $output .= $explanation->getCodeSnippet() . "\n\n";
+        }
+
         $suggestions = $explanation->getSuggestions();
         if ($suggestions !== []) {
             $output .= "Suggested Fix:\n";

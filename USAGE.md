@@ -261,6 +261,8 @@ php artisan runtime:explain --format=ide
 
 **Export to file:** Use `--output=path` (or `-o path` on Symfony) to write the explanation to a file instead of the console. Works with single and batch mode.
 
+**Code block and call site:** When the error location is in your app (and the file is readable), the output includes a **Code block (to update)** snippet (with line numbers and the error line marked with →) and, when present, **Called from (fix here)** (e.g. when the message says "called in … on line N" or from the stack trace). This makes it clear which code block to change and where the bad value was passed from.
+
 **Example Output:**
 
 ```
@@ -275,6 +277,12 @@ Why this happened:
 
 Where:
   app/Http/Controllers/UserController.php:42
+
+Called from (fix here):
+  app/Http/Controllers/UserController.php:38
+
+Code block (to update):
+  →  42 |   return $user->getName();
 
 Suggested Fix:
   - Check if the variable is null before accessing it using `if ($variable !== null)`

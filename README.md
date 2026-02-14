@@ -48,6 +48,12 @@ Why this happened:
 Where:
   App\Http\Controllers\OrderController.php:42
 
+Called from (fix here):
+  App\Http\Controllers\OrderController.php:38
+
+Code block (to update):
+  →  42 |   return $user->id;
+
 Suggested Fix:
   - Add authentication middleware to this route
   - OR guard access using:
@@ -61,6 +67,7 @@ Confidence: 0.92
 ## ✨ Features
 
 - 🔍 **Smart Error Interception** - Hooks into Laravel & Symfony exception handling
+- 📍 **Code Block to Update** - Shows the exact code snippet and call site so you know where to fix (file:line + snippet)
 - 🧠 **AI-Powered Analysis** - Optional AI reasoning for complex errors
 - 📚 **Rule-Based Patterns** - Fast, deterministic matching for common errors
 - 🎨 **Multiple Output Formats** - Console, logs, or debug UI

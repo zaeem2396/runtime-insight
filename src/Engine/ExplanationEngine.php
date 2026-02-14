@@ -11,6 +11,7 @@ use ClarityPHP\RuntimeInsight\Contracts\ExplanationStrategyInterface;
 use ClarityPHP\RuntimeInsight\DTO\Explanation;
 use ClarityPHP\RuntimeInsight\DTO\RuntimeContext;
 
+use function preg_match;
 use function str_contains;
 use function strrpos;
 use function substr;
@@ -54,23 +55,31 @@ final class ExplanationEngine implements ExplanationEngineInterface
      */
     public function explain(RuntimeContext $context): Explanation
     {
+        $explanation = null;
+
         // Try rule-based strategies first
         foreach ($this->strategies as $strategy) {
             if ($strategy->supports($context)) {
-                return $strategy->explain($context);
+                $explanation = $strategy->explain($context);
+
+                break;
             }
         }
 
         // Fall back to AI if enabled and available
-        if ($this->config->isAIEnabled() && $this->aiProvider !== null && $this->aiProvider->isAvailable()) {
-            $explanation = $this->aiProvider->analyze($context);
-            if (! $explanation->isEmpty()) {
-                return $explanation;
+        if ($explanation === null && $this->config->isAIEnabled() && $this->aiProvider !== null && $this->aiProvider->isAvailable()) {
+            $aiExplanation = $this->aiProvider->analyze($context);
+            if (! $aiExplanation->isEmpty()) {
+                $explanation = $aiExplanation;
             }
         }
 
-        // Return a basic explanation when no strategy matched or AI returned empty
-        return $this->buildFallbackExplanation($context);
+        // Fall back to descriptive fallback when no strategy matched or AI returned empty
+        if ($explanation === null) {
+            $explanation = $this->buildFallbackExplanation($context);
+        }
+
+        return $this->enrichWithCodeContext($explanation, $context);
     }
 
     /**
@@ -81,6 +90,53 @@ final class ExplanationEngine implements ExplanationEngineInterface
     public function getStrategies(): array
     {
         return $this->strategies;
+    }
+
+    /**
+     * Attach code snippet and call-site location so output shows which code block to update.
+     */
+    private function enrichWithCodeContext(Explanation $explanation, RuntimeContext $context): Explanation
+    {
+        $snippet = $context->sourceContext->codeSnippet ?? '';
+        $callSite = $this->extractCallSiteFromMessage($context->exception->message)
+            ?? $this->getCallSiteFromStackTrace($context);
+
+        if ($snippet === '' && $callSite === null) {
+            return $explanation;
+        }
+
+        return $explanation->withCodeContext($snippet, $callSite);
+    }
+
+    /**
+     * Get call site from stack trace (caller frame) when available.
+     */
+    private function getCallSiteFromStackTrace(RuntimeContext $context): ?string
+    {
+        $frames = $context->stackTrace->frames;
+        if (isset($frames[1])) {
+            $caller = $frames[1];
+            $loc = $caller->getLocation();
+
+            return $loc !== '' ? $loc : null;
+        }
+
+        return null;
+    }
+
+    /**
+     * Extract "called in /path/file.php on line N" from PHP exception message.
+     */
+    private function extractCallSiteFromMessage(string $message): ?string
+    {
+        if (preg_match('/called in (.+?) on line (\d+)/', $message, $matches) === 1) {
+            $file = trim($matches[1]);
+            $line = (int) $matches[2];
+
+            return "{$file}:{$line}";
+        }
+
+        return null;
     }
 
     /**
