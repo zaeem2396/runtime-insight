@@ -1,10 +1,10 @@
-# ClarityPHP Runtime Insight
+# Runtime Insight
 
 <p align="center">
-  <img src="https://img.shields.io/packagist/php-v/clarityphp/runtime-insight" alt="PHP Version">
-  <img src="https://img.shields.io/github/actions/workflow/status/clarityphp/runtime-insight/tests.yml?branch=main" alt="Build Status">
-  <img src="https://img.shields.io/packagist/v/clarityphp/runtime-insight" alt="Latest Version">
-  <img src="https://img.shields.io/packagist/l/clarityphp/runtime-insight" alt="License">
+  <img src="https://img.shields.io/packagist/php-v/zaeem2396/runtime-insight" alt="PHP Version">
+  <img src="https://img.shields.io/github/actions/workflow/status/zaeem2396/runtime-insight/tests.yml?branch=main" alt="Build Status">
+  <img src="https://img.shields.io/packagist/v/zaeem2396/runtime-insight" alt="Latest Version">
+  <img src="https://img.shields.io/github/license/zaeem2396/runtime-insight" alt="License">
 </p>
 
 **AI-Augmented PHP Runtime Error Analyzer & Explainer** for Laravel and Symfony applications.
@@ -117,7 +117,7 @@ Each strategy provides:
 ## 📦 Installation
 
 ```bash
-composer require clarityphp/runtime-insight
+composer require zaeem2396/runtime-insight
 ```
 
 **Laravel:** After installing, add the OpenAI API key to your `.env` (used by default):
@@ -382,7 +382,7 @@ Contributions are welcome! Please read our [Contributing Guide](CONTRIBUTING.md)
 
 ```bash
 # Clone the repository
-git clone https://github.com/clarityphp/runtime-insight.git
+git clone https://github.com/zaeem2396/runtime-insight.git
 cd runtime-insight
 
 # Install dependencies

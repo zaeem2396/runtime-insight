@@ -1,6 +1,6 @@
 # Usage Guide
 
-This guide covers all usage scenarios for ClarityPHP Runtime Insight.
+This guide covers all usage scenarios for Runtime Insight.
 
 ---
 
@@ -26,7 +26,7 @@ This guide covers all usage scenarios for ClarityPHP Runtime Insight.
 ### Installation
 
 ```bash
-composer require clarityphp/runtime-insight
+composer require zaeem2396/runtime-insight
 ```
 
 ### Basic Configuration
@@ -953,5 +953,5 @@ Check API key and network connectivity.
 
 - See [Configuration Options](#configuration-options) and [AI Provider Configuration](#ai-provider-configuration) for full setup
 - Use `RendererFactory::forFormat()` and `RuntimeInsightFactory::create()` for programmatic usage (see [README](README.md))
-- Join our [Discord](https://discord.gg/clarityphp) for support
+- [Open an issue](https://github.com/zaeem2396/runtime-insight/issues) or discussions for support
 
