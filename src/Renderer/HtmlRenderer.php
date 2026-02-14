@@ -30,6 +30,16 @@ final class HtmlRenderer implements RendererInterface
             ? "<section><h2>Where</h2><p><code>{$location}</code></p></section>"
             : '';
 
+        $callSite = $explanation->getCallSiteLocation();
+        $callSiteSection = $callSite !== null
+            ? '<section><h2>Called From (fix here)</h2><p><code>' . $this->escape($callSite) . '</code></p></section>'
+            : '';
+
+        $snippet = $explanation->getCodeSnippet();
+        $snippetSection = $snippet !== null
+            ? '<section><h2>Code Block (to update)</h2><pre><code>' . $this->escape($snippet) . '</code></pre></section>'
+            : '';
+
         $suggestionsSection = $suggestionsHtml !== ''
             ? "<section><h2>Suggested Fixes</h2><ul>{$suggestionsHtml}</ul></section>"
             : '';
@@ -47,6 +57,7 @@ final class HtmlRenderer implements RendererInterface
                     h2 { font-size: 0.875rem; margin-top: 1.5rem; color: #374151; }
                     section { margin-bottom: 1rem; }
                     code { background: #f3f4f6; padding: 0.125rem 0.375rem; border-radius: 0.25rem; font-size: 0.875rem; }
+                    pre { background: #f3f4f6; padding: 0.75rem; border-radius: 0.25rem; font-size: 0.875rem; overflow-x: auto; white-space: pre; }
                     .confidence { font-size: 0.875rem; color: #6b7280; }
                 </style>
             </head>
@@ -61,6 +72,8 @@ final class HtmlRenderer implements RendererInterface
                     <p>{$cause}</p>
                 </section>
                 {$locationSection}
+                {$callSiteSection}
+                {$snippetSection}
                 {$suggestionsSection}
                 <p class="confidence"><strong>Confidence:</strong> {$confidence}</p>
             </body>
