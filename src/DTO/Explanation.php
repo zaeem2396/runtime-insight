@@ -24,6 +24,8 @@ final readonly class Explanation
         private ?string $errorType = null,
         private ?string $location = null,
         private array $metadata = [],
+        private ?string $codeSnippet = null,
+        private ?string $callSiteLocation = null,
     ) {}
 
     /**
@@ -73,6 +75,22 @@ final readonly class Explanation
     }
 
     /**
+     * Code snippet around the error line (with line numbers). Shown as "Code block to update".
+     */
+    public function getCodeSnippet(): ?string
+    {
+        return $this->codeSnippet;
+    }
+
+    /**
+     * Call site where the error was triggered (e.g. "file.php:145"). Shown as "Called from".
+     */
+    public function getCallSiteLocation(): ?string
+    {
+        return $this->callSiteLocation;
+    }
+
+    /**
      * @return array<string, mixed>
      */
     public function getMetadata(): array
@@ -83,6 +101,25 @@ final readonly class Explanation
     public function isEmpty(): bool
     {
         return $this->message === '' && $this->cause === '';
+    }
+
+    /**
+     * Return a copy with code context attached (snippet and optional call site).
+     * Used by the engine to show which code block to update.
+     */
+    public function withCodeContext(string $codeSnippet, ?string $callSiteLocation = null): self
+    {
+        return new self(
+            message: $this->message,
+            cause: $this->cause,
+            suggestions: $this->suggestions,
+            confidence: $this->confidence,
+            errorType: $this->errorType,
+            location: $this->location,
+            metadata: $this->metadata,
+            codeSnippet: $codeSnippet !== '' ? $codeSnippet : null,
+            callSiteLocation: $callSiteLocation,
+        );
     }
 
     /**
@@ -98,6 +135,8 @@ final readonly class Explanation
             'error_type' => $this->errorType,
             'location' => $this->location,
             'metadata' => $this->metadata,
+            'code_snippet' => $this->codeSnippet,
+            'call_site_location' => $this->callSiteLocation,
         ];
     }
 
@@ -134,6 +173,8 @@ final readonly class Explanation
             errorType: is_string($data['error_type'] ?? null) ? $data['error_type'] : null,
             location: is_string($data['location'] ?? null) ? $data['location'] : null,
             metadata: $metadata,
+            codeSnippet: is_string($data['code_snippet'] ?? null) ? $data['code_snippet'] : null,
+            callSiteLocation: is_string($data['call_site_location'] ?? null) ? $data['call_site_location'] : null,
         );
     }
 }
