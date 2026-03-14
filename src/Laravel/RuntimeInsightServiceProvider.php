@@ -20,6 +20,7 @@ use ClarityPHP\RuntimeInsight\Laravel\Commands\AnalyzeCommand;
 use ClarityPHP\RuntimeInsight\Laravel\Commands\DoctorCommand;
 use ClarityPHP\RuntimeInsight\Laravel\Commands\ExplainCommand;
 use ClarityPHP\RuntimeInsight\Laravel\Commands\InstallCommand;
+use ClarityPHP\RuntimeInsight\Laravel\Commands\TimelineCommand;
 use ClarityPHP\RuntimeInsight\Laravel\Context\LaravelContextBuilder;
 use ClarityPHP\RuntimeInsight\Log\LaravelLogParser;
 use ClarityPHP\RuntimeInsight\RuntimeInsight;
@@ -139,6 +140,7 @@ class RuntimeInsightServiceProvider extends ServiceProvider
             $this->commands([
                 ExplainCommand::class,
                 AnalyzeCommand::class,
+                TimelineCommand::class,
                 DoctorCommand::class,
                 InstallCommand::class,
             ]);
