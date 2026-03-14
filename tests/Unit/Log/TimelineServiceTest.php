@@ -44,5 +44,7 @@ final class TimelineServiceTest extends TestCase
         $this->assertGreaterThanOrEqual(3, count($result->events));
         $this->assertSame('request_started', $result->events[0]->type);
         $this->assertSame('exception', $result->events[1]->type);
+        $last = $result->events[count($result->events) - 1];
+        $this->assertSame('request_ended', $last->type);
     }
 }
