@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace ClarityPHP\RuntimeInsight\Laravel;
 
+use ClarityPHP\RuntimeInsight\Collectors\CollectorRegistry;
 use ClarityPHP\RuntimeInsight\Config;
 use ClarityPHP\RuntimeInsight\Context\ContextBuilder;
 use ClarityPHP\RuntimeInsight\Contracts\AIProviderInterface;
 use ClarityPHP\RuntimeInsight\Contracts\AnalyzerInterface;
 use ClarityPHP\RuntimeInsight\Contracts\ContextBuilderInterface;
 use ClarityPHP\RuntimeInsight\Contracts\ExplanationEngineInterface;
+use ClarityPHP\RuntimeInsight\Contracts\RootCauseAnalyzerInterface;
+use ClarityPHP\RuntimeInsight\Engine\RootCauseAnalyzer;
 use ClarityPHP\RuntimeInsight\Laravel\Commands\DoctorCommand;
 use ClarityPHP\RuntimeInsight\Laravel\Commands\ExplainCommand;
 use ClarityPHP\RuntimeInsight\Laravel\Commands\InstallCommand;
@@ -80,12 +83,22 @@ class RuntimeInsightServiceProvider extends ServiceProvider
             return RuntimeInsightFactory::createExplanationEngine($config, $aiProvider);
         });
 
+        // Register CollectorRegistry and RootCauseAnalyzer for the pipeline
+        $this->app->singleton(CollectorRegistry::class, function (Application $app): CollectorRegistry {
+            return RuntimeInsightFactory::createDefaultCollectorRegistry();
+        });
+        $this->app->singleton(RootCauseAnalyzerInterface::class, function (Application $app): RootCauseAnalyzer {
+            return new RootCauseAnalyzer();
+        });
+
         // Register main RuntimeInsight
         $this->app->singleton(RuntimeInsight::class, function (Application $app): RuntimeInsight {
             return new RuntimeInsight(
                 $app->make(ContextBuilderInterface::class),
                 $app->make(ExplanationEngineInterface::class),
                 $app->make(Config::class),
+                $app->make(CollectorRegistry::class),
+                $app->make(RootCauseAnalyzerInterface::class),
             );
         });
 
