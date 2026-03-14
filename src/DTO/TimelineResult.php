@@ -24,6 +24,8 @@ final readonly class TimelineResult
     }
 
     /**
+     * Array representation for API or serialization.
+     *
      * @return array<string, mixed>
      */
     public function toArray(): array
