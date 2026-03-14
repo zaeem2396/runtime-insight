@@ -33,7 +33,7 @@ final class TimelineCommand extends Command
     protected function configure(): void
     {
         $this
-            ->addArgument('log', InputArgument::OPTIONAL, 'Path to log file')
+            ->addArgument('log', InputArgument::OPTIONAL, 'Path to log file (e.g. var/log/dev.log)')
             ->addOption('last', 'l', InputOption::VALUE_REQUIRED, 'Number of last log entries to include in timeline', '20');
     }
 
