@@ -6,6 +6,7 @@ namespace ClarityPHP\RuntimeInsight\DTO;
 
 /**
  * Result of log analysis: total count and grouped entries.
+ * Returned by LogAnalyzerService::analyze() for runtime:analyze output.
  */
 final readonly class LogSummaryResult
 {
