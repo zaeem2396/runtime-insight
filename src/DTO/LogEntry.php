@@ -6,6 +6,7 @@ namespace ClarityPHP\RuntimeInsight\DTO;
 
 /**
  * Single error/exception entry extracted from a log file.
+ * Used by log parser and analyzer for summarization and grouping.
  */
 final readonly class LogEntry
 {
