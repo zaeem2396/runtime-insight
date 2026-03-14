@@ -6,7 +6,7 @@ namespace ClarityPHP\RuntimeInsight\DTO;
 
 /**
  * Result of building a runtime timeline (ordered events with relative times).
- * Returned by TimelineService::buildFromLog().
+ * Returned by TimelineService::buildFromLog(). Events are in chronological order.
  */
 final readonly class TimelineResult
 {
