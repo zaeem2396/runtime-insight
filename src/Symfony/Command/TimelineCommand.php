@@ -20,7 +20,7 @@ use function sprintf;
 
 #[AsCommand(
     name: 'runtime:timeline',
-    description: 'Show runtime timeline: events before the last failure (from log)',
+    description: 'Show runtime timeline: events before the last failure (default: var/log/dev.log)',
 )]
 final class TimelineCommand extends Command
 {
