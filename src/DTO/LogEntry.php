@@ -19,6 +19,8 @@ final readonly class LogEntry
     ) {}
 
     /**
+     * Array representation for serialization or API output.
+     *
      * @return array<string, mixed>
      */
     public function toArray(): array
