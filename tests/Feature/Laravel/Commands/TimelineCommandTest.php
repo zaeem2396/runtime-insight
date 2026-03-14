@@ -38,6 +38,7 @@ final class TimelineCommandTest extends TestCase
             $this->artisan('runtime:timeline', ['log' => $log])
                 ->expectsOutputToContain('Runtime Timeline')
                 ->expectsOutputToContain('T+')
+                ->expectsOutputToContain('Request started')
                 ->assertExitCode(0);
         } finally {
             @unlink($log);
