@@ -21,7 +21,7 @@ use function substr;
 
 #[AsCommand(
     name: 'runtime:analyze',
-    description: 'Analyze log file: summarize error types and counts, highlight top failures',
+    description: 'Analyze log file: summarize error types and counts, highlight top failures (default: var/log/dev.log)',
 )]
 final class AnalyzeCommand extends Command
 {
