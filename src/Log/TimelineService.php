@@ -81,6 +81,7 @@ final class TimelineService
         foreach ($withTs as $i => $item) {
             $entry = $item['entry'];
             $ts = $item['ts'];
+            // Relative seconds from first event timestamp, or index if no timestamp
             $relative = $ts !== null ? $ts - $firstTs : (float) $i;
             $detail = $entry->file !== 'unknown' ? $entry->file . ':' . $entry->line : $entry->message;
             $events[] = new TimelineEvent(
