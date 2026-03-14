@@ -8,6 +8,7 @@ use ClarityPHP\RuntimeInsight\Collectors\CollectorRegistry;
 use ClarityPHP\RuntimeInsight\Contracts\AnalyzerInterface;
 use ClarityPHP\RuntimeInsight\Contracts\ContextBuilderInterface;
 use ClarityPHP\RuntimeInsight\Contracts\ExplanationEngineInterface;
+use ClarityPHP\RuntimeInsight\Contracts\PatternAnalyzerInterface;
 use ClarityPHP\RuntimeInsight\Contracts\RootCauseAnalyzerInterface;
 use ClarityPHP\RuntimeInsight\DTO\Explanation;
 use ClarityPHP\RuntimeInsight\DTO\RuntimeContext;
@@ -27,6 +28,7 @@ final class RuntimeInsight implements AnalyzerInterface
         private readonly Config $config,
         private readonly ?CollectorRegistry $collectorRegistry = null,
         private readonly ?RootCauseAnalyzerInterface $rootCauseAnalyzer = null,
+        private readonly ?PatternAnalyzerInterface $patternAnalyzer = null,
     ) {}
 
     /**
@@ -42,7 +44,9 @@ final class RuntimeInsight implements AnalyzerInterface
         $context = $this->enrichContextWithCollectors($context);
         $explanation = $this->explanationEngine->explain($context);
 
-        return $this->attachRootCauseToExplanation($context, $explanation);
+        $explanation = $this->attachRootCauseToExplanation($context, $explanation);
+
+        return $this->attachPatternToExplanation($context, $explanation);
     }
 
     /**
@@ -58,7 +62,9 @@ final class RuntimeInsight implements AnalyzerInterface
         $context = $this->enrichContextWithCollectors($context);
         $explanation = $this->explanationEngine->explain($context);
 
-        return $this->attachRootCauseToExplanation($context, $explanation);
+        $explanation = $this->attachRootCauseToExplanation($context, $explanation);
+
+        return $this->attachPatternToExplanation($context, $explanation);
     }
 
     /**
@@ -73,7 +79,9 @@ final class RuntimeInsight implements AnalyzerInterface
         $context = $this->enrichContextWithCollectors($context);
         $explanation = $this->explanationEngine->explain($context);
 
-        return $this->attachRootCauseToExplanation($context, $explanation);
+        $explanation = $this->attachRootCauseToExplanation($context, $explanation);
+
+        return $this->attachPatternToExplanation($context, $explanation);
     }
 
     /**
@@ -113,5 +121,19 @@ final class RuntimeInsight implements AnalyzerInterface
         }
 
         return $explanation->withMetadata(['root_cause' => $rootCause->toArray()]);
+    }
+
+    private function attachPatternToExplanation(RuntimeContext $context, Explanation $explanation): Explanation
+    {
+        if ($this->patternAnalyzer === null) {
+            return $explanation;
+        }
+
+        $pattern = $this->patternAnalyzer->analyze($context);
+        if ($pattern->isEmpty()) {
+            return $explanation;
+        }
+
+        return $explanation->withMetadata(['pattern' => $pattern->toArray()]);
     }
 }

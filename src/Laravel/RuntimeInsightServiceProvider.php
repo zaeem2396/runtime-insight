@@ -11,7 +11,9 @@ use ClarityPHP\RuntimeInsight\Contracts\AIProviderInterface;
 use ClarityPHP\RuntimeInsight\Contracts\AnalyzerInterface;
 use ClarityPHP\RuntimeInsight\Contracts\ContextBuilderInterface;
 use ClarityPHP\RuntimeInsight\Contracts\ExplanationEngineInterface;
+use ClarityPHP\RuntimeInsight\Contracts\PatternAnalyzerInterface;
 use ClarityPHP\RuntimeInsight\Contracts\RootCauseAnalyzerInterface;
+use ClarityPHP\RuntimeInsight\Engine\LaravelPatternAnalyzer;
 use ClarityPHP\RuntimeInsight\Engine\RootCauseAnalyzer;
 use ClarityPHP\RuntimeInsight\Laravel\Commands\DoctorCommand;
 use ClarityPHP\RuntimeInsight\Laravel\Commands\ExplainCommand;
@@ -90,6 +92,9 @@ class RuntimeInsightServiceProvider extends ServiceProvider
         $this->app->singleton(RootCauseAnalyzerInterface::class, function (Application $app): RootCauseAnalyzer {
             return new RootCauseAnalyzer();
         });
+        $this->app->singleton(PatternAnalyzerInterface::class, function (Application $app): LaravelPatternAnalyzer {
+            return new LaravelPatternAnalyzer();
+        });
 
         // Register main RuntimeInsight
         $this->app->singleton(RuntimeInsight::class, function (Application $app): RuntimeInsight {
@@ -99,6 +104,7 @@ class RuntimeInsightServiceProvider extends ServiceProvider
                 $app->make(Config::class),
                 $app->make(CollectorRegistry::class),
                 $app->make(RootCauseAnalyzerInterface::class),
+                $app->make(PatternAnalyzerInterface::class),
             );
         });
 
