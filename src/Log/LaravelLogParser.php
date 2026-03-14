@@ -16,6 +16,7 @@ use function trim;
 
 /**
  * Parses Laravel-style log files (.ERROR lines) into LogEntry DTOs.
+ * Matches [date] channel.ERROR: body and extracts message, file, line, exception class.
  */
 final class LaravelLogParser implements LogParserInterface
 {
