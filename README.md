@@ -79,7 +79,7 @@ Confidence: 0.92
 - 📊 **Memory & Performance Context** - Optional peak memory at time of error
 - 🔄 **Runtime Intelligence Pipeline** - Signal collectors, root cause analyzer, and pattern analyzer (e.g. N+1, validation hints) enrich explanations via metadata
 - 📜 **Log Analysis** - `runtime:analyze` summarizes error types and counts, highlights top failures by signature
-- ⏱️ **Runtime Timeline** - `runtime:timeline` shows events before the last failure (T+ seconds from log)
+- ⏱️ **Runtime Timeline** - `runtime:timeline` reconstructs events before the last failure (T+ seconds from log)
 
 ---
 
