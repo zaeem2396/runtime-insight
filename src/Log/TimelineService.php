@@ -20,7 +20,7 @@ use function strtotime;
 final class TimelineService
 {
     /**
-     * @param int $lastN Maximum number of log entries to include (most recent)
+     * @param int $lastN Maximum number of log entries to include (most recent; default 20)
      */
     public function __construct(
         private readonly LogParserInterface $parser,
