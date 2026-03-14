@@ -7,7 +7,7 @@ namespace ClarityPHP\RuntimeInsight\DTO;
 /**
  * Single event in a runtime timeline (e.g. request started, query, exception).
  * Used by TimelineService and runtime:timeline output.
- * Type may be: request_started, exception, request_ended.
+ * Type may be: request_started, exception, request_ended. Label is short (e.g. exception class).
  */
 final readonly class TimelineEvent
 {
