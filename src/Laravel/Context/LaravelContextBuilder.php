@@ -137,7 +137,7 @@ final class LaravelContextBuilder implements ContextBuilderInterface
             $headers = $request->headers->all();
 
             $routeRaw = $request->route();
-            $route = $routeRaw instanceof \Illuminate\Routing\Route
+            $route = $routeRaw instanceof Route
                 ? $routeRaw->getName()
                 : (is_string($routeRaw) ? $routeRaw : null);
 
