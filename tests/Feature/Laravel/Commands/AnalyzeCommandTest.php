@@ -14,11 +14,18 @@ final class AnalyzeCommandTest extends TestCase
             ->assertExitCode(0);
     }
 
-    public function test_it_reports_no_errors_when_log_empty_or_missing(): void
+    public function test_it_reports_no_errors_when_log_empty(): void
     {
-        $this->artisan('runtime:analyze', ['log' => __DIR__ . '/../../../fixtures/empty.log'])
-            ->expectsOutputToContain('No errors found')
-            ->assertExitCode(0);
+        $emptyLog = sys_get_temp_dir() . '/ri-empty-' . uniqid() . '.log';
+        file_put_contents($emptyLog, '');
+
+        try {
+            $this->artisan('runtime:analyze', ['log' => $emptyLog])
+                ->expectsOutputToContain('No errors found')
+                ->assertExitCode(0);
+        } finally {
+            @unlink($emptyLog);
+        }
     }
 
     public function test_it_summarizes_errors_from_log_file(): void
