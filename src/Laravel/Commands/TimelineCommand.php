@@ -52,7 +52,7 @@ final class TimelineCommand extends Command
         $result = $service->buildFromLog($logPath);
 
         if ($result->isEmpty()) {
-            $this->warn('No events found in log file.');
+            $this->warn('No events found in log file (or file is empty).');
 
             return self::SUCCESS;
         }

@@ -57,7 +57,7 @@ final class TimelineCommand extends Command
         $result = $service->buildFromLog($logPath);
 
         if ($result->isEmpty()) {
-            $io->warning('No events found in log file.');
+            $io->warning('No events found in log file (or file is empty).');
 
             return Command::SUCCESS;
         }
