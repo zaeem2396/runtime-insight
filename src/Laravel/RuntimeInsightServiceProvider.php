@@ -11,14 +11,17 @@ use ClarityPHP\RuntimeInsight\Contracts\AIProviderInterface;
 use ClarityPHP\RuntimeInsight\Contracts\AnalyzerInterface;
 use ClarityPHP\RuntimeInsight\Contracts\ContextBuilderInterface;
 use ClarityPHP\RuntimeInsight\Contracts\ExplanationEngineInterface;
+use ClarityPHP\RuntimeInsight\Contracts\LogParserInterface;
 use ClarityPHP\RuntimeInsight\Contracts\PatternAnalyzerInterface;
 use ClarityPHP\RuntimeInsight\Contracts\RootCauseAnalyzerInterface;
 use ClarityPHP\RuntimeInsight\Engine\LaravelPatternAnalyzer;
 use ClarityPHP\RuntimeInsight\Engine\RootCauseAnalyzer;
+use ClarityPHP\RuntimeInsight\Laravel\Commands\AnalyzeCommand;
 use ClarityPHP\RuntimeInsight\Laravel\Commands\DoctorCommand;
 use ClarityPHP\RuntimeInsight\Laravel\Commands\ExplainCommand;
 use ClarityPHP\RuntimeInsight\Laravel\Commands\InstallCommand;
 use ClarityPHP\RuntimeInsight\Laravel\Context\LaravelContextBuilder;
+use ClarityPHP\RuntimeInsight\Log\LaravelLogParser;
 use ClarityPHP\RuntimeInsight\RuntimeInsight;
 use ClarityPHP\RuntimeInsight\RuntimeInsightFactory;
 use Illuminate\Contracts\Foundation\Application;
@@ -95,6 +98,9 @@ class RuntimeInsightServiceProvider extends ServiceProvider
         $this->app->singleton(PatternAnalyzerInterface::class, function (Application $app): LaravelPatternAnalyzer {
             return new LaravelPatternAnalyzer();
         });
+        $this->app->singleton(LogParserInterface::class, function (Application $app): LaravelLogParser {
+            return new LaravelLogParser();
+        });
 
         // Register main RuntimeInsight
         $this->app->singleton(RuntimeInsight::class, function (Application $app): RuntimeInsight {
@@ -132,6 +138,7 @@ class RuntimeInsightServiceProvider extends ServiceProvider
 
             $this->commands([
                 ExplainCommand::class,
+                AnalyzeCommand::class,
                 DoctorCommand::class,
                 InstallCommand::class,
             ]);

@@ -78,6 +78,7 @@ Confidence: 0.92
 - 🗄️ **Database Query Context** - Optional recent queries in context (Laravel)
 - 📊 **Memory & Performance Context** - Optional peak memory at time of error
 - 🔄 **Runtime Intelligence Pipeline** - Signal collectors, root cause analyzer, and pattern analyzer (e.g. N+1, validation hints) enrich explanations via metadata
+- 📜 **Log Analysis** - `runtime:analyze` summarizes error types and counts, highlights top failures by signature
 
 ---
 
@@ -285,6 +286,10 @@ php artisan runtime:explain --log=storage/logs/laravel.log --all --limit=5
 # Write explanation to a file
 php artisan runtime:explain --log=storage/logs/laravel.log --output=explanation.txt
 
+# Analyze log file: summarize error counts and top failures
+php artisan runtime:analyze storage/logs/laravel.log
+php artisan runtime:analyze --top=20
+
 # Run diagnostics
 php artisan runtime:doctor
 ```
@@ -294,6 +299,9 @@ php artisan runtime:doctor
 ```bash
 # Explain the last exception
 php bin/console runtime:explain
+
+# Analyze log file: summarize error counts and top failures
+php bin/console runtime:analyze var/log/dev.log
 
 # Validate setup
 php bin/console runtime:doctor
