@@ -16,6 +16,7 @@ use function substr;
 
 /**
  * Artisan command to analyze a log file: summarize errors and top failures.
+ * Default log path: storage/logs/laravel.log. Use --top=N to limit top failures.
  */
 final class AnalyzeCommand extends Command
 {
