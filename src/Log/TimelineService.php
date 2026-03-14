@@ -19,6 +19,9 @@ use function strtotime;
  */
 final class TimelineService
 {
+    /**
+     * @param int $lastN Maximum number of log entries to include (most recent)
+     */
     public function __construct(
         private readonly LogParserInterface $parser,
         private readonly int $lastN = 20,
@@ -26,6 +29,7 @@ final class TimelineService
 
     /**
      * Build timeline from the last N error entries in the log file.
+     * Events get relative T+ seconds; request_started and request_ended are added.
      */
     public function buildFromLog(string $logPath): TimelineResult
     {
