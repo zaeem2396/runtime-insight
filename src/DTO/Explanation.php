@@ -123,6 +123,31 @@ final readonly class Explanation
     }
 
     /**
+     * Return a copy with merged metadata (e.g. root_cause from pipeline).
+     *
+     * @param array<string, mixed> $metadata
+     */
+    public function withMetadata(array $metadata): self
+    {
+        $merged = $this->metadata;
+        foreach ($metadata as $k => $v) {
+            $merged[$k] = $v;
+        }
+
+        return new self(
+            message: $this->message,
+            cause: $this->cause,
+            suggestions: $this->suggestions,
+            confidence: $this->confidence,
+            errorType: $this->errorType,
+            location: $this->location,
+            metadata: $merged,
+            codeSnippet: $this->codeSnippet,
+            callSiteLocation: $this->callSiteLocation,
+        );
+    }
+
+    /**
      * @return array<string, mixed>
      */
     public function toArray(): array
