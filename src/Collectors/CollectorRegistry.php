@@ -10,6 +10,7 @@ use ClarityPHP\RuntimeInsight\DTO\RuntimeContext;
 
 /**
  * Runs registered signal collectors and attaches payload to context.
+ * Used by the runtime intelligence pipeline before root cause and pattern analysis.
  */
 final class CollectorRegistry
 {
