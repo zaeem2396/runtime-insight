@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace ClarityPHP\RuntimeInsight\DTO;
 
+use function count;
+
 /**
  * Result of building a runtime timeline (ordered events with relative times).
  * Returned by TimelineService::buildFromLog(). Events are in chronological order.
