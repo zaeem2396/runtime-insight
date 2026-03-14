@@ -14,6 +14,7 @@ use function sprintf;
 
 /**
  * Artisan command to show runtime timeline (last failure events from log).
+ * Default log: storage/logs/laravel.log. Use --last=N for entry count.
  */
 final class TimelineCommand extends Command
 {
