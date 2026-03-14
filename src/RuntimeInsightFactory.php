@@ -5,13 +5,22 @@ declare(strict_types=1);
 namespace ClarityPHP\RuntimeInsight;
 
 use ClarityPHP\RuntimeInsight\AI\ProviderFactory;
+use ClarityPHP\RuntimeInsight\Collectors\CacheCollector;
+use ClarityPHP\RuntimeInsight\Collectors\CollectorRegistry;
+use ClarityPHP\RuntimeInsight\Collectors\ExceptionCollector;
+use ClarityPHP\RuntimeInsight\Collectors\MemoryCollector;
+use ClarityPHP\RuntimeInsight\Collectors\QueryCollector;
+use ClarityPHP\RuntimeInsight\Collectors\QueueCollector;
+use ClarityPHP\RuntimeInsight\Collectors\RequestCollector;
 use ClarityPHP\RuntimeInsight\Context\ContextBuilder;
 use ClarityPHP\RuntimeInsight\Contracts\AIProviderInterface;
 use ClarityPHP\RuntimeInsight\Contracts\ContextBuilderInterface;
 use ClarityPHP\RuntimeInsight\Contracts\ExplanationEngineInterface;
+use ClarityPHP\RuntimeInsight\Contracts\RootCauseAnalyzerInterface;
 use ClarityPHP\RuntimeInsight\Engine\ArrayExplanationCache;
 use ClarityPHP\RuntimeInsight\Engine\CachingExplanationEngine;
 use ClarityPHP\RuntimeInsight\Engine\ExplanationEngine;
+use ClarityPHP\RuntimeInsight\Engine\RootCauseAnalyzer;
 use ClarityPHP\RuntimeInsight\Engine\Strategies\ArgumentCountStrategy;
 use ClarityPHP\RuntimeInsight\Engine\Strategies\ClassNotFoundStrategy;
 use ClarityPHP\RuntimeInsight\Engine\Strategies\DivisionByZeroErrorStrategy;
@@ -49,11 +58,31 @@ final class RuntimeInsightFactory
         ?ContextBuilderInterface $contextBuilder = null,
         ?ExplanationEngineInterface $explanationEngine = null,
         ?AIProviderInterface $aiProvider = null,
+        ?CollectorRegistry $collectorRegistry = null,
+        ?RootCauseAnalyzerInterface $rootCauseAnalyzer = null,
     ): RuntimeInsight {
         $contextBuilder ??= new ContextBuilder($config);
         $explanationEngine ??= self::createExplanationEngine($config, $aiProvider);
+        $collectorRegistry ??= self::createDefaultCollectorRegistry();
+        $rootCauseAnalyzer ??= new RootCauseAnalyzer();
 
-        return new RuntimeInsight($contextBuilder, $explanationEngine, $config);
+        return new RuntimeInsight($contextBuilder, $explanationEngine, $config, $collectorRegistry, $rootCauseAnalyzer);
+    }
+
+    /**
+     * Create default collector registry with all built-in collectors.
+     */
+    public static function createDefaultCollectorRegistry(): CollectorRegistry
+    {
+        $registry = new CollectorRegistry();
+        $registry->addCollector(new ExceptionCollector());
+        $registry->addCollector(new QueryCollector());
+        $registry->addCollector(new RequestCollector());
+        $registry->addCollector(new MemoryCollector());
+        $registry->addCollector(new QueueCollector());
+        $registry->addCollector(new CacheCollector());
+
+        return $registry;
     }
 
     /**
