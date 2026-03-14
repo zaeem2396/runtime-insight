@@ -19,6 +19,8 @@ use Throwable;
  *
  * Provides a unified API for analyzing runtime exceptions
  * and generating human-readable explanations.
+ *
+ * Pipeline order: context build → signal collectors → explain → root cause → pattern → result.
  */
 final class RuntimeInsight implements AnalyzerInterface
 {
