@@ -13,7 +13,7 @@ use ClarityPHP\RuntimeInsight\DTO\LogEntry;
 final class ErrorSignature
 {
     /**
-     * Build a signature string: exceptionClass|message|file:line
+     * Build a signature string for grouping: exceptionClass|message|file:line
      */
     public static function fromEntry(LogEntry $entry): string
     {
