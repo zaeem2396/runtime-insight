@@ -76,4 +76,21 @@ final readonly class RuntimeContext
 
         return $summary;
     }
+
+    /**
+     * Return a copy with CollectorsContext attached (used by pipeline).
+     */
+    public function withCollectorsContext(CollectorsContext $collectorsContext): self
+    {
+        return new self(
+            exception: $this->exception,
+            stackTrace: $this->stackTrace,
+            sourceContext: $this->sourceContext,
+            requestContext: $this->requestContext,
+            applicationContext: $this->applicationContext,
+            databaseContext: $this->databaseContext,
+            performanceContext: $this->performanceContext,
+            collectorsContext: $collectorsContext,
+        );
+    }
 }
