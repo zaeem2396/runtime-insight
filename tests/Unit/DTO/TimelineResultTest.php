@@ -20,6 +20,14 @@ final class TimelineResultTest extends TestCase
     }
 
     #[Test]
+    public function is_empty_returns_false_when_events_present(): void
+    {
+        $events = [new TimelineEvent(0.0, 'exception', 'E', 'd')];
+        $result = new TimelineResult('/p.log', $events);
+        $this->assertFalse($result->isEmpty());
+    }
+
+    #[Test]
     public function to_array_includes_log_path_and_events(): void
     {
         $events = [new TimelineEvent(0.0, 'exception', 'E', 'detail')];
