@@ -28,5 +28,6 @@ final class TimelineResultTest extends TestCase
         $arr = $result->toArray();
         $this->assertSame('/var/log/app.log', $arr['log_path']);
         $this->assertCount(1, $arr['events']);
+        $this->assertSame(1, $result->eventCount());
     }
 }
