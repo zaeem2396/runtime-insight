@@ -291,7 +291,7 @@ php artisan runtime:explain --log=storage/logs/laravel.log --output=explanation.
 php artisan runtime:analyze storage/logs/laravel.log
 php artisan runtime:analyze --top=20
 
-# Show runtime timeline (events before last failure)
+# Show runtime timeline (events before last failure, T+ seconds)
 php artisan runtime:timeline storage/logs/laravel.log
 php artisan runtime:timeline --last=30
 
@@ -309,7 +309,8 @@ php bin/console runtime:explain
 php bin/console runtime:analyze var/log/dev.log
 
 # Show runtime timeline (events before last failure)
-php bin/console runtime:timeline var/log/dev.log --last=30
+php bin/console runtime:timeline var/log/dev.log
+php bin/console runtime:timeline --last=30
 
 # Validate setup
 php bin/console runtime:doctor
