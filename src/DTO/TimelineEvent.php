@@ -18,6 +18,8 @@ final readonly class TimelineEvent
     ) {}
 
     /**
+     * Array representation for serialization.
+     *
      * @return array<string, mixed>
      */
     public function toArray(): array
