@@ -13,6 +13,7 @@ use function usort;
 
 /**
  * Analyzes a log file: parses entries and groups by signature for summary.
+ * Used by runtime:analyze to show total errors and top failures.
  */
 final class LogAnalyzerService
 {
