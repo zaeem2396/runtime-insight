@@ -41,7 +41,7 @@ final class TimelineServiceTest extends TestCase
         $result = $service->buildFromLog('/var/log/app.log');
 
         $this->assertFalse($result->isEmpty());
-        $this->assertGreaterThanOrEqual(3, count($result->events));
+        $this->assertGreaterThanOrEqual(3, count($result->events), 'Expected request_started, exceptions, request_ended');
         $this->assertSame('request_started', $result->events[0]->type);
         $this->assertSame('exception', $result->events[1]->type);
         $last = $result->events[count($result->events) - 1];
