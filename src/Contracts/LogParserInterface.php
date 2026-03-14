@@ -13,7 +13,7 @@ use ClarityPHP\RuntimeInsight\DTO\LogEntry;
 interface LogParserInterface
 {
     /**
-     * Parse a log file and return all error/exception entries.
+     * Parse a log file and return all error/exception entries in order of occurrence.
      *
      * @return array<int, LogEntry>
      */
