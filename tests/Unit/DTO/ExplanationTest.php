@@ -158,4 +158,22 @@ final class ExplanationTest extends TestCase
         $this->assertSame('  10 | $a = null;', $restored->getCodeSnippet());
         $this->assertSame('/app/Test.php:20', $restored->getCallSiteLocation());
     }
+
+    #[Test]
+    public function it_creates_copy_with_merged_metadata_via_with_metadata(): void
+    {
+        $base = new Explanation(
+            message: 'Error',
+            cause: 'Cause',
+            suggestions: [],
+            confidence: 0.8,
+            metadata: ['existing' => 'value'],
+        );
+
+        $enriched = $base->withMetadata(['root_cause' => ['primary_cause' => 'Null reference']]);
+
+        $this->assertSame(['existing' => 'value'], $base->getMetadata());
+        $this->assertSame('value', $enriched->getMetadata()['existing']);
+        $this->assertSame('Null reference', $enriched->getMetadata()['root_cause']['primary_cause']);
+    }
 }
