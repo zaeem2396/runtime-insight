@@ -58,7 +58,7 @@ final class TimelineCommand extends Command
         }
 
         $this->info('Runtime Timeline (last failure)');
-        $this->line(str_repeat('-', 60));
+        $this->line(str_repeat('-', 60)); // separator line
 
         foreach ($result->events as $event) {
             $this->line(sprintf(
