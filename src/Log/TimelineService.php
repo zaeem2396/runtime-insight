@@ -49,6 +49,8 @@ final class TimelineService
     }
 
     /**
+     * Convert log entries to timeline events with relative seconds; appends request_ended.
+     *
      * @param array<int, LogEntry> $entries
      *
      * @return array<int, TimelineEvent>
