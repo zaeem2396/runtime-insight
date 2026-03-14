@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace ClarityPHP\RuntimeInsight\Tests\Unit;
 
+use ClarityPHP\RuntimeInsight\Collectors\CollectorRegistry;
 use ClarityPHP\RuntimeInsight\Config;
 use ClarityPHP\RuntimeInsight\Contracts\ExplanationEngineInterface;
 use ClarityPHP\RuntimeInsight\Engine\CachingExplanationEngine;
@@ -67,5 +68,19 @@ final class RuntimeInsightFactoryTest extends TestCase
 
         $this->assertInstanceOf(RuntimeInsight::class, $insight);
         $this->assertTrue($insight->isEnabled());
+    }
+
+    #[Test]
+    public function it_creates_default_collector_registry_with_builtin_collectors(): void
+    {
+        $registry = RuntimeInsightFactory::createDefaultCollectorRegistry();
+
+        $this->assertInstanceOf(CollectorRegistry::class, $registry);
+        $collectors = $registry->getCollectors();
+        $this->assertGreaterThanOrEqual(6, count($collectors));
+        $names = array_map(static fn ($c) => $c->getName(), $collectors);
+        $this->assertContains('exception', $names);
+        $this->assertContains('query', $names);
+        $this->assertContains('request', $names);
     }
 }
