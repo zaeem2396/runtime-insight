@@ -15,6 +15,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 use function is_readable;
+use function is_string;
 use function sprintf;
 use function strlen;
 use function substr;
