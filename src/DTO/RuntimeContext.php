@@ -17,6 +17,7 @@ final readonly class RuntimeContext
         public ?ApplicationContext $applicationContext = null,
         public ?DatabaseContext $databaseContext = null,
         public ?PerformanceContext $performanceContext = null,
+        public ?CollectorsContext $collectorsContext = null,
     ) {}
 
     /**
@@ -32,6 +33,7 @@ final readonly class RuntimeContext
             'application_context' => $this->applicationContext?->toArray(),
             'database_context' => $this->databaseContext?->toArray(),
             'performance_context' => $this->performanceContext?->toArray(),
+            'collectors_context' => $this->collectorsContext?->toArray(),
         ];
     }
 
@@ -73,5 +75,22 @@ final readonly class RuntimeContext
         }
 
         return $summary;
+    }
+
+    /**
+     * Return a copy with CollectorsContext attached (used by pipeline).
+     */
+    public function withCollectorsContext(CollectorsContext $collectorsContext): self
+    {
+        return new self(
+            exception: $this->exception,
+            stackTrace: $this->stackTrace,
+            sourceContext: $this->sourceContext,
+            requestContext: $this->requestContext,
+            applicationContext: $this->applicationContext,
+            databaseContext: $this->databaseContext,
+            performanceContext: $this->performanceContext,
+            collectorsContext: $collectorsContext,
+        );
     }
 }

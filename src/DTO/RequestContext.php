@@ -22,6 +22,7 @@ final readonly class RequestContext
         public array $body = [],
         public ?string $clientIp = null,
         public ?string $userAgent = null,
+        public ?string $route = null,
     ) {}
 
     /**
@@ -37,6 +38,7 @@ final readonly class RequestContext
             'body' => $this->body,
             'client_ip' => $this->clientIp,
             'user_agent' => $this->userAgent,
+            'route' => $this->route,
         ];
     }
 }

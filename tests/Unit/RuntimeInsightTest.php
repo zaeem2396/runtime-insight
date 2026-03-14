@@ -182,4 +182,35 @@ final class RuntimeInsightTest extends TestCase
         // With correct exception class, TypeErrorStrategy matches and returns confidence 0.90
         $this->assertGreaterThanOrEqual(0.9, $explanation->getConfidence());
     }
+
+    #[Test]
+    public function it_attaches_root_cause_to_explanation_metadata_when_pipeline_enabled(): void
+    {
+        $exception = new TypeError('Argument #1 ($x) must be of type string, null given');
+
+        $explanation = $this->insight->analyze($exception);
+
+        $metadata = $explanation->getMetadata();
+        $this->assertArrayHasKey('root_cause', $metadata);
+        $rootCause = $metadata['root_cause'];
+        $this->assertIsArray($rootCause);
+        $this->assertArrayHasKey('primary_cause', $rootCause);
+        $this->assertStringContainsString('Null value', $rootCause['primary_cause']);
+    }
+
+    #[Test]
+    public function it_attaches_pattern_to_explanation_metadata_when_pattern_analyzer_matches(): void
+    {
+        $insight = RuntimeInsightFactory::create([
+            'enabled' => true,
+            'ai' => ['enabled' => false],
+        ]);
+        $exception = new Exception('The given data was invalid.');
+
+        $explanation = $insight->analyze($exception);
+
+        $metadata = $explanation->getMetadata();
+        $this->assertArrayHasKey('pattern', $metadata);
+        $this->assertSame('validation', $metadata['pattern']['pattern_name']);
+    }
 }

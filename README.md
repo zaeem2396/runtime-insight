@@ -77,6 +77,7 @@ Confidence: 0.92
 - 💾 **Explanation Caching** - Cache repeated errors to reduce API calls
 - 🗄️ **Database Query Context** - Optional recent queries in context (Laravel)
 - 📊 **Memory & Performance Context** - Optional peak memory at time of error
+- 🔄 **Runtime Intelligence Pipeline** - Signal collectors, root cause analyzer, and pattern analyzer (e.g. N+1, validation hints) enrich explanations via metadata
 
 ---
 
