@@ -23,6 +23,12 @@ final readonly class TimelineResult
         return $this->events === [];
     }
 
+    /** Number of events in the timeline. */
+    public function eventCount(): int
+    {
+        return count($this->events);
+    }
+
     /**
      * Array representation for API or serialization.
      *
