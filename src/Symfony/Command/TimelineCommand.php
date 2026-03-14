@@ -34,7 +34,7 @@ final class TimelineCommand extends Command
     {
         $this
             ->addArgument('log', InputArgument::OPTIONAL, 'Path to log file')
-            ->addOption('last', 'l', InputOption::VALUE_REQUIRED, 'Number of last log entries to include', '20');
+            ->addOption('last', 'l', InputOption::VALUE_REQUIRED, 'Number of last log entries to include in timeline', '20');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
