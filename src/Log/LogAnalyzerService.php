@@ -22,6 +22,9 @@ final class LogAnalyzerService
         private readonly int $topFailuresLimit = 10,
     ) {}
 
+    /**
+     * Parse log file and return summary with total count and top failures by signature.
+     */
     public function analyze(string $logPath): LogSummaryResult
     {
         $entries = $this->parser->parseFile($logPath);
