@@ -15,24 +15,6 @@ use PHPUnit\Framework\TestCase;
 
 final class LaravelPatternAnalyzerTest extends TestCase
 {
-    private function createContext(
-        string $message = 'Error',
-        ?DatabaseContext $databaseContext = null,
-    ): RuntimeContext {
-        return new RuntimeContext(
-            exception: new ExceptionInfo(
-                class: 'Exception',
-                message: $message,
-                code: 0,
-                file: '/app/Test.php',
-                line: 10,
-            ),
-            stackTrace: new StackTraceInfo(frames: []),
-            sourceContext: SourceContext::empty(),
-            databaseContext: $databaseContext,
-        );
-    }
-
     #[Test]
     public function it_returns_empty_when_few_queries(): void
     {
@@ -99,5 +81,23 @@ final class LaravelPatternAnalyzerTest extends TestCase
         $this->assertArrayHasKey('summary', $arr);
         $this->assertArrayHasKey('location', $arr);
         $this->assertArrayHasKey('suggestions', $arr);
+    }
+
+    private function createContext(
+        string $message = 'Error',
+        ?DatabaseContext $databaseContext = null,
+    ): RuntimeContext {
+        return new RuntimeContext(
+            exception: new ExceptionInfo(
+                class: 'Exception',
+                message: $message,
+                code: 0,
+                file: '/app/Test.php',
+                line: 10,
+            ),
+            stackTrace: new StackTraceInfo(frames: []),
+            sourceContext: SourceContext::empty(),
+            databaseContext: $databaseContext,
+        );
     }
 }

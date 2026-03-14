@@ -14,6 +14,8 @@ use ClarityPHP\RuntimeInsight\RuntimeInsightFactory;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
+use function count;
+
 final class RuntimeInsightFactoryTest extends TestCase
 {
     #[Test]
@@ -78,7 +80,7 @@ final class RuntimeInsightFactoryTest extends TestCase
         $this->assertInstanceOf(CollectorRegistry::class, $registry);
         $collectors = $registry->getCollectors();
         $this->assertGreaterThanOrEqual(6, count($collectors));
-        $names = array_map(static fn ($c) => $c->getName(), $collectors);
+        $names = array_map(static fn($c) => $c->getName(), $collectors);
         $this->assertContains('exception', $names);
         $this->assertContains('query', $names);
         $this->assertContains('request', $names);

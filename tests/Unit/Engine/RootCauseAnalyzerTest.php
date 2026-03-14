@@ -14,21 +14,6 @@ use PHPUnit\Framework\TestCase;
 
 final class RootCauseAnalyzerTest extends TestCase
 {
-    private function createContext(string $message, string $class = 'Exception'): RuntimeContext
-    {
-        return new RuntimeContext(
-            exception: new ExceptionInfo(
-                class: $class,
-                message: $message,
-                code: 0,
-                file: '/app/Test.php',
-                line: 42,
-            ),
-            stackTrace: new StackTraceInfo(frames: []),
-            sourceContext: SourceContext::empty(),
-        );
-    }
-
     #[Test]
     public function it_infers_type_error_with_null(): void
     {
@@ -91,5 +76,20 @@ final class RootCauseAnalyzerTest extends TestCase
         $this->assertArrayHasKey('context_summary', $arr);
         $this->assertArrayHasKey('fix_suggestions', $arr);
         $this->assertArrayHasKey('prevention_advice', $arr);
+    }
+
+    private function createContext(string $message, string $class = 'Exception'): RuntimeContext
+    {
+        return new RuntimeContext(
+            exception: new ExceptionInfo(
+                class: $class,
+                message: $message,
+                code: 0,
+                file: '/app/Test.php',
+                line: 42,
+            ),
+            stackTrace: new StackTraceInfo(frames: []),
+            sourceContext: SourceContext::empty(),
+        );
     }
 }

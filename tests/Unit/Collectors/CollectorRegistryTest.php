@@ -16,21 +16,6 @@ use PHPUnit\Framework\TestCase;
 
 final class CollectorRegistryTest extends TestCase
 {
-    private function createContext(): RuntimeContext
-    {
-        return new RuntimeContext(
-            exception: new ExceptionInfo(
-                class: 'Exception',
-                message: 'Test',
-                code: 0,
-                file: '/test.php',
-                line: 1,
-            ),
-            stackTrace: new StackTraceInfo(frames: []),
-            sourceContext: SourceContext::empty(),
-        );
-    }
-
     #[Test]
     public function enrich_returns_same_context_when_no_collectors(): void
     {
@@ -114,5 +99,20 @@ final class CollectorRegistryTest extends TestCase
         $result = $registry->enrich($context);
 
         $this->assertSame($context, $result);
+    }
+
+    private function createContext(): RuntimeContext
+    {
+        return new RuntimeContext(
+            exception: new ExceptionInfo(
+                class: 'Exception',
+                message: 'Test',
+                code: 0,
+                file: '/test.php',
+                line: 1,
+            ),
+            stackTrace: new StackTraceInfo(frames: []),
+            sourceContext: SourceContext::empty(),
+        );
     }
 }

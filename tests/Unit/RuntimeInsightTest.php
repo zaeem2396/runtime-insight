@@ -205,7 +205,7 @@ final class RuntimeInsightTest extends TestCase
             'enabled' => true,
             'ai' => ['enabled' => false],
         ]);
-        $exception = new \Exception('The given data was invalid.');
+        $exception = new Exception('The given data was invalid.');
 
         $explanation = $insight->analyze($exception);
 
