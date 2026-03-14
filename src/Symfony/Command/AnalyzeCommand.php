@@ -58,7 +58,7 @@ final class AnalyzeCommand extends Command
         $result = $service->analyze($logPath);
 
         if ($result->isEmpty()) {
-            $io->warning('No errors found in log file.');
+            $io->warning('No errors found in log file (or file is empty).');
 
             return Command::SUCCESS;
         }
