@@ -8,6 +8,7 @@ use ClarityPHP\RuntimeInsight\DTO\LogEntry;
 
 /**
  * Builds a normalized signature for an error (for grouping and deduplication).
+ * Format: exceptionClass|message|file:line
  */
 final class ErrorSignature
 {
