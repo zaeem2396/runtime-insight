@@ -136,6 +136,11 @@ final class LaravelContextBuilder implements ContextBuilderInterface
             /** @var array<string, array<int, string>|string> $headers */
             $headers = $request->headers->all();
 
+            $routeRaw = $request->route();
+            $route = $routeRaw instanceof \Illuminate\Routing\Route
+                ? $routeRaw->getName()
+                : (is_string($routeRaw) ? $routeRaw : null);
+
             return new RequestContext(
                 method: $request->method(),
                 uri: $request->fullUrl(),
@@ -144,6 +149,7 @@ final class LaravelContextBuilder implements ContextBuilderInterface
                 body: $sanitizedBody,
                 clientIp: $request->ip(),
                 userAgent: $request->userAgent(),
+                route: $route,
             );
         } catch (Throwable) {
             // If request is not available (e.g., in console), return null

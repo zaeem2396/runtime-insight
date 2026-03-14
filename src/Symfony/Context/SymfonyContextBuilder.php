@@ -97,6 +97,8 @@ final class SymfonyContextBuilder implements ContextBuilderInterface
             /** @var array<string, array<int, string>|string> $headers */
             $headers = $request->headers->all();
 
+            $route = $request->attributes->get('_route');
+
             return new RequestContext(
                 method: $request->getMethod(),
                 uri: $request->getUri(),
@@ -105,6 +107,7 @@ final class SymfonyContextBuilder implements ContextBuilderInterface
                 body: $sanitizedBody,
                 clientIp: $request->getClientIp(),
                 userAgent: $request->headers->get('User-Agent'),
+                route: is_string($route) ? $route : null,
             );
         } catch (Throwable) {
             // If request is not available (e.g., in console), return null
