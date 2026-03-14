@@ -6,12 +6,13 @@ namespace ClarityPHP\RuntimeInsight\DTO;
 
 /**
  * Result of root cause analysis (primary cause, contributing factors, fix and prevention).
- *
- * @param array<string> $fixSuggestions
- * @param array<string> $preventionAdvice
  */
 final readonly class RootCauseResult
 {
+    /**
+     * @param array<string> $fixSuggestions
+     * @param array<string> $preventionAdvice
+     */
     public function __construct(
         public string $primaryCause,
         public string $contributing = '',

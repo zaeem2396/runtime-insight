@@ -8,6 +8,7 @@ use ClarityPHP\RuntimeInsight\Contracts\RootCauseAnalyzerInterface;
 use ClarityPHP\RuntimeInsight\DTO\RootCauseResult;
 use ClarityPHP\RuntimeInsight\DTO\RuntimeContext;
 
+use function count;
 use function str_contains;
 use function strtolower;
 

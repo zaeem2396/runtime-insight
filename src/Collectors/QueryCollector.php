@@ -7,6 +7,8 @@ namespace ClarityPHP\RuntimeInsight\Collectors;
 use ClarityPHP\RuntimeInsight\Contracts\SignalCollectorInterface;
 use ClarityPHP\RuntimeInsight\DTO\RuntimeContext;
 
+use function count;
+
 /**
  * Collects recent database queries from context (e.g. from Laravel query log).
  */
