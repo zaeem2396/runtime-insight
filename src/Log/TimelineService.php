@@ -15,6 +15,7 @@ use function strtotime;
 
 /**
  * Builds a runtime timeline from log entries (relative T+ seconds from first event).
+ * Adds synthetic request_started and request_ended for context.
  */
 final class TimelineService
 {
