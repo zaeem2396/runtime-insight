@@ -22,7 +22,7 @@ final class TimelineCommand extends Command
                             {log? : Path to log file (e.g. storage/logs/laravel.log)}
                             {--last=20 : Number of last log entries to include}';
 
-    protected $description = 'Show runtime timeline: events before the last failure (from log)';
+    protected $description = 'Show runtime timeline: events before the last failure (from log file)';
 
     public function __construct(
         private readonly LogParserInterface $parser,
