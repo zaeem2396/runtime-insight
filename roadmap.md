@@ -277,16 +277,16 @@ Incident Group: TypeError in OrderController::total (last 24h)
 
 ---
 
-## Phase 5: Developer Experience (v0.7.0 - v0.9.0)
+## Phase 5: Developer Experience (v0.8.0 - v0.9.0)
 
-### v0.7.0 - Output & Rendering
+### v0.8.0 - Output & Rendering
 - [x] Console output formatter (ConsoleOutputRenderer)
 - [x] JSON export (JsonRenderer)
 - [x] Markdown export (MarkdownRenderer)
 - [x] HTML debug view (HtmlRenderer)
 - [x] IDE integration hooks (IdeRenderer, format=ide)
 
-### v0.8.0 - Advanced Commands
+### v0.8.5 - Advanced Commands
 - [ ] Batch analysis (analyze all errors in log)
 - [ ] Interactive mode
 - [ ] Error pattern detection
@@ -542,9 +542,10 @@ This would build on the open-source runtime intelligence pipeline and optional t
 | v0.5.0 | Q2 2026 | ✅ Completed |
 | v0.6.0 | Q3 2026 | In Progress |
 | v0.6.5–0.6.9 | Q3 2026 | Planned (Framework Intelligence) |
-| v0.7.0 | Q3 2026 | Planned |
-| v0.8.0 | Q3 2026 | Planned |
-| v0.9.0 | Q4 2026 | Planned |
+| v0.7.0–v0.7.5 | Q3 2026 | Planned (Error Pattern Detection) |
+| v0.8.0 | Q3 2026 | Planned (Output & Rendering) |
+| v0.8.5 | Q4 2026 | Planned (Advanced Commands) |
+| v0.9.0 | Q4 2026 | Planned (Customization) |
 | v1.0.0 | Q4 2026 | Planned |
 
 ---
