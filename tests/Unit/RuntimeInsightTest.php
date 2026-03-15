@@ -6,6 +6,9 @@ namespace ClarityPHP\RuntimeInsight\Tests\Unit;
 
 use ArgumentCountError;
 use ClarityPHP\RuntimeInsight\DTO\Explanation;
+use ClarityPHP\RuntimeInsight\Event\AfterAnalysisEvent;
+use ClarityPHP\RuntimeInsight\Event\BeforeAnalysisEvent;
+use ClarityPHP\RuntimeInsight\Event\InMemoryEventDispatcher;
 use ClarityPHP\RuntimeInsight\RuntimeInsight;
 use ClarityPHP\RuntimeInsight\RuntimeInsightFactory;
 use Error;
@@ -212,5 +215,34 @@ final class RuntimeInsightTest extends TestCase
         $metadata = $explanation->getMetadata();
         $this->assertArrayHasKey('pattern', $metadata);
         $this->assertSame('validation', $metadata['pattern']['pattern_name']);
+    }
+
+    #[Test]
+    public function it_dispatches_before_and_after_analysis_events_when_dispatcher_set(): void
+    {
+        $dispatcher = new InMemoryEventDispatcher();
+        $beforeCalled = false;
+        $afterCalled = false;
+        $dispatcher->addListener(BeforeAnalysisEvent::class, static function (BeforeAnalysisEvent $e) use (&$beforeCalled): void {
+            $beforeCalled = true;
+        });
+        $dispatcher->addListener(AfterAnalysisEvent::class, static function (AfterAnalysisEvent $e) use (&$afterCalled): void {
+            $afterCalled = true;
+        });
+
+        $insight = RuntimeInsightFactory::createWithConfig(
+            \ClarityPHP\RuntimeInsight\Config::fromArray(['enabled' => true, 'ai' => ['enabled' => false]]),
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            $dispatcher,
+        );
+        $insight->analyze(new Exception('Test'));
+
+        $this->assertTrue($beforeCalled);
+        $this->assertTrue($afterCalled);
     }
 }
