@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace ClarityPHP\RuntimeInsight\Tests\Unit\Event;
 
-use ClarityPHP\RuntimeInsight\DTO\Explanation;
 use ClarityPHP\RuntimeInsight\DTO\ExceptionInfo;
+use ClarityPHP\RuntimeInsight\DTO\Explanation;
 use ClarityPHP\RuntimeInsight\DTO\RuntimeContext;
 use ClarityPHP\RuntimeInsight\DTO\SourceContext;
 use ClarityPHP\RuntimeInsight\DTO\StackTraceInfo;

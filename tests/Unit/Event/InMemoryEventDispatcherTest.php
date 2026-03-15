@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace ClarityPHP\RuntimeInsight\Tests\Unit\Event;
 
-use ClarityPHP\RuntimeInsight\Event\AfterAnalysisEvent;
 use ClarityPHP\RuntimeInsight\Event\BeforeAnalysisEvent;
 use ClarityPHP\RuntimeInsight\Event\InMemoryEventDispatcher;
 use PHPUnit\Framework\Attributes\Test;

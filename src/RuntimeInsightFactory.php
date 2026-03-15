@@ -19,7 +19,6 @@ use ClarityPHP\RuntimeInsight\Contracts\EventDispatcherInterface;
 use ClarityPHP\RuntimeInsight\Contracts\ExplanationEngineInterface;
 use ClarityPHP\RuntimeInsight\Contracts\PatternAnalyzerInterface;
 use ClarityPHP\RuntimeInsight\Contracts\RootCauseAnalyzerInterface;
-use ClarityPHP\RuntimeInsight\Event\InMemoryEventDispatcher;
 use ClarityPHP\RuntimeInsight\Engine\ArrayExplanationCache;
 use ClarityPHP\RuntimeInsight\Engine\CachingExplanationEngine;
 use ClarityPHP\RuntimeInsight\Engine\ExplanationEngine;
@@ -33,6 +32,7 @@ use ClarityPHP\RuntimeInsight\Engine\Strategies\ParseErrorStrategy;
 use ClarityPHP\RuntimeInsight\Engine\Strategies\TypeErrorStrategy;
 use ClarityPHP\RuntimeInsight\Engine\Strategies\UndefinedIndexStrategy;
 use ClarityPHP\RuntimeInsight\Engine\Strategies\ValueErrorStrategy;
+use ClarityPHP\RuntimeInsight\Event\InMemoryEventDispatcher;
 
 /**
  * Factory for creating RuntimeInsight instances.
