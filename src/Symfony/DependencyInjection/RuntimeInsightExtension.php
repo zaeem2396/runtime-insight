@@ -9,8 +9,10 @@ use ClarityPHP\RuntimeInsight\Context\ContextBuilder;
 use ClarityPHP\RuntimeInsight\Contracts\AIProviderInterface;
 use ClarityPHP\RuntimeInsight\Contracts\AnalyzerInterface;
 use ClarityPHP\RuntimeInsight\Contracts\ContextBuilderInterface;
+use ClarityPHP\RuntimeInsight\Contracts\EventDispatcherInterface;
 use ClarityPHP\RuntimeInsight\Contracts\ExplanationEngineInterface;
 use ClarityPHP\RuntimeInsight\Contracts\LogParserInterface;
+use ClarityPHP\RuntimeInsight\Event\InMemoryEventDispatcher;
 use ClarityPHP\RuntimeInsight\Log\LaravelLogParser;
 use ClarityPHP\RuntimeInsight\RuntimeInsight;
 use ClarityPHP\RuntimeInsight\RuntimeInsightFactory;
@@ -73,6 +75,9 @@ final class RuntimeInsightExtension extends Extension
         // Register LogParser for runtime:analyze command
         $container->register(LogParserInterface::class, LaravelLogParser::class);
 
+        // Register event dispatcher for extensibility
+        $container->register(EventDispatcherInterface::class, InMemoryEventDispatcher::class);
+
         // Register ExplanationEngine
         $container->register(ExplanationEngineInterface::class)
             ->setFactory([RuntimeInsightFactory::class, 'createExplanationEngine'])
@@ -87,6 +92,10 @@ final class RuntimeInsightExtension extends Extension
                 new Reference(ContextBuilderInterface::class),
                 new Reference(ExplanationEngineInterface::class),
                 new Reference(Config::class),
+                null,
+                null,
+                null,
+                new Reference(EventDispatcherInterface::class),
             ]);
 
         $container->setAlias(AnalyzerInterface::class, RuntimeInsight::class);
