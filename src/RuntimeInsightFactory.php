@@ -15,6 +15,7 @@ use ClarityPHP\RuntimeInsight\Collectors\RequestCollector;
 use ClarityPHP\RuntimeInsight\Context\ContextBuilder;
 use ClarityPHP\RuntimeInsight\Contracts\AIProviderInterface;
 use ClarityPHP\RuntimeInsight\Contracts\ContextBuilderInterface;
+use ClarityPHP\RuntimeInsight\Contracts\EventDispatcherInterface;
 use ClarityPHP\RuntimeInsight\Contracts\ExplanationEngineInterface;
 use ClarityPHP\RuntimeInsight\Contracts\PatternAnalyzerInterface;
 use ClarityPHP\RuntimeInsight\Contracts\RootCauseAnalyzerInterface;
@@ -31,6 +32,7 @@ use ClarityPHP\RuntimeInsight\Engine\Strategies\ParseErrorStrategy;
 use ClarityPHP\RuntimeInsight\Engine\Strategies\TypeErrorStrategy;
 use ClarityPHP\RuntimeInsight\Engine\Strategies\UndefinedIndexStrategy;
 use ClarityPHP\RuntimeInsight\Engine\Strategies\ValueErrorStrategy;
+use ClarityPHP\RuntimeInsight\Event\InMemoryEventDispatcher;
 
 /**
  * Factory for creating RuntimeInsight instances.
@@ -63,14 +65,16 @@ final class RuntimeInsightFactory
         ?CollectorRegistry $collectorRegistry = null,
         ?RootCauseAnalyzerInterface $rootCauseAnalyzer = null,
         ?PatternAnalyzerInterface $patternAnalyzer = null,
+        ?EventDispatcherInterface $eventDispatcher = null,
     ): RuntimeInsight {
         $contextBuilder ??= new ContextBuilder($config);
         $explanationEngine ??= self::createExplanationEngine($config, $aiProvider);
         $collectorRegistry ??= self::createDefaultCollectorRegistry();
         $rootCauseAnalyzer ??= new RootCauseAnalyzer();
         $patternAnalyzer ??= new LaravelPatternAnalyzer();
+        $eventDispatcher ??= new InMemoryEventDispatcher();
 
-        return new RuntimeInsight($contextBuilder, $explanationEngine, $config, $collectorRegistry, $rootCauseAnalyzer, $patternAnalyzer);
+        return new RuntimeInsight($contextBuilder, $explanationEngine, $config, $collectorRegistry, $rootCauseAnalyzer, $patternAnalyzer, $eventDispatcher);
     }
 
     /**
