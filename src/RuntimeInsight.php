@@ -7,11 +7,14 @@ namespace ClarityPHP\RuntimeInsight;
 use ClarityPHP\RuntimeInsight\Collectors\CollectorRegistry;
 use ClarityPHP\RuntimeInsight\Contracts\AnalyzerInterface;
 use ClarityPHP\RuntimeInsight\Contracts\ContextBuilderInterface;
+use ClarityPHP\RuntimeInsight\Contracts\EventDispatcherInterface;
 use ClarityPHP\RuntimeInsight\Contracts\ExplanationEngineInterface;
 use ClarityPHP\RuntimeInsight\Contracts\PatternAnalyzerInterface;
 use ClarityPHP\RuntimeInsight\Contracts\RootCauseAnalyzerInterface;
 use ClarityPHP\RuntimeInsight\DTO\Explanation;
 use ClarityPHP\RuntimeInsight\DTO\RuntimeContext;
+use ClarityPHP\RuntimeInsight\Event\AfterAnalysisEvent;
+use ClarityPHP\RuntimeInsight\Event\BeforeAnalysisEvent;
 use Throwable;
 
 /**
@@ -31,6 +34,7 @@ final class RuntimeInsight implements AnalyzerInterface
         private readonly ?CollectorRegistry $collectorRegistry = null,
         private readonly ?RootCauseAnalyzerInterface $rootCauseAnalyzer = null,
         private readonly ?PatternAnalyzerInterface $patternAnalyzer = null,
+        private readonly ?EventDispatcherInterface $eventDispatcher = null,
     ) {}
 
     /**
@@ -44,11 +48,15 @@ final class RuntimeInsight implements AnalyzerInterface
 
         $context = $this->contextBuilder->build($throwable);
         $context = $this->enrichContextWithCollectors($context);
+        $this->dispatch(new BeforeAnalysisEvent($context));
         $explanation = $this->explanationEngine->explain($context);
 
         $explanation = $this->attachRootCauseToExplanation($context, $explanation);
 
-        return $this->attachPatternToExplanation($context, $explanation);
+        $explanation = $this->attachPatternToExplanation($context, $explanation);
+        $this->dispatch(new AfterAnalysisEvent($explanation, $context));
+
+        return $explanation;
     }
 
     /**
@@ -62,11 +70,15 @@ final class RuntimeInsight implements AnalyzerInterface
 
         $context = $this->contextBuilder->buildFromLogEntry($message, $file, $line, $exceptionClass);
         $context = $this->enrichContextWithCollectors($context);
+        $this->dispatch(new BeforeAnalysisEvent($context));
         $explanation = $this->explanationEngine->explain($context);
 
         $explanation = $this->attachRootCauseToExplanation($context, $explanation);
 
-        return $this->attachPatternToExplanation($context, $explanation);
+        $explanation = $this->attachPatternToExplanation($context, $explanation);
+        $this->dispatch(new AfterAnalysisEvent($explanation, $context));
+
+        return $explanation;
     }
 
     /**
@@ -79,11 +91,15 @@ final class RuntimeInsight implements AnalyzerInterface
         }
 
         $context = $this->enrichContextWithCollectors($context);
+        $this->dispatch(new BeforeAnalysisEvent($context));
         $explanation = $this->explanationEngine->explain($context);
 
         $explanation = $this->attachRootCauseToExplanation($context, $explanation);
 
-        return $this->attachPatternToExplanation($context, $explanation);
+        $explanation = $this->attachPatternToExplanation($context, $explanation);
+        $this->dispatch(new AfterAnalysisEvent($explanation, $context));
+
+        return $explanation;
     }
 
     /**
@@ -137,5 +153,12 @@ final class RuntimeInsight implements AnalyzerInterface
         }
 
         return $explanation->withMetadata(['pattern' => $pattern->toArray()]);
+    }
+
+    private function dispatch(object $event): void
+    {
+        if ($this->eventDispatcher !== null) {
+            $this->eventDispatcher->dispatch($event);
+        }
     }
 }
