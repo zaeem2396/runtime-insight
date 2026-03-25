@@ -11,3 +11,4 @@ All notable changes to this project are documented in this file.
 - `InMemoryEventDispatcherFactory` for optional webhook listener registration.
 - `EventDispatcherInterface::addListener()` for custom hooks.
 - Symfony: full `RuntimeInsight` wiring (collectors, analyzers, dispatcher factory).
+- Symfony: correct path to `config/services.yaml` from bundle root.
