@@ -14,7 +14,8 @@
         "laravel",
         "symfony",
         "debugging",
-        "developer-experience"
+        "developer-experience",
+        "webhook"
     ],
     "authors": [
         {
