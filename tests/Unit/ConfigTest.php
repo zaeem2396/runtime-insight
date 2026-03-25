@@ -230,4 +230,36 @@ final class ConfigTest extends TestCase
 
         $this->assertFalse($config->includePerformanceContext());
     }
+
+    #[Test]
+    public function it_reads_webhooks_from_array(): void
+    {
+        $config = Config::fromArray([
+            'webhooks' => [
+                'enabled' => true,
+                'urls' => ['https://hooks.example.com/r/i'],
+                'timeout' => 4,
+                'headers' => ['Authorization' => 'Bearer x'],
+            ],
+        ]);
+
+        $w = $config->getWebhookSettings();
+        $this->assertTrue($w->shouldDeliver());
+        $this->assertSame(['https://hooks.example.com/r/i'], $w->getUrls());
+        $this->assertSame(4, $w->getTimeoutSeconds());
+        $this->assertSame(['Authorization' => 'Bearer x'], $w->getHeaders());
+    }
+
+    #[Test]
+    public function it_preserves_webhook_settings_in_with_provider(): void
+    {
+        $config = Config::fromArray([
+            'webhooks' => [
+                'enabled' => true,
+                'urls' => ['https://a.test/h'],
+            ],
+        ]);
+        $next = $config->withProvider('anthropic');
+        $this->assertTrue($next->getWebhookSettings()->shouldDeliver());
+    }
 }
