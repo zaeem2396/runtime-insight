@@ -23,14 +23,12 @@ final class InMemoryEventDispatcher implements EventDispatcherInterface
      *
      * @param callable(object): void $listener
      */
-    public function addListener(string $eventClass, callable $listener): self
+    public function addListener(string $eventClass, callable $listener): void
     {
         if (! isset($this->listeners[$eventClass])) {
             $this->listeners[$eventClass] = [];
         }
         $this->listeners[$eventClass][] = $listener;
-
-        return $this;
     }
 
     public function dispatch(object $event): void
