@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace ClarityPHP\RuntimeInsight;
 
+use ClarityPHP\RuntimeInsight\Webhook\WebhookSettings;
+
 use function in_array;
 use function is_array;
 use function is_bool;
@@ -42,6 +44,7 @@ final readonly class Config
         private bool $includeDatabaseQueries = false,
         private int $maxDatabaseQueries = 5,
         private bool $includePerformanceContext = false,
+        private ?WebhookSettings $webhookSettings = null,
     ) {}
 
     /**
@@ -73,6 +76,7 @@ final readonly class Config
         $includeDatabaseQueries = $context['include_database_queries'] ?? false;
         $maxDatabaseQueries = $context['max_database_queries'] ?? 5;
         $includePerformanceContext = $context['include_performance_context'] ?? false;
+        $webhookSettings = WebhookSettings::fromConfigArray($config['webhooks'] ?? null);
 
         return new self(
             enabled: is_bool($enabled) ? $enabled : true,
@@ -95,6 +99,7 @@ final readonly class Config
             includeDatabaseQueries: is_bool($includeDatabaseQueries) ? $includeDatabaseQueries : false,
             maxDatabaseQueries: is_int($maxDatabaseQueries) ? $maxDatabaseQueries : 5,
             includePerformanceContext: is_bool($includePerformanceContext) ? $includePerformanceContext : false,
+            webhookSettings: $webhookSettings,
         );
     }
 
@@ -189,7 +194,13 @@ final readonly class Config
             includeDatabaseQueries: $this->includeDatabaseQueries,
             maxDatabaseQueries: $this->maxDatabaseQueries,
             includePerformanceContext: $this->includePerformanceContext,
+            webhookSettings: $this->webhookSettings,
         );
+    }
+
+    public function getWebhookSettings(): WebhookSettings
+    {
+        return $this->webhookSettings ?? WebhookSettings::disabled();
     }
 
     public function getSourceLines(): int
