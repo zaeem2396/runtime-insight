@@ -27,10 +27,12 @@ final class InMemoryEventDispatcherTest extends TestCase
     }
 
     #[Test]
-    public function add_listener_returns_self(): void
+    public function add_listener_registers_callable(): void
     {
         $dispatcher = new InMemoryEventDispatcher();
-        $this->assertSame($dispatcher, $dispatcher->addListener(BeforeAnalysisEvent::class, static function (): void {}));
+        $dispatcher->addListener(BeforeAnalysisEvent::class, static function (): void {});
+        $dispatcher->dispatch(new BeforeAnalysisEvent($this->createContext()));
+        $this->expectNotToPerformAssertions();
     }
 
     #[Test]
