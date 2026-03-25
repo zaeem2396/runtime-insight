@@ -14,3 +14,4 @@ All notable changes to this project are documented in this file.
 - Symfony: correct path to `config/services.yaml` from bundle root.
 
 ### Documentation
+- README, USAGE, CONTRIBUTING, and roadmap updated for events and webhooks.
