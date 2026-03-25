@@ -80,6 +80,7 @@ Confidence: 0.92
 - 🔄 **Runtime Intelligence Pipeline** - Signal collectors, root cause analyzer, and pattern analyzer (e.g. N+1, validation hints) enrich explanations via metadata
 - 📜 **Log Analysis** - `runtime:analyze` summarizes error types and counts, highlights top failures by signature
 - ⏱️ **Runtime Timeline** - `runtime:timeline` reconstructs events before the last failure (T+ seconds from log)
+- 🔔 **Webhooks** - Optional HTTP POST to your URLs after each analysis (`AfterAnalysisEvent`), for Slack or internal alerts (failures logged only; see [USAGE.md](USAGE.md#webhooks-after-analysis))
 
 ---
 
@@ -114,6 +115,7 @@ Each strategy provides:
 
 - **PHP 8.2+**
 - **Laravel 10+** or **Symfony 6.4+** (7.x also supported)
+- **Guzzle 7** (already required) is used for optional webhook POST delivery
 
 ---
 
@@ -226,6 +228,9 @@ runtime_insight:
         enabled: true
         provider: openai
         model: gpt-4.1-mini
+    webhooks:
+        enabled: false
+        urls: []
 ```
 
 ---
@@ -257,6 +262,14 @@ return [
     'cache' => [
         'enabled' => true,           // Cache repeated error explanations
         'ttl' => 3600,               // Seconds (default: 1 hour)
+    ],
+
+    // Optional: POST JSON after each analysis (Slack, internal HTTP). Off by default.
+    'webhooks' => [
+        'enabled' => false,
+        'urls' => [],
+        'timeout' => 3,
+        'headers' => [],
     ],
 
     'environments' => ['local', 'staging'],  // Where to enable
@@ -341,6 +354,10 @@ See [USAGE.md](USAGE.md) for detailed documentation.
 └──────────┬──────────────┘
            │
 ┌──────────▼──────────────┐
+│ Events / optional webhooks │  ← AfterAnalysisEvent, HTTP POST if configured
+└──────────┬──────────────┘
+           │
+┌──────────▼──────────────┐
 │ Output Renderer         │  ← Console, Log, Debug UI
 └─────────────────────────┘
 ```
@@ -354,6 +371,8 @@ Runtime Insight is designed for extensibility:
 - **AI Provider Factory** - `ProviderFactory` creates the configured provider (openai, anthropic, ollama) with optional fallback chain
 - **Custom AI Providers** - Implement the `AIProviderInterface`
 - **Explanation Caching** - When `cache.enabled` is true, the engine caches explanations by error signature (class, message, file, line) to avoid repeated AI calls
+- **Events** - `EventDispatcherInterface` dispatches `BeforeAnalysisEvent` (after context enrichment) and `AfterAnalysisEvent` (after explanation, root cause, and pattern). Use `addListener()` on the framework-resolved dispatcher for custom hooks.
+- **Webhooks** - Configure `webhooks.urls` (and `enabled`) to POST JSON to external endpoints after analysis; see [USAGE.md](USAGE.md#webhooks-after-analysis).
 - **Custom Explanation Strategies** - Add domain-specific patterns
 - **Output & Rendering** - `RendererFactory::forFormat()` supports text, json, markdown, html, ide. Use `RendererInterface` for custom renderers.
 - **Custom Renderers** - Output to JSON, HTML, Slack, etc.
