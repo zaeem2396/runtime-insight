@@ -13,6 +13,17 @@ Transform cryptic runtime errors into human-readable explanations with actionabl
 
 ---
 
+## Documentation
+
+| Document | What it covers |
+|----------|----------------|
+| **This README** | Install, quick start, high-level features, configuration sketch, architecture overview, links to deeper topics |
+| **[USAGE.md](USAGE.md)** | Laravel and Symfony integration, all Artisan/console commands, full configuration reference, caching, database and performance context, **events and `EventDispatcherInterface`**, **webhooks** (env vars, payload, security), AI providers, production hardening, troubleshooting |
+| **[CHANGELOG.md](CHANGELOG.md)** | Notable changes by version |
+| **[CONTRIBUTING.md](CONTRIBUTING.md)** | Local setup, tests, PHPStan, code style, documentation expectations for contributors |
+
+---
+
 ## 🎯 What is Runtime Insight?
 
 Runtime Insight intercepts runtime exceptions and errors in your PHP applications, analyzes them using structured context and AI reasoning, and produces:
@@ -335,32 +346,62 @@ See [USAGE.md](USAGE.md) for detailed documentation.
 
 ## 🏗️ Architecture
 
+The runtime intelligence **pipeline** (inside `RuntimeInsight`) runs in a fixed order for `analyze()`, `analyzeFromLog()`, and `analyzeContext()`:
+
+1. **Context** — `ContextBuilderInterface` builds `RuntimeContext` (exception, stack, source, framework context).
+2. **Collectors** — Optional `CollectorRegistry` enriches context (queries, request snapshot, memory, queue, cache, etc.).
+3. **`BeforeAnalysisEvent`** — Dispatched after enrichment, before the explanation engine runs. Listeners receive the current `RuntimeContext` (readonly DTO; copy/transform in your own code if you extend behaviour).
+4. **Explanation** — `ExplanationEngineInterface` produces the core `Explanation` (strategies + optional AI).
+5. **Root cause & pattern** — `RootCauseAnalyzerInterface` and `PatternAnalyzerInterface` attach metadata to the explanation when configured.
+6. **`AfterAnalysisEvent`** — Dispatched with the final `Explanation` and `RuntimeContext`. Built-in **webhooks** (if enabled in config) register here as an `AfterAnalysisEvent` listener.
+7. **Output** — Framework layers (Laravel `ExceptionHandler`, Symfony subscriber, Artisan/console commands) render or log results using renderers or plain logging.
+
 ```
-┌─────────────────────────┐
-│ Framework Adapter       │  ← Laravel / Symfony integration
-│ (Laravel / Symfony)     │
-└──────────┬──────────────┘
-           │
-┌──────────▼──────────────┐
-│ Runtime Capture Layer   │  ← Exception & Error interception
-└──────────┬──────────────┘
-           │
-┌──────────▼──────────────┐
-│ Context Builder         │  ← Source code, request, route info
-└──────────┬──────────────┘
-           │
-┌──────────▼──────────────┐
-│ Explanation Engine      │  ← Rule-based + AI reasoning
-└──────────┬──────────────┘
-           │
-┌──────────▼──────────────┐
-│ Events / optional webhooks │  ← AfterAnalysisEvent, HTTP POST if configured
-└──────────┬──────────────┘
-           │
-┌──────────▼──────────────┐
-│ Output Renderer         │  ← Console, Log, Debug UI
-└─────────────────────────┘
+┌──────────────────────┐
+│ Framework / CLI      │  Laravel, Symfony, or RuntimeInsightFactory (standalone)
+└──────────┬───────────┘
+           ▼
+┌──────────────────────┐
+│ ContextBuilder       │  RuntimeContext
+└──────────┬───────────┘
+           ▼
+┌──────────────────────┐
+│ CollectorRegistry    │  Enriched RuntimeContext
+└──────────┬───────────┘
+           ▼
+┌──────────────────────┐
+│ BeforeAnalysisEvent  │  EventDispatcherInterface
+└──────────┬───────────┘
+           ▼
+┌──────────────────────┐
+│ ExplanationEngine    │  Explanation
+└──────────┬───────────┘
+           ▼
+┌──────────────────────┐
+│ RootCause + Pattern  │  Explanation + metadata
+└──────────┬───────────┘
+           ▼
+┌──────────────────────┐
+│ AfterAnalysisEvent   │  (+ optional HTTP webhooks to configured URLs)
+└──────────┬───────────┘
+           ▼
+┌──────────────────────┐
+│ Return / log / UI    │  Renderers, logs, commands
+└──────────────────────┘
 ```
+
+**Key types (PHP namespaces under `ClarityPHP\RuntimeInsight`):**
+
+| Piece | Type / class |
+|-------|----------------|
+| Analyzer entrypoint | `RuntimeInsight` (`AnalyzerInterface`) |
+| Events | `Event\BeforeAnalysisEvent`, `Event\AfterAnalysisEvent` |
+| Dispatcher contract | `Contracts\EventDispatcherInterface` (`dispatch`, `addListener`) |
+| Default dispatcher | `Event\InMemoryEventDispatcher` |
+| Dispatcher construction | `Event\InMemoryEventDispatcherFactory::create(Config, ?LoggerInterface)` — used by Laravel, Symfony, and `RuntimeInsightFactory::createWithConfig()` when no custom dispatcher is passed |
+| Webhook delivery | `Contracts\WebhookSenderInterface`, `Webhook\GuzzleWebhookSender`, `Webhook\AfterAnalysisWebhookListener` |
+
+For **listener registration examples**, webhook **payload schema**, and **every config key**, see [USAGE.md — Events and event dispatcher](USAGE.md#events-and-event-dispatcher) and [USAGE.md — Webhooks](USAGE.md#webhooks-after-analysis).
 
 ---
 
@@ -371,11 +412,33 @@ Runtime Insight is designed for extensibility:
 - **AI Provider Factory** - `ProviderFactory` creates the configured provider (openai, anthropic, ollama) with optional fallback chain
 - **Custom AI Providers** - Implement the `AIProviderInterface`
 - **Explanation Caching** - When `cache.enabled` is true, the engine caches explanations by error signature (class, message, file, line) to avoid repeated AI calls
-- **Events** - `EventDispatcherInterface` dispatches `BeforeAnalysisEvent` (after context enrichment) and `AfterAnalysisEvent` (after explanation, root cause, and pattern). Use `addListener()` on the framework-resolved dispatcher for custom hooks.
-- **Webhooks** - Configure `webhooks.urls` (and `enabled`) to POST JSON to external endpoints after analysis; see [USAGE.md](USAGE.md#webhooks-after-analysis).
+- **Events** - `EventDispatcherInterface` dispatches `BeforeAnalysisEvent` (after context enrichment) and `AfterAnalysisEvent` (after explanation, root cause, and pattern). The same dispatcher instance is injected into `RuntimeInsight` in Laravel and Symfony; use `addListener()` early in the container lifecycle (e.g. Laravel `AppServiceProvider::boot`) so listeners are registered before exceptions are analyzed. See [USAGE.md](USAGE.md#events-and-event-dispatcher).
+- **Webhooks** - When `webhooks.enabled` is true and `urls` is non-empty, each URL receives a POST after `AfterAnalysisEvent`. Configure under `webhooks` in Laravel config or `runtime_insight.webhooks` in Symfony YAML. Environment: `RUNTIME_INSIGHT_WEBHOOKS_ENABLED`, `RUNTIME_INSIGHT_WEBHOOK_URLS`, `RUNTIME_INSIGHT_WEBHOOK_TIMEOUT`. Details: [USAGE.md](USAGE.md#webhooks-after-analysis).
 - **Custom Explanation Strategies** - Add domain-specific patterns
 - **Output & Rendering** - `RendererFactory::forFormat()` supports text, json, markdown, html, ide. Use `RendererInterface` for custom renderers.
 - **Custom Renderers** - Output to JSON, HTML, Slack, etc.
+
+```php
+// app/Providers/AppServiceProvider.php (excerpt) — register listeners in boot() so they
+// exist before any exception is analyzed. Symfony: resolve EventDispatcherInterface from
+// the container in a similar early service (e.g. an EventSubscriber on kernel.request).
+namespace App\Providers;
+
+use ClarityPHP\RuntimeInsight\Contracts\EventDispatcherInterface;
+use ClarityPHP\RuntimeInsight\Event\AfterAnalysisEvent;
+use Illuminate\Support\ServiceProvider;
+
+class AppServiceProvider extends ServiceProvider
+{
+    public function boot(): void
+    {
+        $this->app->make(EventDispatcherInterface::class)
+            ->addListener(AfterAnalysisEvent::class, static function (AfterAnalysisEvent $e): void {
+                // Read $e->explanation and $e->context; avoid heavy I/O on the exception path
+            });
+    }
+}
+```
 
 ```php
 use ClarityPHP\RuntimeInsight\Contracts\AIProviderInterface;
