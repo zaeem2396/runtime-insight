@@ -35,10 +35,12 @@ Feature suggestions are welcome! Please:
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
 3. Make your changes
-4. Run tests and static analysis
+4. Run `composer test`, `composer analyse`, and `composer cs-check` (or `cs-fix` then `cs-check`)
 5. Commit with clear messages
 6. Push to your fork
 7. Open a Pull Request
+
+If your change affects configuration, events, or webhooks, reviewers will expect updates to **USAGE.md** at minimum, and usually a line in **CHANGELOG.md** under `[Unreleased]`.
 
 ## Development Setup
 
@@ -139,9 +141,18 @@ final class MyClass
 
 ### Documentation
 
-- Add PHPDoc blocks for public methods
-- Document complex logic with inline comments
-- Update README.md and USAGE.md for user-facing changes (include config keys and env vars for features such as webhooks or AI)
+User-facing behaviour must stay in sync with the code and packaged config.
+
+- **README.md** — High-level overview, install, quick configuration, architecture summary, and pointers to USAGE for details. Do not duplicate long reference tables here; link to USAGE instead.
+- **USAGE.md** — Authoritative reference: commands, every significant config key, Laravel env names, Symfony YAML, **events** (`EventDispatcherInterface`, `BeforeAnalysisEvent`, `AfterAnalysisEvent`), **webhooks** (payload, HTTP semantics, security). Update the Table of Contents at the top of USAGE.md when you add new `##` sections.
+- **CHANGELOG.md** — Add an entry under `[Unreleased]` (or the appropriate version) for user-visible changes: new config keys, breaking changes, new commands, or documentation moves.
+- **config/runtime-insight.php** — When adding Laravel config, mirror keys and comments in USAGE’s “Full Configuration Reference” block where applicable.
+
+Other rules:
+
+- Add PHPDoc blocks for public methods on the package API
+- Document complex logic with concise inline comments only where needed
+- For webhooks, AI, or environment variables, always mention the **exact** env key names and defaults in USAGE (and summarize in README if user-facing)
 
 ### Testing
 
@@ -149,7 +160,8 @@ final class MyClass
 - Maintain or improve code coverage
 - Use descriptive test method names
 - Follow Arrange-Act-Assert pattern
-- For HTTP webhook delivery, mock `GuzzleHttp\Client` / handler stack or `WebhookSenderInterface` instead of calling real URLs in unit tests
+- For HTTP webhook delivery, mock `GuzzleHttp\Client` / `MockHandler` + `HandlerStack`, or mock `WebhookSenderInterface`; see `tests/Unit/Webhook/GuzzleWebhookSenderTest.php` and `AfterAnalysisWebhookListenerTest.php`
+- For the event dispatcher, cover listener registration via `InMemoryEventDispatcher` / `InMemoryEventDispatcherFactory` in `tests/Unit/Event/`
 
 ```php
 public function test_it_explains_null_pointer_exception(): void

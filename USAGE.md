@@ -1,6 +1,6 @@
 # Usage Guide
 
-This guide covers all usage scenarios for Runtime Insight.
+This guide covers all usage scenarios for Runtime Insight. For a shorter overview, see [README.md](README.md). Release history is in [CHANGELOG.md](CHANGELOG.md).
 
 ---
 
@@ -15,6 +15,7 @@ This guide covers all usage scenarios for Runtime Insight.
 - [Caching](#caching)
 - [Database query context](#database-query-context)
 - [Memory and performance context](#memory-and-performance-context)
+- [Events and event dispatcher](#events-and-event-dispatcher)
 - [Webhooks (after analysis)](#webhooks-after-analysis)
 - [AI Provider Configuration](#ai-provider-configuration)
 - [Custom Integrations](#custom-integrations)
@@ -49,6 +50,8 @@ php artisan vendor:publish --tag=runtime-insight-config
 ```
 
 If you run `php artisan runtime:explain` without an API key, you will see: *No OpenAI API key found. Set OPEN_AI_APIKEY or RUNTIME_INSIGHT_AI_KEY in your .env file.*
+
+**Optional integrations:** To hook analysis in PHP, see [Events and event dispatcher](#events-and-event-dispatcher). To POST JSON to external URLs after each explanation, see [Webhooks (after analysis)](#webhooks-after-analysis).
 
 ---
 
@@ -610,23 +613,124 @@ Set `context.include_performance_context` to `true` in your config (or `RUNTIME_
 
 ---
 
+## Events and event dispatcher
+
+Runtime Insight exposes a small **synchronous** event API so you can hook the analysis pipeline without forking the package. Events are plain readonly DTOs; the dispatcher is **in-process only** (not Symfony’s global `EventDispatcher`).
+
+### When events fire
+
+The same ordering applies to **`RuntimeInsight::analyze`**, **`analyzeFromLog`**, and **`analyzeContext`**:
+
+| Order | What happens |
+|-------|----------------|
+| 1 | Build `RuntimeContext` (context builder). |
+| 2 | Run signal collectors (`CollectorRegistry`) when registered. |
+| 3 | **`BeforeAnalysisEvent`** — `dispatch()` with the enriched `RuntimeContext`. |
+| 4 | Run `ExplanationEngineInterface` → `Explanation`. |
+| 5 | Attach root cause and pattern metadata when analyzers are configured. |
+| 6 | **`AfterAnalysisEvent`** — `dispatch()` with final `Explanation` and `RuntimeContext`. |
+| 7 | Return the `Explanation` to the caller (handler, command, or your code). |
+
+### Types and contracts
+
+| Name | Namespace / class | Role |
+|------|---------------------|------|
+| Dispatcher contract | `ClarityPHP\RuntimeInsight\Contracts\EventDispatcherInterface` | `addListener(string $eventClass, callable $listener): void`, `dispatch(object $event): void` |
+| Default implementation | `ClarityPHP\RuntimeInsight\Event\InMemoryEventDispatcher` | Listeners keyed by concrete event class name |
+| Before hook | `ClarityPHP\RuntimeInsight\Event\BeforeAnalysisEvent` | Public `RuntimeContext $context` |
+| After hook | `ClarityPHP\RuntimeInsight\Event\AfterAnalysisEvent` | Public `Explanation $explanation`, `RuntimeContext $context` |
+| Factory | `ClarityPHP\RuntimeInsight\Event\InMemoryEventDispatcherFactory::create(Config $config, ?\Psr\Log\LoggerInterface $logger)` | Returns a dispatcher; when `webhooks` are enabled and have URLs, registers the built-in webhook listener on `AfterAnalysisEvent` |
+
+Laravel and Symfony register **`EventDispatcherInterface`** as a singleton built through this factory. **`RuntimeInsight`** receives that same instance, so listeners you add are invoked on the real analysis path.
+
+### Laravel: registering listeners
+
+Register in **`boot()`** of a service provider that loads **after** the package provider (default app providers do). Use the **class name** as the first argument to `addListener` (same as `::class`).
+
+```php
+use ClarityPHP\RuntimeInsight\Contracts\EventDispatcherInterface;
+use ClarityPHP\RuntimeInsight\Event\BeforeAnalysisEvent;
+use ClarityPHP\RuntimeInsight\Event\AfterAnalysisEvent;
+
+public function boot(): void
+{
+    $dispatcher = $this->app->make(EventDispatcherInterface::class);
+
+    $dispatcher->addListener(BeforeAnalysisEvent::class, static function (BeforeAnalysisEvent $e): void {
+        // Context is readonly; log or copy data if you need to mutate downstream behaviour elsewhere
+    });
+
+    $dispatcher->addListener(AfterAnalysisEvent::class, static function (AfterAnalysisEvent $e): void {
+        // Final explanation and context available here; same phase as optional webhooks
+    });
+}
+```
+
+### Symfony: registering listeners
+
+The bundle registers `EventDispatcherInterface` → factory-created `InMemoryEventDispatcher`. In your application code, add a **compiler pass** or a small **service** that runs early and calls `addListener` on the dispatcher **definition**, or retrieve the dispatcher at runtime from the container in `kernel.request` with high priority (before exceptions are handled). Example: inject `EventDispatcherInterface` into your own service and register in the constructor:
+
+```php
+use ClarityPHP\RuntimeInsight\Contracts\EventDispatcherInterface;
+use ClarityPHP\RuntimeInsight\Event\AfterAnalysisEvent;
+
+final class RuntimeInsightHooks
+{
+    public function __construct(EventDispatcherInterface $dispatcher)
+    {
+        $dispatcher->addListener(AfterAnalysisEvent::class, $this->onAfter(...));
+    }
+
+    public function onAfter(AfterAnalysisEvent $event): void
+    {
+        // ...
+    }
+}
+```
+
+Register `RuntimeInsightHooks` as a service with `autoconfigure: true` so it is instantiated when the container is built.
+
+### Standalone (`RuntimeInsightFactory`)
+
+`RuntimeInsightFactory::create()` / `createWithConfig()` builds a dispatcher via **`InMemoryEventDispatcherFactory::create($config, null)`** unless you pass a custom **`EventDispatcherInterface`** as the last argument to `createWithConfig()`. To combine custom listeners with webhooks, start from the factory-created dispatcher (or replicate its registration logic) rather than a bare `InMemoryEventDispatcher` unless you also attach the webhook listener yourself.
+
+### Relationship to webhooks
+
+Configurable **webhooks** are implemented as an **`AfterAnalysisEvent`** listener inside `InMemoryEventDispatcherFactory` when `webhooks.enabled` is true and `urls` is non-empty. Your own `AfterAnalysisEvent` listeners run in registration order together with that listener. See [Webhooks (after analysis)](#webhooks-after-analysis).
+
+---
+
 ## Webhooks (after analysis)
 
 When enabled, Runtime Insight sends an HTTP **POST** with `Content-Type: application/json` to each configured URL **after** analysis completes (same timing as `AfterAnalysisEvent`). Use this for Slack incoming webhooks, internal alerting, or custom automation.
 
-**Behaviour:**
+### Enablement rules
 
-- Delivery runs on the same PHP process as the exception path; keep timeouts low (default 3 seconds).
-- Network and HTTP errors are logged at warning level and **do not** throw or change the original error response.
-- The payload includes structured exception info and the full explanation array (including metadata such as root cause and pattern). Treat endpoints as sensitive: use HTTPS and optional `headers` (e.g. `Authorization`).
+Delivery runs only when **`webhooks.enabled`** is true **and** the **`urls`** list is non-empty after parsing. If either condition fails, no HTTP requests are made.
 
-**Laravel:** set in `config/runtime-insight.php` or via environment:
+### Behaviour and HTTP semantics
 
-| Variable | Purpose |
-|----------|---------|
-| `RUNTIME_INSIGHT_WEBHOOKS_ENABLED` | `true` to turn on delivery |
-| `RUNTIME_INSIGHT_WEBHOOK_URLS` | Comma-separated list of URLs |
-| `RUNTIME_INSIGHT_WEBHOOK_TIMEOUT` | Per-request timeout (seconds) |
+- Requests execute **inline** in the same PHP process as the failing request or command; use a **short** `timeout` (default **3** seconds) so slow endpoints do not block your app.
+- Each URL receives an independent POST; one failure does not skip the others.
+- **4xx/5xx** responses and transport errors are logged at **warning** with `Psr\Log\LoggerInterface` and **never** rethrown; they do not alter the original exception or HTTP response.
+- **Success** is any HTTP status strictly below **400** (2xx/3xx). The client uses Guzzle with `http_errors => false` so status codes are inspected explicitly.
+
+### Configuration reference
+
+| Key | Laravel (`config/runtime-insight.php`) | Symfony (`runtime_insight.webhooks`) | Purpose |
+|-----|----------------------------------------|--------------------------------------|---------|
+| `enabled` | `webhooks.enabled` (env: `RUNTIME_INSIGHT_WEBHOOKS_ENABLED`) | `enabled` | Master switch |
+| `urls` | `webhooks.urls` (array) or env `RUNTIME_INSIGHT_WEBHOOK_URLS` (comma-separated) | `urls` (list of strings) | Destination endpoints (HTTPS recommended) |
+| `timeout` | `webhooks.timeout` (env: `RUNTIME_INSIGHT_WEBHOOK_TIMEOUT`, default 3) | `timeout` (integer, default 3) | Guzzle timeout per request (seconds, minimum 1 internally) |
+| `headers` | `webhooks.headers` (associative name → value) | `headers` (map) | Extra headers on every POST (e.g. `Authorization`, custom signing headers) |
+
+**Laravel environment variables (optional):**
+
+| Variable | Maps to | Notes |
+|----------|---------|--------|
+| `RUNTIME_INSIGHT_WEBHOOKS_ENABLED` | `webhooks.enabled` | Use `true` / `false` strings as typical for `env()` |
+| `RUNTIME_INSIGHT_WEBHOOK_URLS` | `webhooks.urls` | Comma-separated; empty string means no URLs |
+| `RUNTIME_INSIGHT_WEBHOOK_TIMEOUT` | `webhooks.timeout` | Integer seconds |
 
 **Symfony** (`config/packages/runtime_insight.yaml`):
 
@@ -637,17 +741,52 @@ runtime_insight:
         urls: []
         timeout: 3
         headers: {}
+        # Example:
+        # headers:
+        #     Authorization: 'Bearer %env(RUNTIME_INSIGHT_WEBHOOK_TOKEN)%'
 ```
 
-**Payload shape (top level):**
+### Payload shape
 
-| Field | Description |
-|-------|-------------|
-| `event` | Always `runtime_insight.after_analysis` |
-| `exception` | `ExceptionInfo` as array (`class`, `message`, `file`, `line`, …) |
-| `explanation` | `Explanation::toArray()` (message, cause, suggestions, confidence, metadata, …) |
+Top-level JSON object:
 
-**Advanced:** Register your own listeners on `EventDispatcherInterface` (Laravel/Symfony resolve the same in-memory dispatcher used by `RuntimeInsight`). `addListener(BeforeAnalysisEvent::class, …)` and `addListener(AfterAnalysisEvent::class, …)` run around the pipeline; webhooks are implemented as a built-in `AfterAnalysisEvent` listener when `webhooks.enabled` is true and `urls` is non-empty.
+| Field | Type | Description |
+|-------|------|-------------|
+| `event` | string | Always **`runtime_insight.after_analysis`** |
+| `exception` | object | `ExceptionInfo::toArray()` — `class`, `message`, `code`, `file`, `line`, optional previous exception fields |
+| `explanation` | object | `Explanation::toArray()` — `message`, `cause`, `suggestions`, `confidence`, `error_type`, `location`, `metadata` (includes root cause / pattern when present), `code_snippet`, `call_site_location` |
+
+**Example (truncated):**
+
+```json
+{
+  "event": "runtime_insight.after_analysis",
+  "exception": {
+    "class": "TypeError",
+    "message": "Argument #1 must be of type string, null given",
+    "code": 0,
+    "file": "/var/www/app/Http/Controllers/OrderController.php",
+    "line": 42
+  },
+  "explanation": {
+    "message": "Type error",
+    "cause": "A null value was passed where a string was required.",
+    "suggestions": ["Add a null check or default before using the value."],
+    "confidence": 0.9,
+    "metadata": {}
+  }
+}
+```
+
+### Security and privacy
+
+- Payloads can contain **paths, messages, snippets, and AI metadata**. Do not send them to untrusted URLs; prefer **HTTPS** and **auth headers**.
+- Treat webhook endpoints like any other secret-bearing integration: rotate tokens, scope networks, and disable webhooks in environments where outbound HTTP is not allowed.
+- Webhooks are **not** a substitute for a dedicated error tracker (Sentry, etc.); they complement local explanation and logging.
+
+### Advanced: custom listeners vs webhooks
+
+Register your own code on **`EventDispatcherInterface`** for full control (see [Events and event dispatcher](#events-and-event-dispatcher)). Built-in webhooks are simply an **`AfterAnalysisEvent`** listener registered inside **`InMemoryEventDispatcherFactory`** when configuration allows delivery.
 
 ---
 
@@ -853,7 +992,9 @@ $this->app->bind(AIProviderInterface::class, MyCustomProvider::class);
 
 ## Custom Integrations
 
-For outbound HTTP notifications after each explanation, configure [Webhooks (after analysis)](#webhooks-after-analysis). For in-process hooks, resolve `EventDispatcherInterface` from the container and call `addListener()` for `BeforeAnalysisEvent` / `AfterAnalysisEvent`.
+For outbound HTTP notifications after each explanation, configure [Webhooks (after analysis)](#webhooks-after-analysis) (env vars, payload schema, and security notes are documented there).
+
+For **in-process** hooks (no HTTP), use [Events and event dispatcher](#events-and-event-dispatcher): resolve `ClarityPHP\RuntimeInsight\Contracts\EventDispatcherInterface` from the container and call `addListener(BeforeAnalysisEvent::class, …)` / `addListener(AfterAnalysisEvent::class, …)`. The same dispatcher instance is injected into `RuntimeInsight`, so listeners must be registered before analysis runs (e.g. Laravel `boot()`, Symfony service construction).
 
 ### Built-in strategies and descriptive fallback
 
