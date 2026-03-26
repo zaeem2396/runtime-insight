@@ -141,7 +141,7 @@ final class MyClass
 
 - Add PHPDoc blocks for public methods
 - Document complex logic with inline comments
-- Update README.md and USAGE.md for user-facing changes
+- Update README.md and USAGE.md for user-facing changes (include config keys and env vars for features such as webhooks or AI)
 
 ### Testing
 
@@ -149,6 +149,7 @@ final class MyClass
 - Maintain or improve code coverage
 - Use descriptive test method names
 - Follow Arrange-Act-Assert pattern
+- For HTTP webhook delivery, mock `GuzzleHttp\Client` / handler stack or `WebhookSenderInterface` instead of calling real URLs in unit tests
 
 ```php
 public function test_it_explains_null_pointer_exception(): void

@@ -125,5 +125,23 @@ return [
         'ttl' => 3600,
         'store' => env('RUNTIME_INSIGHT_CACHE_STORE', 'file'),
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Webhooks (after analysis)
+    |--------------------------------------------------------------------------
+    |
+    | When enabled and URLs are set, Runtime Insight POSTs a JSON payload to each
+    | URL after an explanation is produced (AfterAnalysisEvent). Failures are
+    | logged and never break the request. Use for Slack incoming webhooks,
+    | internal alerting, or custom integrations.
+    |
+    */
+    'webhooks' => [
+        'enabled' => env('RUNTIME_INSIGHT_WEBHOOKS_ENABLED', false),
+        'urls' => array_filter(array_map('trim', explode(',', (string) env('RUNTIME_INSIGHT_WEBHOOK_URLS', '')))),
+        'timeout' => (int) env('RUNTIME_INSIGHT_WEBHOOK_TIMEOUT', 3),
+        'headers' => [],
+    ],
 ];
 

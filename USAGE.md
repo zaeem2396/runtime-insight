@@ -15,6 +15,7 @@ This guide covers all usage scenarios for Runtime Insight.
 - [Caching](#caching)
 - [Database query context](#database-query-context)
 - [Memory and performance context](#memory-and-performance-context)
+- [Webhooks (after analysis)](#webhooks-after-analysis)
 - [AI Provider Configuration](#ai-provider-configuration)
 - [Custom Integrations](#custom-integrations)
 - [Production Considerations](#production-considerations)
@@ -538,6 +539,24 @@ return [
         // Cache TTL in seconds (0 = no expiry within the request)
         'ttl' => env('RUNTIME_INSIGHT_CACHE_TTL', 3600),
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Webhooks (after analysis)
+    |--------------------------------------------------------------------------
+    |
+    | POST a JSON payload to each URL when an explanation is ready. Disabled by
+    | default. Failures are logged only and never break the failing request.
+    |
+    */
+    'webhooks' => [
+        'enabled' => env('RUNTIME_INSIGHT_WEBHOOKS_ENABLED', false),
+        'urls' => array_filter(array_map('trim', explode(',', (string) env('RUNTIME_INSIGHT_WEBHOOK_URLS', '')))),
+        'timeout' => (int) env('RUNTIME_INSIGHT_WEBHOOK_TIMEOUT', 3),
+        'headers' => [
+            // 'Authorization' => 'Bearer '.env('RUNTIME_INSIGHT_WEBHOOK_TOKEN'),
+        ],
+    ],
 ];
 ```
 
@@ -588,6 +607,47 @@ When enabled, Runtime Insight captures memory and performance data at the time o
 | `include_performance_context` | Include peak memory in context     | `false` |
 
 Set `context.include_performance_context` to `true` in your config (or `RUNTIME_INSIGHT_INCLUDE_PERFORMANCE_CONTEXT=true` in Laravel). The AI summary will then include a "Performance:" section with peak memory.
+
+---
+
+## Webhooks (after analysis)
+
+When enabled, Runtime Insight sends an HTTP **POST** with `Content-Type: application/json` to each configured URL **after** analysis completes (same timing as `AfterAnalysisEvent`). Use this for Slack incoming webhooks, internal alerting, or custom automation.
+
+**Behaviour:**
+
+- Delivery runs on the same PHP process as the exception path; keep timeouts low (default 3 seconds).
+- Network and HTTP errors are logged at warning level and **do not** throw or change the original error response.
+- The payload includes structured exception info and the full explanation array (including metadata such as root cause and pattern). Treat endpoints as sensitive: use HTTPS and optional `headers` (e.g. `Authorization`).
+
+**Laravel:** set in `config/runtime-insight.php` or via environment:
+
+| Variable | Purpose |
+|----------|---------|
+| `RUNTIME_INSIGHT_WEBHOOKS_ENABLED` | `true` to turn on delivery |
+| `RUNTIME_INSIGHT_WEBHOOK_URLS` | Comma-separated list of URLs |
+| `RUNTIME_INSIGHT_WEBHOOK_TIMEOUT` | Per-request timeout (seconds) |
+
+**Symfony** (`config/packages/runtime_insight.yaml`):
+
+```yaml
+runtime_insight:
+    webhooks:
+        enabled: false
+        urls: []
+        timeout: 3
+        headers: {}
+```
+
+**Payload shape (top level):**
+
+| Field | Description |
+|-------|-------------|
+| `event` | Always `runtime_insight.after_analysis` |
+| `exception` | `ExceptionInfo` as array (`class`, `message`, `file`, `line`, …) |
+| `explanation` | `Explanation::toArray()` (message, cause, suggestions, confidence, metadata, …) |
+
+**Advanced:** Register your own listeners on `EventDispatcherInterface` (Laravel/Symfony resolve the same in-memory dispatcher used by `RuntimeInsight`). `addListener(BeforeAnalysisEvent::class, …)` and `addListener(AfterAnalysisEvent::class, …)` run around the pipeline; webhooks are implemented as a built-in `AfterAnalysisEvent` listener when `webhooks.enabled` is true and `urls` is non-empty.
 
 ---
 
@@ -793,6 +853,8 @@ $this->app->bind(AIProviderInterface::class, MyCustomProvider::class);
 
 ## Custom Integrations
 
+For outbound HTTP notifications after each explanation, configure [Webhooks (after analysis)](#webhooks-after-analysis). For in-process hooks, resolve `EventDispatcherInterface` from the container and call `addListener()` for `BeforeAnalysisEvent` / `AfterAnalysisEvent`.
+
 ### Built-in strategies and descriptive fallback
 
 Runtime Insight supports **all error types** with descriptive explanations ([#25](https://github.com/zaeem2396/runtime-insight/issues/25)):
@@ -884,6 +946,12 @@ return [
     'ai' => [
         'enabled' => false,
     ],
+
+    // Keep webhooks off in production unless you have a dedicated, secured endpoint
+    'webhooks' => [
+        'enabled' => false,
+        'urls' => [],
+    ],
     
     'environments' => ['local', 'staging'],
     'disabled_environments' => ['production'],
@@ -947,11 +1015,16 @@ Check API key and network connectivity.
 - Use a larger model with higher rate limits
 - Consider Ollama for unlimited local inference
 
+**"Webhooks not firing"**
+- Ensure `webhooks.enabled` is true and `urls` is non-empty (Laravel: `RUNTIME_INSIGHT_WEBHOOK_URLS`)
+- Check application logs for warning lines from `GuzzleWebhookSender` (timeouts, 4xx/5xx)
+- Remember delivery runs only after a full analysis (same as `AfterAnalysisEvent`)
+
 ---
 
 ## Next Steps
 
-- See [Configuration Options](#configuration-options) and [AI Provider Configuration](#ai-provider-configuration) for full setup
+- See [Configuration Options](#configuration-options), [Webhooks (after analysis)](#webhooks-after-analysis), and [AI Provider Configuration](#ai-provider-configuration) for full setup
 - Use `RendererFactory::forFormat()` and `RuntimeInsightFactory::create()` for programmatic usage (see [README](README.md))
 - [Open an issue](https://github.com/zaeem2396/runtime-insight/issues) or discussions for support
 

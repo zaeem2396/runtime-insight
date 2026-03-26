@@ -297,8 +297,8 @@ Incident Group: TypeError in OrderController::total (last 24h)
 - [ ] Custom explanation strategies
 - [ ] Plugin system
 - [ ] Custom renderers
-- [ ] Webhook support
-- [ ] Event system for extensibility
+- [x] Webhook support (HTTP POST after analysis, configurable URLs and headers)
+- [x] Event system for extensibility (`BeforeAnalysisEvent`, `AfterAnalysisEvent`, `EventDispatcherInterface`)
 
 ### Runtime Timeline Debugging
 
@@ -591,3 +591,8 @@ This would build on the open-source runtime intelligence pipeline and optional t
 - Database query context: DatabaseContext, Laravel query log
 - Memory and performance context: PerformanceContext, peak memory
 - Caching for repeated errors: ExplanationCacheInterface, CachingExplanationEngine
+
+### v0.9.0 (customization — partial)
+- Event hooks: `EventDispatcherInterface`, `InMemoryEventDispatcher`, before/after analysis events
+- Optional webhooks: JSON POST to configured URLs after analysis (Guzzle, non-blocking failures)
+- Symfony DI: `InMemoryEventDispatcherFactory`, bundle config `webhooks.*`, corrected `services.yaml` path and full `RuntimeInsight` wiring (collectors + analyzers)

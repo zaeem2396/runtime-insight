@@ -32,7 +32,7 @@ use ClarityPHP\RuntimeInsight\Engine\Strategies\ParseErrorStrategy;
 use ClarityPHP\RuntimeInsight\Engine\Strategies\TypeErrorStrategy;
 use ClarityPHP\RuntimeInsight\Engine\Strategies\UndefinedIndexStrategy;
 use ClarityPHP\RuntimeInsight\Engine\Strategies\ValueErrorStrategy;
-use ClarityPHP\RuntimeInsight\Event\InMemoryEventDispatcher;
+use ClarityPHP\RuntimeInsight\Event\InMemoryEventDispatcherFactory;
 
 /**
  * Factory for creating RuntimeInsight instances.
@@ -72,7 +72,7 @@ final class RuntimeInsightFactory
         $collectorRegistry ??= self::createDefaultCollectorRegistry();
         $rootCauseAnalyzer ??= new RootCauseAnalyzer();
         $patternAnalyzer ??= new LaravelPatternAnalyzer();
-        $eventDispatcher ??= new InMemoryEventDispatcher();
+        $eventDispatcher ??= InMemoryEventDispatcherFactory::create($config, null);
 
         return new RuntimeInsight($contextBuilder, $explanationEngine, $config, $collectorRegistry, $rootCauseAnalyzer, $patternAnalyzer, $eventDispatcher);
     }

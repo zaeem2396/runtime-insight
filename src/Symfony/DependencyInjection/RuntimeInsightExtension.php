@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace ClarityPHP\RuntimeInsight\Symfony\DependencyInjection;
 
+use ClarityPHP\RuntimeInsight\Collectors\CollectorRegistry;
 use ClarityPHP\RuntimeInsight\Config;
 use ClarityPHP\RuntimeInsight\Context\ContextBuilder;
 use ClarityPHP\RuntimeInsight\Contracts\AIProviderInterface;
@@ -12,7 +13,11 @@ use ClarityPHP\RuntimeInsight\Contracts\ContextBuilderInterface;
 use ClarityPHP\RuntimeInsight\Contracts\EventDispatcherInterface;
 use ClarityPHP\RuntimeInsight\Contracts\ExplanationEngineInterface;
 use ClarityPHP\RuntimeInsight\Contracts\LogParserInterface;
-use ClarityPHP\RuntimeInsight\Event\InMemoryEventDispatcher;
+use ClarityPHP\RuntimeInsight\Contracts\PatternAnalyzerInterface;
+use ClarityPHP\RuntimeInsight\Contracts\RootCauseAnalyzerInterface;
+use ClarityPHP\RuntimeInsight\Engine\LaravelPatternAnalyzer;
+use ClarityPHP\RuntimeInsight\Engine\RootCauseAnalyzer;
+use ClarityPHP\RuntimeInsight\Event\InMemoryEventDispatcherFactory;
 use ClarityPHP\RuntimeInsight\Log\LaravelLogParser;
 use ClarityPHP\RuntimeInsight\RuntimeInsight;
 use ClarityPHP\RuntimeInsight\RuntimeInsightFactory;
@@ -22,6 +27,8 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\Extension;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 use Symfony\Component\DependencyInjection\Reference;
+
+use function dirname;
 
 /**
  * Symfony Dependency Injection Extension for Runtime Insight.
@@ -33,7 +40,7 @@ final class RuntimeInsightExtension extends Extension
      */
     public function load(array $configs, ContainerBuilder $container): void
     {
-        $loader = new YamlFileLoader($container, new FileLocator(__DIR__ . '/../../config'));
+        $loader = new YamlFileLoader($container, new FileLocator(dirname(__DIR__, 3) . '/config'));
         $loader->load('services.yaml');
 
         $configuration = new Configuration();
@@ -75,8 +82,17 @@ final class RuntimeInsightExtension extends Extension
         // Register LogParser for runtime:analyze command
         $container->register(LogParserInterface::class, LaravelLogParser::class);
 
-        // Register event dispatcher for extensibility
-        $container->register(EventDispatcherInterface::class, InMemoryEventDispatcher::class);
+        // Alias analyzer interfaces to implementations (implementations autodiscovered via services.yaml)
+        $container->setAlias(RootCauseAnalyzerInterface::class, RootCauseAnalyzer::class);
+        $container->setAlias(PatternAnalyzerInterface::class, LaravelPatternAnalyzer::class);
+
+        // Register event dispatcher (optional webhook listener when configured)
+        $container->register(EventDispatcherInterface::class)
+            ->setFactory([InMemoryEventDispatcherFactory::class, 'create'])
+            ->setArguments([
+                new Reference(Config::class),
+                new Reference('logger', ContainerBuilder::IGNORE_ON_INVALID_REFERENCE),
+            ]);
 
         // Register ExplanationEngine
         $container->register(ExplanationEngineInterface::class)
@@ -92,9 +108,9 @@ final class RuntimeInsightExtension extends Extension
                 new Reference(ContextBuilderInterface::class),
                 new Reference(ExplanationEngineInterface::class),
                 new Reference(Config::class),
-                null,
-                null,
-                null,
+                new Reference(CollectorRegistry::class),
+                new Reference(RootCauseAnalyzerInterface::class),
+                new Reference(PatternAnalyzerInterface::class),
                 new Reference(EventDispatcherInterface::class),
             ]);
 

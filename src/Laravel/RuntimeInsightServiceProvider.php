@@ -18,6 +18,7 @@ use ClarityPHP\RuntimeInsight\Contracts\RootCauseAnalyzerInterface;
 use ClarityPHP\RuntimeInsight\Engine\LaravelPatternAnalyzer;
 use ClarityPHP\RuntimeInsight\Engine\RootCauseAnalyzer;
 use ClarityPHP\RuntimeInsight\Event\InMemoryEventDispatcher;
+use ClarityPHP\RuntimeInsight\Event\InMemoryEventDispatcherFactory;
 use ClarityPHP\RuntimeInsight\Laravel\Commands\AnalyzeCommand;
 use ClarityPHP\RuntimeInsight\Laravel\Commands\DoctorCommand;
 use ClarityPHP\RuntimeInsight\Laravel\Commands\ExplainCommand;
@@ -105,7 +106,10 @@ class RuntimeInsightServiceProvider extends ServiceProvider
             return new LaravelLogParser();
         });
         $this->app->singleton(EventDispatcherInterface::class, function (Application $app): InMemoryEventDispatcher {
-            return new InMemoryEventDispatcher();
+            return InMemoryEventDispatcherFactory::create(
+                $app->make(Config::class),
+                $app->bound(LoggerInterface::class) ? $app->make(LoggerInterface::class) : null,
+            );
         });
 
         // Register main RuntimeInsight
