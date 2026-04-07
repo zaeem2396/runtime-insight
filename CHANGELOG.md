@@ -5,6 +5,7 @@ All notable changes to this project are documented in this file.
 ## [Unreleased]
 
 ### Added
+- `RootCauseResult` includes optional `diagnostics` for automation (e.g. `remediation_category`, frame counts).
 - Optional HTTP webhooks after each analysis (`AfterAnalysisEvent`).
 - `WebhookSenderInterface` and `GuzzleWebhookSender`.
 - `WebhookSettings` and `webhooks` configuration (Laravel and Symfony).
