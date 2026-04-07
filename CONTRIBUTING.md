@@ -146,7 +146,7 @@ User-facing behaviour must stay in sync with the code and packaged config.
 - **README.md** — High-level overview, install, quick configuration, architecture summary, and pointers to USAGE for details. Do not duplicate long reference tables here; link to USAGE instead.
 - **USAGE.md** — Authoritative reference: commands, every significant config key, Laravel env names, Symfony YAML, **events** (`EventDispatcherInterface`, `BeforeAnalysisEvent`, `AfterAnalysisEvent`), **webhooks** (payload, HTTP semantics, security). Update the Table of Contents at the top of USAGE.md when you add new `##` sections.
 - **CHANGELOG.md** — Add an entry under `[Unreleased]` (or the appropriate version) for user-visible changes: new config keys, breaking changes, new commands, or documentation moves.
-- **roadmap.md** — Internal planning only (not packaged for end users). When you add or move work across versions, update the relevant tables and keep statuses accurate: **Completed**, **In progress**, or **Planned**.
+- **roadmap.md** — **Not in git** (see `.gitignore`). Keep a **local** copy for internal planning if you want; do **not** `git add` or commit it. Use **Completed** / **In progress** / **Planned** in your local tables. Ship user-visible direction via **CHANGELOG.md**, issues, or milestones instead.
 - **config/runtime-insight.php** — When adding Laravel config, mirror keys and comments in USAGE’s “Full Configuration Reference” block where applicable.
 
 Other rules:
