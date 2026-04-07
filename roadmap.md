@@ -4,6 +4,29 @@
 
 ---
 
+## Roadmap status labels
+
+| Label | Meaning |
+|-------|---------|
+| **Completed** | Shipped in the codebase and maintained in the current release line. |
+| **In progress** | Partially shipped or under active iteration; broader scope still planned. |
+| **Planned** | Agreed direction; not yet implemented. |
+
+---
+
+## Phases at a glance
+
+| Phase | Versions | Overall status | Focus |
+|-------|----------|----------------|-------|
+| Phase 1 | v0.1.0–v0.3.0 | Completed | Core engine, Laravel, Symfony |
+| Phase 2 | v0.4.0–v0.6.0 | In progress | AI providers, advanced context, root cause |
+| Phase 3 | v0.6.5–v0.6.9 | In progress | Framework intelligence (`LaravelPatternAnalyzer`, collectors) |
+| Phase 4 | v0.7.0–v0.7.5 | Planned | Cross-request patterns, incidents, trends |
+| Phase 5 | v0.8.0–v0.9.0 | In progress | Renderers, log commands, events, webhooks |
+| Phase 6 | v1.0.0 | Planned | Stable release hardening |
+
+---
+
 ## Vision
 
 Runtime Insight is evolving from a simple error explanation tool into a **full runtime intelligence engine** for PHP frameworks—competing conceptually with tools like Laravel Telescope, Sentry, and Datadog, but with **AI-driven debugging and root cause analysis** at its core.
@@ -80,118 +103,108 @@ Collectors/
 └── MemoryCollector      # Memory usage over request lifecycle (peak, growth)
 ```
 
+| Collector (implementation) | Status | Notes |
+|------------------------------|--------|-------|
+| `ExceptionCollector` | Completed | Wired via `CollectorRegistry` |
+| `QueryCollector` | Completed | Recent DB signals for context |
+| `RequestCollector` | Completed | Sanitized request/route payload |
+| `QueueCollector` | Completed | Queue-related signals |
+| `CacheCollector` | Completed | Cache-related signals |
+| `MemoryCollector` | Completed | Peak memory / lifecycle hints |
+
 Collectors are **pluggable** and **configurable** (enable/disable per environment). They run after Context Builders and before Root Cause Analyzer.
 
 ---
 
 ## Phase 1: Foundation (v0.1.0 - v0.3.0)
 
-### v0.1.0 - Core Architecture ✅ COMPLETED
-- [x] Project structure and autoloading
-- [x] Core DTOs (RuntimeContext, Explanation, ExceptionInfo, etc.)
-- [x] Base interfaces and contracts
-- [x] Rule-based explanation engine
-- [x] Common PHP error patterns (5 strategies)
-- [x] Unit test infrastructure (65 tests)
+### v0.1.0 - Core Architecture
 
-**Completed Components:**
-- `RuntimeInsight` - Main entry point
-- `RuntimeInsightFactory` - Easy instantiation
-- `Config` - Configuration management
-- `ContextBuilder` - Builds RuntimeContext from Throwable
-- `ExplanationEngine` - Priority-based strategy chain
-- **Strategies:**
-  - `NullPointerStrategy` - Null reference errors
-  - `UndefinedIndexStrategy` - Array key errors
-  - `TypeErrorStrategy` - Type mismatch errors
-  - `ArgumentCountStrategy` - Argument count errors
-  - `ClassNotFoundStrategy` - Class/interface/trait not found
+| Deliverable | Status | Notes |
+|-------------|--------|-------|
+| Project structure and autoloading | Completed | PSR-4, Composer |
+| Core DTOs (`RuntimeContext`, `Explanation`, `ExceptionInfo`, …) | Completed | |
+| Base interfaces and contracts | Completed | |
+| Rule-based explanation engine | Completed | `ExplanationEngine` |
+| Common PHP error patterns (5+ strategies) | Completed | Null, index, type, arg count, class not found, … |
+| Unit test infrastructure | Completed | Grew beyond initial 65 tests |
 
-### v0.2.0 - Laravel Integration ✅ COMPLETED
-- [x] Service Provider (fully implemented)
-- [x] Exception handler hooks
-- [x] Artisan commands (runtime:explain, runtime:doctor)
-- [x] Configuration publishing
-- [x] Facade implementation
-- [x] Laravel-specific context collection
+| Component | Status | Notes |
+|-----------|--------|-------|
+| `RuntimeInsight` | Completed | Main entry point |
+| `RuntimeInsightFactory` | Completed | Standalone wiring |
+| `Config` | Completed | Configuration container |
+| `ContextBuilder` | Completed | `RuntimeContext` from `Throwable` |
+| `ExplanationEngine` | Completed | Priority-based strategy chain |
 
-**Completed Components:**
-- `LaravelContextBuilder` - Captures request, route, and application context
-- `ExceptionHandler` - Automatic exception analysis and logging
-- `HandlesRuntimeInsight` trait - Easy exception handler integration
-- `ExplainCommand` - Artisan command for explaining errors
-- `DoctorCommand` - Artisan command for diagnostics
-- `RuntimeInsight` Facade - Clean API for Laravel apps
-- Input sanitization with configurable redact fields
-- 87 tests, 223 assertions
+### v0.2.0 - Laravel Integration
 
-### v0.3.0 - Symfony Integration ✅ COMPLETED
-- [x] Bundle implementation
-- [x] Event subscriber for kernel exceptions
-- [x] Console commands (runtime:explain, runtime:doctor)
-- [x] YAML configuration support
-- [x] Symfony-specific context collection
+| Deliverable | Status | Notes |
+|-------------|--------|-------|
+| Service provider | Completed | Package discovery |
+| Exception handler hooks | Completed | Optional trait + handler |
+| Artisan commands | Completed | `runtime:explain`, `runtime:doctor`, … |
+| Configuration publishing | Completed | `config/runtime-insight.php` |
+| Facade | Completed | `RuntimeInsight` |
+| Laravel-specific context | Completed | `LaravelContextBuilder` |
+| Input sanitization / redact fields | Completed | Configurable |
 
-**Completed Components:**
-- `RuntimeInsightBundle` - Symfony bundle with dependency injection
-- `RuntimeInsightExtension` - DI extension for configuration
-- `SymfonyContextBuilder` - Captures request, route, and application context
-- `ExceptionSubscriber` - Automatic exception analysis via KernelEvents::EXCEPTION
-- `ExplainCommand` - Console command for explaining errors
-- `DoctorCommand` - Console command for diagnostics
-- Input sanitization with configurable redact fields
-- Optional Security component support
-- 20 tests, 57 assertions
+### v0.3.0 - Symfony Integration
+
+| Deliverable | Status | Notes |
+|-------------|--------|-------|
+| Bundle & DI extension | Completed | `RuntimeInsightBundle`, `RuntimeInsightExtension` |
+| Kernel exception subscriber | Completed | `ExceptionSubscriber` |
+| Console commands | Completed | `runtime:explain`, `runtime:doctor`, … |
+| YAML configuration | Completed | `runtime_insight.*` |
+| Symfony-specific context | Completed | `SymfonyContextBuilder` |
+| Optional Security component | Completed | When present |
 
 ---
 
 ## Phase 2: AI Integration (v0.4.0 - v0.6.0)
 
-### v0.4.0 - OpenAI Provider ✅ COMPLETED
-- [x] OpenAI API client
-- [x] Prompt engineering for error analysis
-- [x] Response parsing and normalization
-- [x] Rate limiting and retry logic
-- [x] Token usage tracking
+### v0.4.0 - OpenAI Provider
 
-**Completed Components:**
-- `OpenAIProvider` - Full OpenAI API integration
-- Retry logic with exponential backoff for rate limits
-- JSON and text response parsing
-- Token usage tracking in metadata
-- Integration with ExplanationEngine
-- Factory method for provider creation
-- Laravel and Symfony service provider integration
-- 8 tests, 17 assertions
+| Deliverable | Status | Notes |
+|-------------|--------|-------|
+| OpenAI API client | Completed | `OpenAIProvider` |
+| Prompting & response handling | Completed | JSON/text parsing |
+| Rate limiting & retry | Completed | Exponential backoff |
+| Token usage tracking | Completed | Metadata on explanations |
+| Laravel / Symfony wiring | Completed | Via `RuntimeInsightFactory` |
 
-### v0.5.0 - Multi-Provider Support ✅ COMPLETED
-- [x] Anthropic Claude integration (`AnthropicProvider`, Messages API, retry, token tracking)
-- [x] Ollama integration (`OllamaProvider`, /api/chat, configurable base_url, no API key)
-- [x] Provider interface abstraction
-- [x] Provider factory (`ProviderFactory`, used by `RuntimeInsightFactory`)
-- [x] Fallback chain support (`FallbackChainProvider`, `ai.fallback` config, `Config::withProvider()`)
+### v0.5.0 - Multi-Provider Support
+
+| Deliverable | Status | Notes |
+|-------------|--------|-------|
+| Anthropic Claude | Completed | `AnthropicProvider`, Messages API |
+| Ollama | Completed | `OllamaProvider`, configurable `base_url` |
+| Provider abstraction | Completed | `AIProviderInterface` |
+| Provider factory | Completed | `ProviderFactory` |
+| Fallback chain | Completed | `FallbackChainProvider`, `ai.fallback`, `Config::withProvider()` |
 
 ### v0.6.0 - Advanced Analysis
-- [x] Stack trace analysis (StackTraceInfo::getCallChainSummary, RuntimeContext::toSummary includes call chain)
-- [ ] Code flow understanding
-- [x] Database query context (DatabaseContext, Laravel query log, toSummary)
-- [x] Memory and performance context (PerformanceContext, peak memory, toSummary)
-- [x] Caching for repeated errors
+
+| Deliverable | Status | Notes |
+|-------------|--------|-------|
+| Stack trace / call chain summary | Completed | `StackTraceInfo::getCallChainSummary`, `toSummary` |
+| Code flow understanding | Planned | Deeper static / path analysis |
+| Database query context | Completed | `DatabaseContext`, Laravel query log |
+| Memory & performance context | Completed | `PerformanceContext`, peak memory |
+| Caching repeated explanations | Completed | `ExplanationCacheInterface`, `CachingExplanationEngine` |
 
 ### Root Cause Analyzer (Phase 2)
 
-**New core component: `RootCauseAnalyzer`**
+**Core component: `RootCauseAnalyzer`** — sits after Context Builders and Signal Collectors, before the AI Explanation Engine.
 
-Sits in the pipeline after Context Builders and Signal Collectors, before the AI Explanation Engine. Responsibilities:
-
-- Determine the **most likely root cause** of runtime failures
-- Analyze stack traces (call chain, vendor vs app frames)
-- Correlate request, database, and application context
-- Detect **missing validation** (e.g. required input absent)
-- Detect **null dereferences** and unsafe access patterns
-- Detect **configuration issues** (missing env, wrong config keys)
-- Generate **probable fix suggestions** (concrete steps)
-- Generate **prevention advice** (guards, validation, defaults)
+| Responsibility | Status | Notes |
+|----------------|--------|-------|
+| Primary cause from exception class/message | Completed | Heuristics for common PHP failures |
+| Stack / context summary for AI & output | Completed | `RootCauseResult` |
+| Fix suggestions & prevention advice | In progress | Rule-based; richer cases ongoing |
+| Deep validation / config gap detection | In progress | Expand beyond message heuristics |
+| Vendor vs app frame analysis | In progress | Call chain present; deeper correlation planned |
 
 **Example output (conceptual):**
 
@@ -220,18 +233,18 @@ Framework-specific pattern detection to turn runtime signals into actionable ins
 
 ### Laravel Pattern Analyzer
 
-**Component: `LaravelPatternAnalyzer`**
+**Component: `LaravelPatternAnalyzer`** — runs after Root Cause Analyzer when the app is Laravel.
 
-Runs after Root Cause Analyzer when the app is Laravel. Capabilities:
-
-- **N+1 query detection** — Identify N+1 from query log and stack
-- **Inefficient Eloquent queries** — Missing select(), large lazy loads
-- **Missing eager loading** — Relationships loaded in loops
-- **Queue retry failures** — Correlate failed jobs with exceptions
-- **Validation issues** — Missing or incorrect validation rules
-- **Migration / foreign key errors** — Schema vs runtime mismatch hints
-- **Middleware misconfiguration** — Order or missing middleware
-- **Rate limiting issues** — Throttle hits and suggested limits
+| Capability | Status | Notes |
+|------------|--------|-------|
+| High query-count / N+1-style hints | Completed | Threshold + query log / collector signals |
+| Validation-related message hints | Completed | Keyword-based hints on exception message |
+| Inefficient Eloquent / `select()` / lazy loads | Planned | Deeper static + log correlation |
+| Missing eager loading in loops | Planned | Pair with query log shape |
+| Queue retry correlation | Planned | Tie failures to job payloads |
+| Migration / foreign key mismatch hints | Planned | |
+| Middleware misconfiguration | Planned | |
+| Rate limiting / throttle analysis | Planned | |
 
 **Example outputs:**
 
@@ -255,13 +268,13 @@ Runs after Root Cause Analyzer when the app is Laravel. Capabilities:
 
 System to detect **repeated and related errors** across time and requests.
 
-### Features
-
-- **Error similarity detection** — Same or similar message/stack across events
-- **Stack trace clustering** — Group failures by stack shape
-- **Incident grouping** — One logical “incident” with multiple occurrences
-- **Frequency tracking** — Count by error type, route, or signature
-- **Trend detection** — Rising/falling error rates, new patterns
+| Feature | Status | Notes |
+|---------|--------|-------|
+| Error similarity detection | Planned | Across events / time windows |
+| Stack trace clustering | Planned | Group by stack shape |
+| Incident grouping | Planned | One logical incident, many occurrences |
+| Frequency tracking | In progress | `runtime:analyze` summarizes counts & top signatures in a log file |
+| Trend detection | Planned | Rising/falling rates, new patterns |
 
 **Example output (grouped errors):**
 
@@ -280,25 +293,41 @@ Incident Group: TypeError in OrderController::total (last 24h)
 ## Phase 5: Developer Experience (v0.8.0 - v0.9.0)
 
 ### v0.8.0 - Output & Rendering
-- [x] Console output formatter (ConsoleOutputRenderer)
-- [x] JSON export (JsonRenderer)
-- [x] Markdown export (MarkdownRenderer)
-- [x] HTML debug view (HtmlRenderer)
-- [x] IDE integration hooks (IdeRenderer, format=ide)
 
-### v0.8.5 - Advanced Commands
-- [ ] Batch analysis (analyze all errors in log)
-- [ ] Interactive mode
-- [ ] Error pattern detection
-- [ ] Trend analysis
-- [ ] Export to various formats
+| Deliverable | Status | Notes |
+|-------------|--------|-------|
+| Console output (`ConsoleOutputRenderer`) | Completed | Default CLI output |
+| JSON (`JsonRenderer`) | Completed | |
+| Markdown (`MarkdownRenderer`) | Completed | |
+| HTML (`HtmlRenderer`) | Completed | Debug-style view |
+| IDE format (`IdeRenderer`, `format=ide`) | Completed | File:line first line |
+
+### v0.8.5 - Advanced Commands (roadmap checklist)
+
+| Deliverable | Status | Notes |
+|-------------|--------|-------|
+| Batch analysis (full pass over large logs) | Planned | Distinct from one-file `runtime:analyze` summary |
+| Interactive mode | Planned | |
+| Deep error pattern detection | Planned | Phase 4–aligned |
+| Trend analysis | Planned | Time-series style |
+| Export to various formats | In progress | Renderers exist; dedicated export UX TBD |
+
+### Log & timeline commands (shipped under Phase 5)
+
+| Command / capability | Status | Notes |
+|----------------------|--------|-------|
+| `runtime:timeline` (Laravel & Symfony) | Completed | Events before last failure from log |
+| `runtime:analyze` (log summary) | Completed | Totals, top failures, repeated signatures |
 
 ### v0.9.0 - Customization
-- [ ] Custom explanation strategies
-- [ ] Plugin system
-- [ ] Custom renderers
-- [x] Webhook support (HTTP POST after analysis, configurable URLs and headers)
-- [x] Event system for extensibility (`BeforeAnalysisEvent`, `AfterAnalysisEvent`, `EventDispatcherInterface`)
+
+| Deliverable | Status | Notes |
+|-------------|--------|-------|
+| Custom explanation strategies (`strategies` config) | Planned | Configurable FQCNs implementing `ExplanationStrategyInterface` |
+| Plugin system | Planned | |
+| Custom renderers (beyond built-ins) | Planned | Implement `RendererInterface` today; first-class plugin TBD |
+| Webhook support | Completed | HTTP POST after analysis, configurable URLs/headers |
+| Event system | Completed | `BeforeAnalysisEvent`, `AfterAnalysisEvent`, `EventDispatcherInterface` |
 
 ### Runtime Timeline Debugging
 
@@ -353,12 +382,15 @@ Run: php artisan runtime:explain --log=logs/laravel.log --line=<line> for detail
 ## Phase 6: Production Ready (v1.0.0)
 
 ### v1.0.0 - Stable Release
-- [ ] Complete documentation
-- [ ] Performance optimization
-- [ ] Security audit
-- [ ] Production environment handling
-- [ ] Comprehensive test coverage (>80%)
-- [ ] API stability guarantee
+
+| Deliverable | Status | Notes |
+|-------------|--------|-------|
+| Complete documentation | In progress | README, USAGE, CHANGELOG maintained; polish ongoing |
+| Performance optimization | Planned | |
+| Security audit | Planned | |
+| Production environment handling | Planned | Safer defaults, ops guidance |
+| Comprehensive test coverage (>80%) | Planned | |
+| API stability guarantee | Planned | SemVer commitments |
 
 ---
 
@@ -366,12 +398,12 @@ Run: php artisan runtime:explain --log=logs/laravel.log --line=<line> for detail
 
 Enhance the AI system so it does not only **explain** errors but also **proposes concrete fixes**.
 
-**Capabilities:**
-
-- **Code snippets** — Suggested patch or code block (e.g. null check, validation)
-- **Configuration fixes** — Env vars, config keys, feature flags
-- **Validation rules** — Laravel/Symfony validation or input checks
-- **Architectural improvements** — When to use DTOs, guards, or different design
+| Capability | Status | Notes |
+|------------|--------|-------|
+| Code snippets (patches, null checks, validation) | Planned | Structured output from providers |
+| Configuration fixes (env, keys, flags) | Planned | |
+| Validation rules (Laravel / Symfony) | Planned | |
+| Architectural guidance (DTOs, guards, design) | Planned | |
 
 **Example (suggested fix snippet):**
 
@@ -397,12 +429,12 @@ Suggested fix (AI-generated):
 
 ## Incident Analysis Engine
 
-**Capabilities:**
-
-- Summarize **last 24 hours** of runtime events (errors, frequency, routes)
-- Detect **spikes** in errors (rate increase, new signatures)
-- Identify **root causes** (via Root Cause Analyzer + pattern data)
-- Suggest **mitigation steps** (rollback, feature flag, config change)
+| Capability | Status | Notes |
+|------------|--------|-------|
+| Summarize recent runtime events (errors, frequency, routes) | Planned | e.g. 24h windows |
+| Spike detection (rate / new signatures) | Planned | |
+| Root cause roll-up | Planned | Combine `RootCauseAnalyzer` + pattern store |
+| Mitigation suggestions (rollback, flags, config) | Planned | |
 
 **Example output:**
 
@@ -425,9 +457,11 @@ Top routes: GET /orders (120), GET /dashboard (95), POST /api/orders (42).
 
 ## DevOps Integration Phase
 
-- **GitHub Action for runtime analysis** — Workflow step that runs Runtime Insight on failure logs or artifacts
-- **CI failure explanation** — Parse CI stack traces (e.g. PHPUnit, PHP) and produce explanations
-- **Automatic debugging reports for failed builds** — Attach a short “Runtime Insight” report to the run (e.g. as job summary or artifact)
+| Capability | Status | Notes |
+|------------|--------|-------|
+| GitHub Action for runtime analysis | Planned | Workflow step on logs/artifacts |
+| CI failure explanation (PHPUnit/PHP traces) | Planned | |
+| Automatic debugging reports on failed builds | Planned | Job summary or artifact |
 
 **Example:**
 
@@ -445,10 +479,13 @@ Top routes: GET /orders (120), GET /dashboard (95), POST /api/orders (42).
 
 ## Production Runtime Intelligence Phase
 
-- **Async analysis via queues** — Offload explanation and root-cause analysis to a queue so the request is not blocked
-- **Redis caching** — Cache explanations and pattern results by signature (with TTL)
-- **Horizontal scaling support** — Stateless analyzers; cache and queue back ends shared across workers
-- **Telemetry aggregation** — Optional export of counts/signatures to Prometheus, StatsD, or other metrics for dashboards and alerting
+| Capability | Status | Notes |
+|------------|--------|-------|
+| Async analysis via queues | Planned | Offload work off the request |
+| Redis (or shared) cache for explanations / patterns | Planned | Beyond in-process `CachingExplanationEngine` |
+| In-request / in-memory explanation cache | Completed | Configurable TTL via `cache.*` |
+| Horizontal scaling (stateless workers) | Planned | Shared cache/queue backends |
+| Telemetry export (Prometheus, StatsD, …) | Planned | Counts/signatures for dashboards |
 
 ---
 
@@ -456,10 +493,12 @@ Top routes: GET /orders (120), GET /dashboard (95), POST /api/orders (42).
 
 Potential **hosted platform** offering:
 
-- **Team error dashboards** — Shared view of errors, groups, and trends
-- **Runtime analytics** — Error rates, latency impact, deployment correlation
-- **Error knowledge base** — Searchable history of incidents and resolutions
-- **Collaboration features** — Comments, assignees, links to commits/PRs
+| Capability | Status | Notes |
+|------------|--------|-------|
+| Team error dashboards | Planned | Shared errors, groups, trends |
+| Runtime analytics | Planned | Rates, latency, deploy correlation |
+| Error knowledge base | Planned | Searchable incidents & fixes |
+| Collaboration | Planned | Comments, assignees, PR links |
 
 This would build on the open-source runtime intelligence pipeline and optional telemetry, without requiring core analysis to move to the cloud.
 
@@ -468,85 +507,103 @@ This would build on the open-source runtime intelligence pipeline and optional t
 ## Future Ideas (Post v1.0)
 
 ### Performance & Scaling
-- [ ] Queue-based async analysis
-- [ ] Redis caching support
-- [ ] Horizontal scaling support
-- [ ] Metrics and monitoring
+
+| Idea | Status |
+|------|--------|
+| Queue-based async analysis | Planned |
+| Redis caching support | Planned |
+| Horizontal scaling support | Planned |
+| Metrics and monitoring | Planned |
 
 ### Additional Frameworks
-- [ ] CodeIgniter 4 support
-- [ ] Slim Framework support
-- [ ] WordPress integration
-- [ ] Drupal integration
+
+| Idea | Status |
+|------|--------|
+| CodeIgniter 4 support | Planned |
+| Slim Framework support | Planned |
+| WordPress integration | Planned |
+| Drupal integration | Planned |
 
 ### Advanced Features
-- [ ] Real-time error streaming
-- [ ] Pattern learning (ML-based)
-- [ ] Auto-fix suggestions
-- [ ] Test case generation
-- [ ] Documentation generation
+
+| Idea | Status |
+|------|--------|
+| Real-time error streaming | Planned |
+| Pattern learning (ML-based) | Planned |
+| Auto-fix suggestions | Planned |
+| Test case generation | Planned |
+| Documentation generation | Planned |
 
 ### SaaS Layer (Optional)
-- [ ] Cloud-hosted analysis
-- [ ] Team collaboration
-- [ ] Error knowledge base
-- [ ] Analytics dashboard
-- [ ] Billing integration
+
+| Idea | Status |
+|------|--------|
+| Cloud-hosted analysis | Planned |
+| Team collaboration | Planned |
+| Error knowledge base | Planned |
+| Analytics dashboard | Planned |
+| Billing integration | Planned |
 
 ---
 
 ## Technical Debt & Maintenance
 
 ### Ongoing
-- [ ] PHP version compatibility testing
-- [ ] Framework version updates
-- [ ] Security updates
-- [ ] Dependency updates
-- [ ] Performance benchmarking
+
+| Item | Status | Notes |
+|------|--------|-------|
+| PHP version compatibility testing | In progress | CI matrix / local checks |
+| Framework version updates | In progress | Laravel & Symfony supported ranges |
+| Security updates | In progress | Dependencies & advisories |
+| Dependency updates | In progress | Composer ecosystem |
+| Performance benchmarking | Planned | Formal baselines |
 
 ### Quality
-- [ ] Mutation testing
-- [ ] Integration tests
-- [ ] E2E tests
-- [ ] Documentation updates
-- [ ] Example maintenance
+
+| Item | Status | Notes |
+|------|--------|-------|
+| Mutation testing | Planned | |
+| Integration tests | In progress | PHPUnit + Testbench / Symfony |
+| E2E tests | Planned | Full app scenarios |
+| Documentation updates | In progress | README, USAGE, CHANGELOG |
+| Example maintenance | Planned | Sample apps / snippets |
 
 ---
 
 ## Priority Matrix
 
-| Feature | Impact | Effort | Priority |
-|---------|--------|--------|----------|
-| Laravel integration | High | Medium | P0 |
-| OpenAI provider | High | Medium | P0 |
-| Symfony integration | Medium | Medium | P1 |
-| Multi-provider | Medium | Low | P1 |
-| Local Ollama | Medium | Low | P2 |
-| Root Cause Analyzer | High | Medium | P1 |
-| Signal Collectors | Medium | Medium | P2 |
-| Framework Intelligence | High | Medium | P2 |
-| Error Pattern Detection | Medium | Medium | P2 |
-| Advanced commands | Low | Medium | P2 |
-| SaaS layer | High | High | P3 |
+| Feature | Status | Impact | Effort | Priority |
+|---------|--------|--------|--------|----------|
+| Laravel integration | Completed | High | Medium | P0 |
+| OpenAI provider | Completed | High | Medium | P0 |
+| Symfony integration | Completed | Medium | Medium | P1 |
+| Multi-provider | Completed | Medium | Low | P1 |
+| Local Ollama | Completed | Medium | Low | P2 |
+| Root Cause Analyzer | In progress | High | Medium | P1 |
+| Signal Collectors | Completed | Medium | Medium | P2 |
+| Framework Intelligence | In progress | High | Medium | P2 |
+| Error Pattern Detection | Planned | Medium | Medium | P2 |
+| Advanced commands | In progress | Low | Medium | P2 |
+| SaaS layer | Planned | High | High | P3 |
 
 ---
 
 ## Release Schedule (Tentative)
 
-| Version | Target Date | Status |
-|---------|-------------|--------|
-| v0.1.0 | Q1 2026 | ✅ Completed |
-| v0.2.0 | Q1 2026 | ✅ Completed |
-| v0.3.0 | Q2 2026 | ✅ Completed |
-| v0.4.0 | Q2 2026 | ✅ Completed |
-| v0.5.0 | Q2 2026 | ✅ Completed |
-| v0.6.0 | Q3 2026 | In Progress |
-| v0.6.5–0.6.9 | Q3 2026 | Planned (Framework Intelligence) |
-| v0.7.0–v0.7.5 | Q3 2026 | Planned (Error Pattern Detection) |
-| v0.8.0 | Q3 2026 | Planned (Output & Rendering) |
-| v0.8.5 | Q4 2026 | Planned (Advanced Commands) |
-| v0.9.0 | Q4 2026 | Planned (Customization) |
-| v1.0.0 | Q4 2026 | Planned |
+| Version | Target date | Status | Notes |
+|---------|-------------|--------|-------|
+| v0.1.0 | Q1 2026 | Completed | Core architecture |
+| v0.2.0 | Q1 2026 | Completed | Laravel |
+| v0.3.0 | Q2 2026 | Completed | Symfony |
+| v0.4.0 | Q2 2026 | Completed | OpenAI provider |
+| v0.5.0 | Q2 2026 | Completed | Multi-provider & fallback |
+| v0.6.0 | Q3 2026 | In progress | Most items shipped; code-flow depth Planned |
+| v0.6.5–v0.6.9 | Q3 2026 | In progress | Framework intelligence (subset Completed) |
+| v0.7.0–v0.7.5 | Q3 2026 | Planned | Error pattern / incidents |
+| v0.8.0 | Q3 2026 | Completed | Output renderers |
+| v0.8.5 | Q4 2026 | Planned | Batch/interactive/trend checklist |
+| v0.9.0 | Q4 2026 | In progress | Events & webhooks Completed; plugins/strategies Planned |
+| v1.0.0 | Q4 2026 | Planned | Stable release |
 
 ---
 
@@ -586,13 +643,22 @@ This would build on the open-source runtime intelligence pipeline and optional t
 - Multi-provider: AnthropicProvider, OllamaProvider, ProviderFactory
 - FallbackChainProvider, ai.fallback config, Config::withProvider()
 
-### v0.6.0 (in progress)
-- Stack trace analysis: getCallChainSummary, call chain in toSummary
-- Database query context: DatabaseContext, Laravel query log
-- Memory and performance context: PerformanceContext, peak memory
-- Caching for repeated errors: ExplanationCacheInterface, CachingExplanationEngine
+### v0.6.0
 
-### v0.9.0 (customization — partial)
-- Event hooks: `EventDispatcherInterface`, `InMemoryEventDispatcher`, before/after analysis events
-- Optional webhooks: JSON POST to configured URLs after analysis (Guzzle, non-blocking failures)
-- Symfony DI: `InMemoryEventDispatcherFactory`, bundle config `webhooks.*`, corrected `services.yaml` path and full `RuntimeInsight` wiring (collectors + analyzers)
+| Area | Status |
+|------|--------|
+| Stack trace / call chain in summaries | Completed |
+| Database query context (Laravel log) | Completed |
+| Memory & performance context | Completed |
+| Caching for repeated errors | Completed |
+| Code flow understanding | Planned |
+
+### v0.9.0 (customization)
+
+| Area | Status |
+|------|--------|
+| Event hooks (`EventDispatcherInterface`, before/after analysis) | Completed |
+| Optional webhooks (JSON POST, configurable URLs) | Completed |
+| Symfony DI: dispatcher factory, `webhooks.*`, full `RuntimeInsight` wiring | Completed |
+| Custom explanation strategies (`strategies`) | Planned |
+| Plugin system & first-class custom renderers | Planned |
