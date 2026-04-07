@@ -15,6 +15,7 @@ This guide covers all usage scenarios for Runtime Insight. For a shorter overvie
 - [Caching](#caching)
 - [Database query context](#database-query-context)
 - [Memory and performance context](#memory-and-performance-context)
+- [Root cause analysis](#root-cause-analysis)
 - [Events and event dispatcher](#events-and-event-dispatcher)
 - [Webhooks (after analysis)](#webhooks-after-analysis)
 - [AI Provider Configuration](#ai-provider-configuration)
