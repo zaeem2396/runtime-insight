@@ -614,6 +614,19 @@ Set `context.include_performance_context` to `true` in your config (or `RUNTIME_
 
 ---
 
+## Root cause analysis
+
+When `RuntimeInsight` runs with a `RootCauseAnalyzerInterface` implementation (the default `Engine\RootCauseAnalyzer` in Laravel and Symfony), the explanation metadata includes a **`root_cause`** object built from the enriched `RuntimeContext`.
+
+### What is analyzed
+
+| Signal | Role |
+|--------|------|
+| Exception class and message | Primary cause narrative and a **remediation category** (e.g. `type_null`, `sql`, `validation`). |
+| Stack frames (`isVendor`) | Counts of vendor vs application frames, first application location, short narrative. |
+| Request context | Method, URI, route name when present. |
+| Database context | Number of recent queries captured before failure. |
+
 ## Events and event dispatcher
 
 Runtime Insight exposes a small **synchronous** event API so you can hook the analysis pipeline without forking the package. Events are plain readonly DTOs; the dispatcher is **in-process only** (not Symfony’s global `EventDispatcher`).
