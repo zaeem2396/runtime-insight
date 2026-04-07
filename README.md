@@ -19,7 +19,7 @@ Transform cryptic runtime errors into human-readable explanations with actionabl
 |----------|----------------|
 | **This README** | Install, quick start, high-level features, configuration sketch, architecture overview, links to deeper topics |
 | **[USAGE.md](USAGE.md)** | Laravel and Symfony integration, all Artisan/console commands, full configuration reference, caching, database and performance context, **root cause analysis** (metadata, `diagnostics`, custom analyzer), **events and `EventDispatcherInterface`**, **webhooks** (env vars, payload, security), AI providers, production hardening, troubleshooting |
-| **[CHANGELOG.md](CHANGELOG.md)** | Notable changes by version (see **v0.9.0** for root cause Phase 2, events, webhooks, Symfony wiring) |
+| **[CHANGELOG.md](CHANGELOG.md)** | Notable changes by version (see **v0.1.0** for root cause Phase 2, events, webhooks, Symfony wiring) |
 | **[CONTRIBUTING.md](CONTRIBUTING.md)** | Local setup, tests, PHPStan, code style, documentation expectations for contributors |
 
 ---
