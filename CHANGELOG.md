@@ -9,6 +9,7 @@ All notable changes to this project are documented in this file.
 - Add `Engine\RootCause\PrimaryCauseInferencer` for primary narrative and remediation category.
 - Add `StackTraceAnalyzer` for vendor vs application frames and first application location.
 - Add `ContributingNarrator` merging request and database context into contributing text.
+- Add `ContextSummaryBuilder` for file:line and call-chain excerpt in summaries.
 - Optional HTTP webhooks after each analysis (`AfterAnalysisEvent`).
 - `WebhookSenderInterface` and `GuzzleWebhookSender`.
 - `WebhookSettings` and `webhooks` configuration (Laravel and Symfony).
