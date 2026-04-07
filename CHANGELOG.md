@@ -11,6 +11,7 @@ All notable changes to this project are documented in this file.
 - Add `ContributingNarrator` merging request and database context into contributing text.
 - Add `ContextSummaryBuilder` for file:line and call-chain excerpt in summaries.
 - Add `RemediationBuilder` for category-specific fixes and prevention advice.
+- Broaden inference for SQL, validation, configuration, parse, argument count, and related failures.
 - Optional HTTP webhooks after each analysis (`AfterAnalysisEvent`).
 - `WebhookSenderInterface` and `GuzzleWebhookSender`.
 - `WebhookSettings` and `webhooks` configuration (Laravel and Symfony).
