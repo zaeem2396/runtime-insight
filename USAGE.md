@@ -648,6 +648,15 @@ Consumers (logs, webhooks, custom renderers) can read `explanation` metadata:
   }
 }
 ```
+
+`diagnostics` is stable for automation (dashboards, alerting). Categories align with `Engine\RootCause\PrimaryCauseInferencer` constants.
+
+### Custom analyzer
+
+Provide your own `RootCauseAnalyzerInterface` when constructing `RuntimeInsight` or register a binding in the container to replace the default implementation.
+
+---
+
 ## Events and event dispatcher
 
 Runtime Insight exposes a small **synchronous** event API so you can hook the analysis pipeline without forking the package. Events are plain readonly DTOs; the dispatcher is **in-process only** (not Symfony’s global `EventDispatcher`).
