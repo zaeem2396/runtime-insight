@@ -8,6 +8,7 @@ All notable changes to this project are documented in this file.
 - `RootCauseResult` includes optional `diagnostics` for automation (e.g. `remediation_category`, frame counts).
 - Add `Engine\RootCause\PrimaryCauseInferencer` for primary narrative and remediation category.
 - Add `StackTraceAnalyzer` for vendor vs application frames and first application location.
+- Add `ContributingNarrator` merging request and database context into contributing text.
 - Optional HTTP webhooks after each analysis (`AfterAnalysisEvent`).
 - `WebhookSenderInterface` and `GuzzleWebhookSender`.
 - `WebhookSettings` and `webhooks` configuration (Laravel and Symfony).
