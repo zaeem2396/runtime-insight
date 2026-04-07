@@ -1,6 +1,6 @@
 # Usage Guide
 
-This guide covers all usage scenarios for Runtime Insight. For a shorter overview, see [README.md](README.md). Release history is in [CHANGELOG.md](CHANGELOG.md).
+This guide covers all usage scenarios for Runtime Insight. For a shorter overview, see [README.md](README.md). Release history and upgrade notes are in [CHANGELOG.md](CHANGELOG.md) (latest: **v0.9.0** — root cause `diagnostics`, events, webhooks, Symfony service wiring).
 
 ---
 
