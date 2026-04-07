@@ -163,6 +163,7 @@ Other rules:
 - Follow Arrange-Act-Assert pattern
 - For HTTP webhook delivery, mock `GuzzleHttp\Client` / `MockHandler` + `HandlerStack`, or mock `WebhookSenderInterface`; see `tests/Unit/Webhook/GuzzleWebhookSenderTest.php` and `AfterAnalysisWebhookListenerTest.php`
 - For the event dispatcher, cover listener registration via `InMemoryEventDispatcher` / `InMemoryEventDispatcherFactory` in `tests/Unit/Event/`
+- For root cause analysis, cover `tests/Unit/Engine/RootCauseAnalyzerTest.php` and focused tests under `tests/Unit/Engine/RootCause/`
 
 ```php
 public function test_it_explains_null_pointer_exception(): void

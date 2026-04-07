@@ -5,6 +5,14 @@ All notable changes to this project are documented in this file.
 ## [Unreleased]
 
 ### Added
+- `RootCauseResult` includes optional `diagnostics` for automation (e.g. `remediation_category`, frame counts).
+- Add `Engine\RootCause\PrimaryCauseInferencer` for primary narrative and remediation category.
+- Add `StackTraceAnalyzer` for vendor vs application frames and first application location.
+- Add `ContributingNarrator` merging request and database context into contributing text.
+- Add `ContextSummaryBuilder` for file:line and call-chain excerpt in summaries.
+- Add `RemediationBuilder` for category-specific fixes and prevention advice.
+- Broaden inference for SQL, validation, configuration, parse, argument count, and related failures.
+- Refactor `RootCauseAnalyzer` to compose the new RootCause engine classes.
 - Optional HTTP webhooks after each analysis (`AfterAnalysisEvent`).
 - `WebhookSenderInterface` and `GuzzleWebhookSender`.
 - `WebhookSettings` and `webhooks` configuration (Laravel and Symfony).
@@ -14,6 +22,7 @@ All notable changes to this project are documented in this file.
 - Symfony: correct path to `config/services.yaml` from bundle root.
 
 ### Documentation
+- README / USAGE: root cause metadata in the pipeline table, cross-links, and a full **Root cause analysis** section (signals, JSON shape, custom analyzer).
 - README: documentation map table, detailed analysis pipeline and architecture diagram, key type reference, Laravel `AppServiceProvider` listener example, expanded extensibility notes for events and webhooks.
 - USAGE: intro links to README/CHANGELOG; full **Events and event dispatcher** section (timing table, contracts, Laravel/Symfony/standalone notes); expanded **Webhooks** reference (enablement, HTTP semantics, config tables, payload example, security); cross-links from Custom Integrations.
 - CONTRIBUTING: documentation expectations (README vs USAGE vs CHANGELOG vs Laravel config), PR checklist for config/events/webhooks, pointers to relevant test files.

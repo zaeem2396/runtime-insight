@@ -15,6 +15,7 @@ This guide covers all usage scenarios for Runtime Insight. For a shorter overvie
 - [Caching](#caching)
 - [Database query context](#database-query-context)
 - [Memory and performance context](#memory-and-performance-context)
+- [Root cause analysis](#root-cause-analysis)
 - [Events and event dispatcher](#events-and-event-dispatcher)
 - [Webhooks (after analysis)](#webhooks-after-analysis)
 - [AI Provider Configuration](#ai-provider-configuration)
@@ -610,6 +611,49 @@ When enabled, Runtime Insight captures memory and performance data at the time o
 | `include_performance_context` | Include peak memory in context     | `false` |
 
 Set `context.include_performance_context` to `true` in your config (or `RUNTIME_INSIGHT_INCLUDE_PERFORMANCE_CONTEXT=true` in Laravel). The AI summary will then include a "Performance:" section with peak memory.
+
+---
+
+## Root cause analysis
+
+When `RuntimeInsight` runs with a `RootCauseAnalyzerInterface` implementation (the default `Engine\RootCauseAnalyzer` in Laravel and Symfony), the explanation metadata includes a **`root_cause`** object built from the enriched `RuntimeContext`.
+
+### What is analyzed
+
+| Signal | Role |
+|--------|------|
+| Exception class and message | Primary cause narrative and a **remediation category** (e.g. `type_null`, `sql`, `validation`). |
+| Stack frames (`isVendor`) | Counts of vendor vs application frames, first application location, short narrative. |
+| Request context | Method, URI, route name when present. |
+| Database context | Number of recent queries captured before failure. |
+
+### Metadata shape
+
+Consumers (logs, webhooks, custom renderers) can read `explanation` metadata:
+
+```json
+{
+  "root_cause": {
+    "primary_cause": "…",
+    "contributing": "…",
+    "context_summary": "file:line\\nCall chain (excerpt): …",
+    "fix_suggestions": ["…"],
+    "prevention_advice": ["…"],
+    "diagnostics": {
+      "remediation_category": "type_null",
+      "vendor_frames": 3,
+      "app_frames": 2,
+      "first_app_frame": "/app/Controllers/OrderController.php:24"
+    }
+  }
+}
+```
+
+`diagnostics` is stable for automation (dashboards, alerting). Categories align with `Engine\RootCause\PrimaryCauseInferencer` constants.
+
+### Custom analyzer
+
+Provide your own `RootCauseAnalyzerInterface` when constructing `RuntimeInsight` or register a binding in the container to replace the default implementation.
 
 ---
 

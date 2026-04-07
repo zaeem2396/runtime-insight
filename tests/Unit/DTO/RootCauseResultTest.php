@@ -40,5 +40,19 @@ final class RootCauseResultTest extends TestCase
         $this->assertSame('Summary', $arr['context_summary']);
         $this->assertSame(['Fix 1'], $arr['fix_suggestions']);
         $this->assertSame(['Prevent 1'], $arr['prevention_advice']);
+        $this->assertArrayHasKey('diagnostics', $arr);
+        $this->assertSame([], $arr['diagnostics']);
+    }
+
+    #[Test]
+    public function to_array_includes_diagnostics_when_set(): void
+    {
+        $result = new RootCauseResult(
+            primaryCause: 'X',
+            diagnostics: ['remediation_category' => 'generic', 'vendor_frames' => 2],
+        );
+        $arr = $result->toArray();
+        $this->assertSame('generic', $arr['diagnostics']['remediation_category']);
+        $this->assertSame(2, $arr['diagnostics']['vendor_frames']);
     }
 }
