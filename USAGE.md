@@ -627,6 +627,10 @@ When `RuntimeInsight` runs with a `RootCauseAnalyzerInterface` implementation (t
 | Request context | Method, URI, route name when present. |
 | Database context | Number of recent queries captured before failure. |
 
+### Metadata shape
+
+Consumers (logs, webhooks, custom renderers) can read `explanation` metadata:
+
 ## Events and event dispatcher
 
 Runtime Insight exposes a small **synchronous** event API so you can hook the analysis pipeline without forking the package. Events are plain readonly DTOs; the dispatcher is **in-process only** (not Symfony’s global `EventDispatcher`).
