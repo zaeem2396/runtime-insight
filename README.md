@@ -402,7 +402,7 @@ The runtime intelligence **pipeline** (inside `RuntimeInsight`) runs in a fixed 
 | Webhook delivery | `Contracts\WebhookSenderInterface`, `Webhook\GuzzleWebhookSender`, `Webhook\AfterAnalysisWebhookListener` |
 | Root cause analysis | `Engine\RootCauseAnalyzer` (and `Engine\RootCause\*` helpers) attach structured `root_cause` metadata (primary cause, fixes, stack diagnostics) |
 
-For **listener registration examples**, webhook **payload schema**, and **every config key**, see [USAGE.md — Events and event dispatcher](USAGE.md#events-and-event-dispatcher) and [USAGE.md — Webhooks](USAGE.md#webhooks-after-analysis).
+For **listener registration examples**, webhook **payload schema**, **root cause metadata**, and **every config key**, see [USAGE.md — Events and event dispatcher](USAGE.md#events-and-event-dispatcher), [USAGE.md — Root cause analysis](USAGE.md#root-cause-analysis), and [USAGE.md — Webhooks](USAGE.md#webhooks-after-analysis).
 
 ---
 
