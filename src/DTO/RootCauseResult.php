@@ -12,6 +12,7 @@ final readonly class RootCauseResult
     /**
      * @param array<string> $fixSuggestions
      * @param array<string> $preventionAdvice
+     * @param array<string, scalar|null> $diagnostics Machine-readable hints (e.g. frame counts, category).
      */
     public function __construct(
         public string $primaryCause,
@@ -19,6 +20,7 @@ final readonly class RootCauseResult
         public string $contextSummary = '',
         public array $fixSuggestions = [],
         public array $preventionAdvice = [],
+        public array $diagnostics = [],
     ) {}
 
     public function isEmpty(): bool
@@ -37,6 +39,7 @@ final readonly class RootCauseResult
             'context_summary' => $this->contextSummary,
             'fix_suggestions' => $this->fixSuggestions,
             'prevention_advice' => $this->preventionAdvice,
+            'diagnostics' => $this->diagnostics,
         ];
     }
 }
