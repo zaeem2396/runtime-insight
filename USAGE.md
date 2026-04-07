@@ -631,6 +631,23 @@ When `RuntimeInsight` runs with a `RootCauseAnalyzerInterface` implementation (t
 
 Consumers (logs, webhooks, custom renderers) can read `explanation` metadata:
 
+```json
+{
+  "root_cause": {
+    "primary_cause": "…",
+    "contributing": "…",
+    "context_summary": "file:line\\nCall chain (excerpt): …",
+    "fix_suggestions": ["…"],
+    "prevention_advice": ["…"],
+    "diagnostics": {
+      "remediation_category": "type_null",
+      "vendor_frames": 3,
+      "app_frames": 2,
+      "first_app_frame": "/app/Controllers/OrderController.php:24"
+    }
+  }
+}
+```
 ## Events and event dispatcher
 
 Runtime Insight exposes a small **synchronous** event API so you can hook the analysis pipeline without forking the package. Events are plain readonly DTOs; the dispatcher is **in-process only** (not Symfony’s global `EventDispatcher`).
