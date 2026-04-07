@@ -28,5 +28,5 @@ Nothing yet.
 - **USAGE:** intro links to README/CHANGELOG; **Root cause analysis** (signals table, `root_cause` JSON shape including `diagnostics`, custom analyzer); **Events and event dispatcher** (timing, contracts, Laravel/Symfony/standalone); **Webhooks** (enablement, HTTP semantics, config, payload example, security); cross-links from Custom Integrations.
 - **CONTRIBUTING:** documentation expectations (README vs USAGE vs CHANGELOG vs Laravel config); PR checklist for config, events, and webhooks; pointers to tests including `RootCauseAnalyzerTest` and `tests/Unit/Engine/RootCause/`.
 
-[Unreleased]: https://github.com/zaeem2396/runtime-insight/compare/v0.9.0...HEAD
-[0.9.0]: https://github.com/zaeem2396/runtime-insight/releases/tag/v0.9.0
+[Unreleased]: https://github.com/zaeem2396/runtime-insight/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/zaeem2396/runtime-insight/releases/tag/v0.1.0
