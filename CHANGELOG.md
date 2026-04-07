@@ -12,6 +12,7 @@ All notable changes to this project are documented in this file.
 - Add `ContextSummaryBuilder` for file:line and call-chain excerpt in summaries.
 - Add `RemediationBuilder` for category-specific fixes and prevention advice.
 - Broaden inference for SQL, validation, configuration, parse, argument count, and related failures.
+- Refactor `RootCauseAnalyzer` to compose the new RootCause engine classes.
 - Optional HTTP webhooks after each analysis (`AfterAnalysisEvent`).
 - `WebhookSenderInterface` and `GuzzleWebhookSender`.
 - `WebhookSettings` and `webhooks` configuration (Laravel and Symfony).
